@@ -3,6 +3,7 @@ import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
 import ProcessingPage from "./pages/ProcessingPage";
+import EditorPage from "./pages/EditorPage";
 
 const router = createBrowserRouter([
   {
@@ -14,11 +15,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/editor",
-        element: (
-          <div className="p-8 text-center text-gray-500">
-            Editor — coming in Phase 6
-          </div>
-        ),
+        element: <EditorPage />,
       },
       {
         path: "/upload",

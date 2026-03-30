@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router";
 import TemplateSelectorPage from "./pages/TemplateSelectorPage";
+import EditorPage from "./pages/EditorPage";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         }
       />
       <Route path="/templates" element={<TemplateSelectorPage />} />
+      <Route path="/editor" element={<EditorPage />} />
     </Routes>
   );
 }
