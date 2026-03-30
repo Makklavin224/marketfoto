@@ -1,0 +1,31 @@
+# Core
+fastapi~=0.135.0
+uvicorn[standard]~=0.42.0
+pydantic~=2.12.0
+pydantic-settings>=2.0.0
+
+# Database
+sqlalchemy[asyncio]~=2.0.48
+asyncpg>=0.30.0
+alembic~=1.18.0
+
+# Image processing (used by worker, but shared requirements)
+rembg[cpu]>=2.0.0
+Pillow~=12.1.0
+pycairo~=1.29.0
+
+# Queue
+rq~=2.7.0
+redis>=5.0.0
+
+# Auth and security
+PyJWT>=2.0.0
+pwdlib[argon2]>=0.2.0
+
+# Storage and payments
+minio~=7.2.20
+httpx~=0.28.0
+yookassa~=3.10.0
+
+# File uploads
+python-multipart~=0.0.22
