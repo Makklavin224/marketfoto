@@ -89,7 +89,10 @@ Plans:
   2. All 5 seed templates (clean-white, info-features, lifestyle-shadow, info-badge-hit, collage-two) are loaded and selectable
   3. Each template has a valid JSON config defining background, product area, text areas, and decorations
   4. Premium templates show a lock icon for free-plan users and return 403 with upgrade prompt on selection
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 05-01-PLAN.md -- Templates API (Pydantic schemas, GET endpoints with filtering, premium gating) + seed script with 5 template JSON configs
+- [ ] 05-02-PLAN.md -- TemplateSelector UI (CategoryTabs, MarketplaceChips, TemplateGrid, TemplateCard, PremiumModal)
 **UI hint**: yes
 
 ### Phase 6: Canvas Editor
@@ -171,7 +174,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 2. Authentication & User System | 0/? | Not started | - |
 | 3. Upload Pipeline | 0/? | Not started | - |
 | 4. Background Removal | 0/? | Not started | - |
-| 5. Template System | 0/? | Not started | - |
+| 5. Template System | 0/2 | Planned | - |
 | 6. Canvas Editor | 0/? | Not started | - |
 | 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 0/? | Not started | - |
