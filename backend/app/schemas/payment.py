@@ -28,3 +28,13 @@ class PaymentResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class PaymentHistoryResponse(BaseModel):
+    payments: list[PaymentResponse]
+    total: int
+
+
+class CancelSubscriptionResponse(BaseModel):
+    message: str
+    plan_active_until: datetime | None
