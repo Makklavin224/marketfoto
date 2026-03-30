@@ -41,13 +41,34 @@ def get_presigned_put_url(
     return client.presigned_put_object(bucket, object_name, expires=expires)
 
 
+def _rewrite_url(url: str) -> str:
+    """Replace internal minio:9000 with public endpoint for browser access."""
+    public = settings.s3_public_endpoint
+    if public:
+        internal = settings.s3_endpoint
+        return url.replace(internal, public).replace(
+            internal.replace("http://", "").replace("https://", ""),
+            public.replace("http://", "").replace("https://", ""),
+        )
+    return url
+
+
+def get_presigned_put_url(
+    bucket: str,
+    object_name: str,
+    expires: timedelta = timedelta(minutes=5),
+) -> str:
+    """Generate presigned PUT URL for direct client upload."""
+    return _rewrite_url(client.presigned_put_object(bucket, object_name, expires=expires))
+
+
 def get_presigned_get_url(
     bucket: str,
     object_name: str,
     expires: timedelta = timedelta(hours=1),
 ) -> str:
     """Generate presigned GET URL for viewing/downloading."""
-    return client.presigned_get_object(bucket, object_name, expires=expires)
+    return _rewrite_url(client.presigned_get_object(bucket, object_name, expires=expires))
 
 
 def upload_bytes(

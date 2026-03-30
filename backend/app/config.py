@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     # MinIO
     s3_endpoint: str = "http://minio:9000"
+    s3_public_endpoint: str = ""  # e.g. http://94.103.85.145:9000 for browser access
     s3_access_key: str = "marketfoto"
     s3_secret_key: str = "changeme"
 
