@@ -27,7 +27,11 @@ logger = logging.getLogger(__name__)
 # Module-level rembg session: loaded once, reused across all jobs in this fork.
 # The model is pre-downloaded and pre-warmed in the worker Dockerfile.
 # ---------------------------------------------------------------------------
-rembg_session = new_session("birefnet-general")
+# Use u2net on 4GB VPS (300MB RAM, ~3s per image)
+# Switch to birefnet-general when VPS has 8GB+ RAM
+_model = os.environ.get("REMBG_MODEL", "u2net")
+logger.info("Loading rembg model: %s", _model)
+rembg_session = new_session(_model)
 
 # ---------------------------------------------------------------------------
 # Configuration from environment (shared .env with backend)

@@ -14,11 +14,9 @@ ENV PYTHONPATH=/app
 COPY worker/fonts/ /app/fonts/
 ENV FONTS_DIR=/app/fonts
 
-# Pre-download model file only (no ONNX loading — saves RAM during build)
-# Model loads into memory at worker startup, not at build time
-RUN mkdir -p /root/.u2net && \
-    curl -L -o /root/.u2net/birefnet-general.onnx \
-    https://github.com/danielgatis/rembg/releases/download/v0.0.0/BiRefNet-general-epoch_244.onnx
+# Pre-download u2net model (~176MB, works on 4GB VPS)
+# For 8GB+ VPS, switch to birefnet-general for better quality
+RUN python -c "from rembg import new_session; new_session('u2net')"
 
 ENV NUMBA_CACHE_DIR=/tmp/numba_cache
 CMD ["rq", "worker", "--url", "redis://redis:6379", "--max-jobs", "100"]

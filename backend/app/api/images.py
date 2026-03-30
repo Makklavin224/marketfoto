@@ -291,14 +291,14 @@ async def remove_background(
     finally:
         await session.close()
 
-    # Enqueue RQ job with 30-second timeout (UPLD-05, UPLD-09)
+    # Enqueue RQ job with 5-minute timeout (first run needs numba JIT + model load)
     redis_conn = Redis.from_url(settings.redis_url)
     queue = Queue(connection=redis_conn)
     queue.enqueue(
         "worker.tasks.remove_background_job",
         str(image_id),
         str(user.id),
-        job_timeout=30,
+        job_timeout=300,
     )
 
     return RemoveBackgroundResponse(
