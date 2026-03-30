@@ -81,7 +81,10 @@ Plans:
   3. Processed PNG with alpha channel is stored in MinIO processed bucket
   4. Processing that exceeds 30 seconds is marked as failed with a clear error message
   5. RQ worker stays within 2GB memory limit and recycles after prolonged use (no memory leak)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 04-01-PLAN.md -- RQ worker job with rembg session reuse, remove-background endpoint, status polling endpoint
+- [ ] 04-02-PLAN.md -- BackgroundPreview component, polling hook, ProcessingPage with states, visual verification
 **UI hint**: yes
 
 ### Phase 5: Template System
@@ -174,7 +177,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 1. Infrastructure Foundation | 0/3 | Planned | - |
 | 2. Authentication & User System | 0/3 | Planned | - |
 | 3. Upload Pipeline | 0/? | Not started | - |
-| 4. Background Removal | 0/? | Not started | - |
+| 4. Background Removal | 0/2 | Planned | - |
 | 5. Template System | 0/? | Not started | - |
 | 6. Canvas Editor | 0/? | Not started | - |
 | 7. Rendering & Export | 0/? | Not started | - |
