@@ -5,6 +5,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
 import ProcessingPage from "./pages/ProcessingPage";
+import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 
 const router = createBrowserRouter([
@@ -37,11 +38,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard",
-        element: (
-          <div className="p-8 text-center text-gray-500">
-            Dashboard — coming in Phase 9
-          </div>
-        ),
+        element: <DashboardPage />,
       },
     ],
   },
