@@ -1,0 +1,39 @@
+services:
+  backend:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --proxy-headers
+    volumes:
+      - ./backend/app:/app/app:cached
+    ports:
+      - "8000:8000"
+
+  worker:
+    volumes:
+      - ./backend/app:/app/app:cached
+
+  frontend:
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./frontend/src:/app/src:cached
+      - ./frontend/index.html:/app/index.html:cached
+    ports:
+      - "3000:3000"
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+
+  certbot:
+    profiles: ["production"]
