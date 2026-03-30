@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed Phase 05 (template-system) -- both plans 05-01 and 05-02
-last_updated: "2026-03-30T12:57:21.088Z"
+stopped_at: Completed Phase 03 (upload-pipeline) -- both plans 03-01 and 03-02
+last_updated: "2026-03-30T13:07:00Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 8
-  percent: 15
+  completed_plans: 10
+  percent: 20
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Phase: 6
 Plan: Not started
-Status: Phase 05 (template-system) complete -- both plans executed
+Status: Phase 03 (upload-pipeline) + Phase 05 (template-system) complete
 Last activity: 2026-03-30
 
-Progress: [==░░░░░░░░] 15%
+Progress: [==░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 6
 - Average duration: 3.5 min
-- Total execution time: 14 min
+- Total execution time: 20 min
 
 **By Phase:**
 
@@ -48,6 +48,8 @@ Progress: [==░░░░░░░░] 15%
 | Phase 01 P02 | 4min | 2 tasks | 14 files |
 | Phase 05 P01 | 3min | 2 tasks | 5 files |
 | Phase 05 P02 | 4min | 2 tasks | 10 files |
+| Phase 03 P01 | 3min | 2 tasks | 5 files |
+| Phase 03 P02 | 3min | 2 tasks | 6 files |
 
 **Recent Trend:**
 
@@ -71,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Soft auth (get_optional_current_user) for premium template gating -- never raises, returns None
 - [Phase 05]: All 5 seed template JSON configs verbatim from SPECIFICATION.md
 - [Phase 05]: React Router + React Query infrastructure wired into frontend
+- [Phase 03]: Simplified presigned flow -- backend receives multipart, validates magic bytes, then uploads to MinIO (not pure client-side presigned PUT)
+- [Phase 03]: Store MinIO object path in DB, generate fresh presigned GET URLs on read (URLs expire)
+- [Phase 03]: react-dropzone for drag-and-drop with client-side dimension validation before upload
 
 ### Pending Todos
 
@@ -85,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T12:37:00Z
-Stopped at: Completed Phase 05 (template-system) -- both plans 05-01 and 05-02
+Last session: 2026-03-30T13:07:00Z
+Stopped at: Completed Phase 03 (upload-pipeline) -- both plans 03-01 and 03-02
 Resume file: None

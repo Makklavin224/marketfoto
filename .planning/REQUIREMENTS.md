@@ -30,17 +30,17 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Upload & Processing
 
-- [ ] **UPLD-01**: Пользователь может загрузить фото (JPG/PNG/WebP, до 10MB, min 200x200, max 8000x8000)
-- [ ] **UPLD-02**: Файл валидируется по magic bytes (не только по расширению)
-- [ ] **UPLD-03**: Файл сохраняется в MinIO через presigned URL (originals/{user_id}/{image_id}.{ext})
-- [ ] **UPLD-04**: При загрузке проверяется credits_remaining (403 если 0)
+- [x] **UPLD-01**: Пользователь может загрузить фото (JPG/PNG/WebP, до 10MB, min 200x200, max 8000x8000)
+- [x] **UPLD-02**: Файл валидируется по magic bytes (не только по расширению)
+- [x] **UPLD-03**: Файл сохраняется в MinIO через presigned URL (originals/{user_id}/{image_id}.{ext})
+- [x] **UPLD-04**: При загрузке проверяется credits_remaining (403 если 0)
 - [ ] **UPLD-05**: Пользователь может запустить удаление фона (POST /api/images/{id}/remove-background)
 - [ ] **UPLD-06**: Удаление фона выполняется async через RQ worker с rembg (birefnet-general модель)
 - [ ] **UPLD-07**: Обработанное изображение (PNG с alpha) сохраняется в MinIO (processed/{user_id}/{image_id}.png)
 - [ ] **UPLD-08**: Пользователь может опрашивать статус обработки (GET /api/images/{id}/status, каждые 2 сек)
 - [ ] **UPLD-09**: Processing timeout 30 секунд → status='failed', error_message='Timeout'
-- [ ] **UPLD-10**: Изображение > 4000px по большей стороне автоматически ресайзится перед обработкой
-- [ ] **UPLD-11**: Повторный remove-background для processing image возвращает 409
+- [x] **UPLD-10**: Изображение > 4000px по большей стороне автоматически ресайзится перед обработкой
+- [x] **UPLD-11**: Повторный remove-background для processing image возвращает 409
 - [ ] **UPLD-12**: rembg worker использует session reuse и переработку для предотвращения memory leak
 
 ### Templates & Editor
@@ -107,7 +107,7 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 - [x] **UI-01**: AuthPage (/auth): табы Вход/Регистрация, валидация полей, loading/error/success states
 - [x] **UI-02**: UserBadge в Header: аватар + имя + план + "Осталось N карточек" + dropdown menu
-- [ ] **UI-03**: ImageUpload: drag & drop зона, file picker, прогресс-бар, preview, шахматный фон для прозрачности
+- [x] **UI-03**: ImageUpload: drag & drop зона, file picker, прогресс-бар, preview, шахматный фон для прозрачности
 - [ ] **UI-04**: BackgroundPreview: оригинал слева, обработанное справа, кнопка "Далее"
 - [x] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
 - [ ] **UI-06**: ExportPanel: превью, информация о размере, кнопки скачать PNG/JPG, "Создать ещё"
@@ -184,13 +184,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-07 | Phase 2 | Complete |
 | UI-01 | Phase 2 | Complete |
 | UI-02 | Phase 2 | Complete |
-| UPLD-01 | Phase 3 | Pending |
-| UPLD-02 | Phase 3 | Pending |
-| UPLD-03 | Phase 3 | Pending |
-| UPLD-04 | Phase 3 | Pending |
-| UPLD-10 | Phase 3 | Pending |
-| UPLD-11 | Phase 3 | Pending |
-| UI-03 | Phase 3 | Pending |
+| UPLD-01 | Phase 3 | Complete |
+| UPLD-02 | Phase 3 | Complete |
+| UPLD-03 | Phase 3 | Complete |
+| UPLD-04 | Phase 3 | Complete |
+| UPLD-10 | Phase 3 | Complete |
+| UPLD-11 | Phase 3 | Complete |
+| UI-03 | Phase 3 | Complete |
 | UPLD-05 | Phase 4 | Pending |
 | UPLD-06 | Phase 4 | Pending |
 | UPLD-07 | Phase 4 | Pending |
