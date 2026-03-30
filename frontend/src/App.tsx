@@ -1,10 +1,20 @@
+import { RouterProvider } from "react-router";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import router from "./router";
+import { useAuthStore } from "./stores/auth";
+
 export default function App() {
+  const initialize = useAuthStore((s) => s.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900">MarketFoto</h1>
-        <p className="mt-2 text-gray-600">Infrastructure is running</p>
-      </div>
-    </div>
-  )
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" />
+    </>
+  );
 }
