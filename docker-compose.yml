@@ -105,7 +105,9 @@ services:
           memory: 512M
 
   worker:
-    build: ./worker
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
     command: rq worker --url redis://redis:6379 --max-jobs 100
     env_file: .env
     depends_on:
