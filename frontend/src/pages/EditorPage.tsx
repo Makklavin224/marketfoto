@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router';
 import { useTemplateDetail } from '../api/templates';
 import { useEditorStore } from '../stores/editor';
 import FabricCanvas from '../components/editor/FabricCanvas';
+import RightPanel from '../components/editor/RightPanel';
+import { loadAllFonts } from '../lib/fonts';
 
 // Placeholder product image (gray rectangle as data URL) for MVP
 const PLACEHOLDER_PRODUCT_IMAGE =
@@ -27,6 +29,13 @@ export default function EditorPage() {
   const templateName = useEditorStore((s) => s.template?.name);
   const marketplace = useEditorStore((s) => s.marketplace);
   const zoom = useEditorStore((s) => s.zoom);
+
+  // Preload all editor fonts on mount
+  useEffect(() => {
+    loadAllFonts().then(() => {
+      console.log('Editor fonts loaded');
+    });
+  }, []);
 
   // Set template in store when loaded
   useEffect(() => {
@@ -99,22 +108,8 @@ export default function EditorPage() {
           productImageUrl={productImageUrl}
         />
 
-        {/* Right: Panel placeholder (30%) */}
-        <div className="w-[360px] flex-shrink-0 bg-white border-l border-gray-200 p-4 overflow-y-auto">
-          <p className="text-sm text-gray-400 text-center mt-8">
-            Right panel -- Plan 03
-          </p>
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div className="px-4 py-3 bg-white border-t border-gray-200 shrink-0">
-        <button
-          disabled
-          className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors"
-        >
-          Создать карточку
-        </button>
+        {/* Right: Control panel */}
+        <RightPanel />
       </div>
     </div>
   );
