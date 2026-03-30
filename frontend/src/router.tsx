@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UploadPage from "./pages/UploadPage";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
             Editor — coming in Phase 6
           </div>
         ),
+      },
+      {
+        path: "/upload",
+        element: <UploadPage />,
       },
       {
         path: "/dashboard",
