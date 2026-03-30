@@ -35,7 +35,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Nginx correctly routes /api/* to backend and /* to frontend SPA
   4. MinIO has 3 buckets (originals, processed, rendered) accessible via S3 API
   5. PostgreSQL contains the full schema (users, images, templates, renders, payments tables) after initialization
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Docker Compose stack, environment, Nginx configs, Dockerfiles, frontend scaffold
+- [ ] 01-02-PLAN.md -- FastAPI application core, health check, SQLAlchemy models
+- [ ] 01-03-PLAN.md -- Alembic migration setup, stack integration verification
 
 ### Phase 2: Authentication & User System
 **Goal**: Users can create accounts, log in, and maintain authenticated sessions across the application
@@ -163,7 +167,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure Foundation | 0/? | Not started | - |
+| 1. Infrastructure Foundation | 0/3 | Planned | - |
 | 2. Authentication & User System | 0/? | Not started | - |
 | 3. Upload Pipeline | 0/? | Not started | - |
 | 4. Background Removal | 0/? | Not started | - |
