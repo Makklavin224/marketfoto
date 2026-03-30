@@ -20,13 +20,13 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: Пользователь может зарегистрироваться по email и паролю (bcrypt/argon2, min 6 символов)
-- [ ] **AUTH-02**: Пользователь может войти по email и паролю, получая JWT токен (7 дней, HS256)
-- [ ] **AUTH-03**: Пользователь может запросить сброс пароля через email
-- [ ] **AUTH-04**: JWT-защищённые эндпоинты возвращают 401 при expired/invalid токене
-- [ ] **AUTH-05**: GET /api/auth/me возвращает профиль пользователя (plan, credits_remaining, subscription_expires_at)
-- [ ] **AUTH-06**: При регистрации: plan='free', credits_remaining=3, credits_reset_at=now+30 дней
-- [ ] **AUTH-07**: SQL injection и XSS предотвращены (parameterized queries, input validation)
+- [x] **AUTH-01**: Пользователь может зарегистрироваться по email и паролю (bcrypt/argon2, min 6 символов)
+- [x] **AUTH-02**: Пользователь может войти по email и паролю, получая JWT токен (7 дней, HS256)
+- [x] **AUTH-03**: Пользователь может запросить сброс пароля через email
+- [x] **AUTH-04**: JWT-защищённые эндпоинты возвращают 401 при expired/invalid токене
+- [x] **AUTH-05**: GET /api/auth/me возвращает профиль пользователя (plan, credits_remaining, subscription_expires_at)
+- [x] **AUTH-06**: При регистрации: plan='free', credits_remaining=3, credits_reset_at=now+30 дней
+- [x] **AUTH-07**: SQL injection и XSS предотвращены (parameterized queries, input validation)
 
 ### Upload & Processing
 
@@ -105,8 +105,8 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### UI Components
 
-- [ ] **UI-01**: AuthPage (/auth): табы Вход/Регистрация, валидация полей, loading/error/success states
-- [ ] **UI-02**: UserBadge в Header: аватар + имя + план + "Осталось N карточек" + dropdown menu
+- [x] **UI-01**: AuthPage (/auth): табы Вход/Регистрация, валидация полей, loading/error/success states
+- [x] **UI-02**: UserBadge в Header: аватар + имя + план + "Осталось N карточек" + dropdown menu
 - [ ] **UI-03**: ImageUpload: drag & drop зона, file picker, прогресс-бар, preview, шахматный фон для прозрачности
 - [ ] **UI-04**: BackgroundPreview: оригинал слева, обработанное справа, кнопка "Далее"
 - [ ] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
@@ -175,15 +175,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-06 | Phase 1 | Pending |
 | INFRA-07 | Phase 1 | Pending |
 | INFRA-08 | Phase 1 | Complete |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| AUTH-05 | Phase 2 | Pending |
-| AUTH-06 | Phase 2 | Pending |
-| AUTH-07 | Phase 2 | Pending |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
+| AUTH-04 | Phase 2 | Complete |
+| AUTH-05 | Phase 2 | Complete |
+| AUTH-06 | Phase 2 | Complete |
+| AUTH-07 | Phase 2 | Complete |
+| UI-01 | Phase 2 | Complete |
+| UI-02 | Phase 2 | Complete |
 | UPLD-01 | Phase 3 | Pending |
 | UPLD-02 | Phase 3 | Pending |
 | UPLD-03 | Phase 3 | Pending |

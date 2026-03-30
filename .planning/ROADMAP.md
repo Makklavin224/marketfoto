@@ -53,9 +53,9 @@ Plans:
   5. Unauthenticated requests to protected endpoints receive 401 with clear error message
 **Plans:** 3 plans
 Plans:
-- [ ] 02-01-PLAN.md -- Auth backend: schemas, service (pwdlib + PyJWT), dependency, router with 5 endpoints
-- [ ] 02-02-PLAN.md -- Auth frontend: API client, auth store, React Router, AuthPage with tabs
-- [ ] 02-03-PLAN.md -- UserBadge in Header, ProtectedRoute, router wiring, end-to-end verification
+- [x] 02-01-PLAN.md -- Auth backend: schemas, service (pwdlib + PyJWT), dependency, router with 5 endpoints
+- [x] 02-02-PLAN.md -- Auth frontend: API client, auth store, React Router, AuthPage with tabs
+- [x] 02-03-PLAN.md -- UserBadge in Header, ProtectedRoute, router wiring, end-to-end verification
 **UI hint**: yes
 
 ### Phase 3: Upload Pipeline
@@ -171,8 +171,8 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure Foundation | 0/3 | Planned | - |
-| 2. Authentication & User System | 0/3 | Planned | - |
+| 1. Infrastructure Foundation | 3/3 | Complete | 2026-03-30 |
+| 2. Authentication & User System | 3/3 | Complete | 2026-03-30 |
 | 3. Upload Pipeline | 0/? | Not started | - |
 | 4. Background Removal | 0/? | Not started | - |
 | 5. Template System | 0/? | Not started | - |
