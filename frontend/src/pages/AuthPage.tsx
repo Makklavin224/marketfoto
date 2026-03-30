@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
@@ -15,8 +15,16 @@ export default function AuthPage() {
   const [tab, setTab] = useState<"login" | "register" | "forgot">("login");
   const [apiError, setApiError] = useState("");
   const navigate = useNavigate();
+  const token = useAuthStore((s) => s.token);
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
+
+  // Redirect authenticated users to /editor
+  useEffect(() => {
+    if (token) {
+      navigate("/editor", { replace: true });
+    }
+  }, [token, navigate]);
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
