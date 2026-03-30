@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useTemplates } from "../api/templates";
 import type { TemplateListItem } from "../api/templates";
 import CategoryTabs from "../components/templates/CategoryTabs";
@@ -9,6 +9,8 @@ import PremiumModal from "../components/templates/PremiumModal";
 
 export default function TemplateSelectorPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const imageId = searchParams.get("image");
   const [category, setCategory] = useState<string | null>(null);
   const [marketplace, setMarketplace] = useState<string | null>(null);
   const [premiumModal, setPremiumModal] = useState<{
@@ -25,7 +27,9 @@ export default function TemplateSelectorPage() {
     if (template.is_premium) {
       setPremiumModal({ open: true, name: template.name });
     } else {
-      navigate(`/editor?template=${template.id}`);
+      const params = new URLSearchParams({ template: template.id });
+      if (imageId) params.set("image", imageId);
+      navigate(`/editor?${params.toString()}`);
     }
   }
 
