@@ -9,12 +9,10 @@ sqlalchemy[asyncio]~=2.0.48
 asyncpg>=0.30.0
 alembic~=1.18.0
 
-# Image processing (used by worker, but shared requirements)
-rembg[cpu]>=2.0.0
+# Image processing (Pillow for upload validation/resize only)
 Pillow~=12.1.0
-pycairo~=1.29.0
 
-# Queue
+# Queue (for enqueuing jobs to worker)
 rq~=2.7.0
 redis>=5.0.0
 
