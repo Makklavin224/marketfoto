@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed Phase 06 (canvas-editor) -- all 3 plans 06-01, 06-02, 06-03
-last_updated: "2026-03-30T15:10:00Z"
+stopped_at: Completed Phase 08 (payments-credits) -- all 3 plans 08-01, 08-02, 08-03
+last_updated: "2026-03-30T15:05:00.000Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 18
   completed_plans: 15
-  percent: 38
+  percent: 83
 ---
 
 # Project State
@@ -25,20 +25,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: 06
+Phase: 08
 Plan: Complete
-Status: Phase 06 (canvas-editor) complete -- all 3 plans (06-01, 06-02, 06-03)
+Status: Phase 08 (payments-credits) complete -- all 3 plans (08-01, 08-02, 08-03)
 Last activity: 2026-03-30
 
-Progress: [====░░░░░░] 38%
+Progress: [========░░] 83%
 
 ## Performance Metrics
 
 **Velocity:**
 
 - Total plans completed: 11
-- Average duration: 3.5 min
-- Total execution time: 42 min
+- Average duration: 3.2 min
+- Total execution time: 35 min
 
 **By Phase:**
 
@@ -52,9 +52,9 @@ Progress: [====░░░░░░] 38%
 | Phase 03 P02 | 3min | 2 tasks | 6 files |
 | Phase 04 P01 | 4min | 2 tasks | 5 files |
 | Phase 04 P02 | 3min | 2 tasks | 5 files |
-| Phase 06 P01 | 5min | 2 tasks | 8 files |
-| Phase 06 P02 | 4min | 2 tasks | 18 files |
-| Phase 06 P03 | 6min | 2 tasks | 7 files |
+| Phase 08 P01 | 3min | 2 tasks | 4 files |
+| Phase 08 P02 | 2min | 2 tasks | 3 files |
+| Phase 08 P03 | 3min | 2 tasks | 5 files |
 
 **Recent Trend:**
 
@@ -85,10 +85,11 @@ Recent decisions affecting current work:
 - [Phase 04]: Sync SQLAlchemy engine in worker (RQ forks sync subprocesses)
 - [Phase 04]: CSS repeating-conic-gradient for checkered transparency pattern
 - [Phase 04]: react-query refetchInterval for conditional status polling
-- [Phase 06]: fabric.js v7 _meta helper pattern for custom object metadata (TypeScript types don't expose `data`)
-- [Phase 06]: CSS transform scaling for canvas zoom (instead of fabric.js setZoom)
-- [Phase 06]: Google Fonts API with cyrillic subset URLs for 14 bundled fonts
-- [Phase 06]: Component-per-section architecture for right panel (6 components)
+- [Phase 08]: YooKassa SDK aliased as YooKassaPayment to avoid collision with SQLAlchemy Payment model
+- [Phase 08]: Webhook always returns 200 even on processing errors to prevent retries (Pitfall 9)
+- [Phase 08]: Annual plan variants mapped to base plan name for user.plan column constraint
+- [Phase 08]: Sync SQLAlchemy engine for cron script -- avoids asyncio complexity for standalone job
+- [Phase 08]: /pricing route is public so visitors see plans before registering
 
 ### Pending Todos
 
@@ -103,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T14:55:00Z
-Stopped at: Completed Phase 06 (canvas-editor) -- all 3 plans (06-01, 06-02, 06-03)
+Last session: 2026-03-30T15:05:00Z
+Stopped at: Completed Phase 08 (payments-credits) -- all 3 plans (08-01, 08-02, 08-03)
 Resume file: None

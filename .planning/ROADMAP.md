@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Template System** - Template data model, seed templates, API with filtering, template selector UI
 - [x] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
 - [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
-- [ ] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
+- [x] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
 - [ ] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
 - [ ] **Phase 10: Landing Page** - Hero, before/after, pricing, FAQ, SEO, mobile-first responsive
 
@@ -147,9 +147,9 @@ Plans:
   5. Expired subscriptions automatically revert to free plan with 3 credits via daily cron job
 **Plans:** 3 plans
 Plans:
-- [ ] 08-01-PLAN.md -- Payment backend: Pydantic schemas, YooKassa service, /create and /webhook endpoints
-- [ ] 08-02-PLAN.md -- Payment management: /history, /cancel-subscription endpoints, subscription cron job
-- [ ] 08-03-PLAN.md -- Payment frontend: PricingPage, PaymentSuccessPage, PaymentModal, router wiring
+- [x] 08-01-PLAN.md -- Payment backend: Pydantic schemas, YooKassa service, /create and /webhook endpoints
+- [x] 08-02-PLAN.md -- Payment management: /history, /cancel-subscription endpoints, subscription cron job
+- [x] 08-03-PLAN.md -- Payment frontend: PricingPage, PaymentSuccessPage, PaymentModal, router wiring
 **UI hint**: yes
 
 ### Phase 9: Dashboard
@@ -195,6 +195,6 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 3/3 | Complete | 2026-03-30 |
 | 7. Rendering & Export | 0/? | Not started | - |
-| 8. Payments & Credits | 0/3 | Planned | - |
+| 8. Payments & Credits | 3/3 | Complete | 2026-03-30 |
 | 9. Dashboard | 0/? | Not started | - |
 | 10. Landing Page | 0/? | Not started | - |
