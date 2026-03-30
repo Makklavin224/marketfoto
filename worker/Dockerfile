@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY worker/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
+COPY worker/ ./worker/
+ENV PYTHONPATH=/app
 
 # Copy fonts for server-side Pillow text rendering (14 Cyrillic font families)
 COPY worker/fonts/ /app/fonts/
