@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed Phase 08 (payments-credits) -- all 3 plans (08-01, 08-02, 08-03)
-last_updated: "2026-03-30T15:18:42.591Z"
+stopped_at: Completed Phase 07 (rendering-export) -- all 3 plans (07-01, 07-02, 07-03)
+last_updated: "2026-03-30T15:32:00.000Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 25
-  completed_plans: 18
-  percent: 83
+  completed_plans: 21
+  percent: 92
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Phase: 09
 Plan: Not started
-Status: Phase 08 (payments-credits) complete -- all 3 plans (08-01, 08-02, 08-03)
+Status: Phase 07 (rendering-export) complete -- all 3 plans (07-01, 07-02, 07-03)
 Last activity: 2026-03-30
 
-Progress: [========░░] 83%
+Progress: [=========░] 92%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 11
+- Total plans completed: 14
 - Average duration: 3.2 min
-- Total execution time: 35 min
+- Total execution time: 45 min
 
 **By Phase:**
 
@@ -55,6 +55,9 @@ Progress: [========░░] 83%
 | Phase 08 P01 | 3min | 2 tasks | 4 files |
 | Phase 08 P02 | 2min | 2 tasks | 3 files |
 | Phase 08 P03 | 3min | 2 tasks | 5 files |
+| Phase 07 P01 | 3min | 2 tasks | 3 files |
+| Phase 07 P02 | 4min | 2 tasks | 19 files |
+| Phase 07 P03 | 3min | 2 tasks | 7 files |
 
 **Recent Trend:**
 
@@ -90,6 +93,12 @@ Recent decisions affecting current work:
 - [Phase 08]: Annual plan variants mapped to base plan name for user.plan column constraint
 - [Phase 08]: Sync SQLAlchemy engine for cron script -- avoids asyncio complexity for standalone job
 - [Phase 08]: /pricing route is public so visitors see plans before registering
+- [Phase 07]: Atomic credit deduction via single UPDATE WHERE credits_remaining > 0 RETURNING -- prevents double-spend
+- [Phase 07]: Render status derived from output_url presence (null=pending, non-null=complete)
+- [Phase 07]: Variable TTF fonts for most families -- single file supports all weights
+- [Phase 07]: Shadow composited BEFORE product image for correct z-order
+- [Phase 07]: Numpy gradient rendering instead of putpixel loop for performance
+- [Phase 07]: Conditional polling via refetchInterval stops at complete/failed
 
 ### Pending Todos
 
@@ -104,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T15:05:00Z
-Stopped at: Completed Phase 08 (payments-credits) -- all 3 plans (08-01, 08-02, 08-03)
+Last session: 2026-03-30T15:32:00Z
+Stopped at: Completed Phase 07 (rendering-export) -- all 3 plans (07-01, 07-02, 07-03)
 Resume file: None
