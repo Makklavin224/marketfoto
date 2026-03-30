@@ -162,7 +162,10 @@ Plans:
   3. User can download any card as PNG/JPG and delete cards they no longer need
   4. Grid supports pagination (load more) for users with many cards
   5. New users see an empty state with "Create your first card" call to action
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 09-01-PLAN.md -- Dashboard backend: stats endpoint, renders list/download/delete endpoints, Pydantic schemas
+- [ ] 09-02-PLAN.md -- Dashboard frontend: DashboardPage with stats cards, card grid, pagination, empty state
 **UI hint**: yes
 
 ### Phase 10: Landing Page
@@ -175,7 +178,10 @@ Plans:
   3. Pricing section shows 3 plans with month/year toggle matching the app pricing page
   4. Page is fully responsive (mobile-first, breakpoints at 640/768/1024/1280)
   5. LCP is under 3 seconds with lazy-loaded images and proper SEO meta tags
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 10-01-PLAN.md -- Landing page: Hero, HowItWorks, BeforeAfter, Marketplaces, Pricing, FAQ, Footer sections + router
+- [ ] 10-02-PLAN.md -- SEO meta tags (title, OG, Twitter Card) and LCP optimization (lazy loading below-fold sections)
 **UI hint**: yes
 
 ## Progress
@@ -196,5 +202,5 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 6. Canvas Editor | 0/3 | Planned | - |
 | 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 0/3 | Planned | - |
-| 9. Dashboard | 0/? | Not started | - |
-| 10. Landing Page | 0/? | Not started | - |
+| 9. Dashboard | 0/2 | Planned | - |
+| 10. Landing Page | 0/2 | Planned | - |
