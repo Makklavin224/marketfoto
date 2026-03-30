@@ -18,10 +18,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Background Removal** - Async rembg processing via RQ worker, status polling, before/after preview UI
 - [ ] **Phase 5: Template System** - Template data model, seed templates, API with filtering, template selector UI
 - [x] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
-- [x] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
+- [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
 - [x] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
-- [x] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
-- [ ] **Phase 10: Landing Page** - Hero, before/after, pricing, FAQ, SEO, mobile-first responsive
+- [ ] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
+- [x] **Phase 10: Landing Page** - Hero, before/after, pricing, FAQ, SEO, mobile-first responsive (completed 2026-03-30)
 
 ## Phase Details
 
@@ -132,11 +132,7 @@ Plans:
   3. Free-plan renders have a "MarketFoto.ru" watermark (opacity 0.3) in the bottom-right corner
   4. User can download the card as PNG or JPG via a time-limited signed URL
   5. One credit is atomically deducted before rendering begins (no double-spend on concurrent clicks)
-**Plans:** 3 plans
-Plans:
-- [x] 07-01-PLAN.md -- Renders API: Pydantic schemas, 4 endpoints with atomic credit deduction and RQ enqueue
-- [x] 07-02-PLAN.md -- Pillow rendering: render_card_job with compositing pipeline, 14 TTF fonts, watermark
-- [x] 07-03-PLAN.md -- Export frontend: renders API client, ExportPanel with polling, Create Card wiring
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 8: Payments & Credits
@@ -166,10 +162,7 @@ Plans:
   3. User can download any card as PNG/JPG and delete cards they no longer need
   4. Grid supports pagination (load more) for users with many cards
   5. New users see an empty state with "Create your first card" call to action
-**Plans:** 2 plans
-Plans:
-- [x] 09-01-PLAN.md -- Dashboard backend: stats endpoint, renders list/download/delete endpoints, Pydantic schemas
-- [x] 09-02-PLAN.md -- Dashboard frontend: DashboardPage with stats cards, renders grid, pagination, empty state, router wiring
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 10: Landing Page
@@ -201,7 +194,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 4. Background Removal | 2/2 | Complete | 2026-03-30 |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 3/3 | Complete | 2026-03-30 |
-| 7. Rendering & Export | 3/3 | Complete | 2026-03-30 |
+| 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 3/3 | Complete | 2026-03-30 |
-| 9. Dashboard | 2/2 | Complete | 2026-03-30 |
-| 10. Landing Page | 0/? | Not started | - |
+| 9. Dashboard | 0/? | Not started | - |
+| 10. Landing Page | 2/2 | Complete   | 2026-03-30 |

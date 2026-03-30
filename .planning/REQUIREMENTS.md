@@ -58,16 +58,16 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Rendering & Export
 
-- [x] **RNDR-01**: POST /api/renders принимает image_id + template_id + overlay_data + marketplace
-- [x] **RNDR-02**: Бэкенд рендерит финальную карточку через Pillow (background + product + text + decorations)
-- [x] **RNDR-03**: Рендер ресайзится до размеров маркетплейса: WB 900x1200, Ozon 1200x1200, ЯМ 800x800
-- [x] **RNDR-04**: Готовая карточка сохраняется в MinIO (rendered/{user_id}/{render_id}.png)
-- [x] **RNDR-05**: При рендере вычитается 1 credit (credits_remaining -= 1, atomic UPDATE)
-- [x] **RNDR-06**: Free-план: watermark "MarketFoto.ru" (opacity 0.3, 10% ширины) в правом нижнем углу
-- [x] **RNDR-07**: Пользователь может скачать карточку (PNG или JPG) по signed URL (expires 1h)
-- [x] **RNDR-08**: GET /api/renders возвращает историю с пагинацией (limit, offset, sort)
-- [x] **RNDR-09**: DELETE /api/renders/{id} удаляет рендер и файл из MinIO
-- [x] **RNDR-10**: Кредиты вычитаются атомарно (UPDATE WHERE credits_remaining > 0) до постановки в очередь
+- [ ] **RNDR-01**: POST /api/renders принимает image_id + template_id + overlay_data + marketplace
+- [ ] **RNDR-02**: Бэкенд рендерит финальную карточку через Pillow (background + product + text + decorations)
+- [ ] **RNDR-03**: Рендер ресайзится до размеров маркетплейса: WB 900x1200, Ozon 1200x1200, ЯМ 800x800
+- [ ] **RNDR-04**: Готовая карточка сохраняется в MinIO (rendered/{user_id}/{render_id}.png)
+- [ ] **RNDR-05**: При рендере вычитается 1 credit (credits_remaining -= 1, atomic UPDATE)
+- [ ] **RNDR-06**: Free-план: watermark "MarketFoto.ru" (opacity 0.3, 10% ширины) в правом нижнем углу
+- [ ] **RNDR-07**: Пользователь может скачать карточку (PNG или JPG) по signed URL (expires 1h)
+- [ ] **RNDR-08**: GET /api/renders возвращает историю с пагинацией (limit, offset, sort)
+- [ ] **RNDR-09**: DELETE /api/renders/{id} удаляет рендер и файл из MinIO
+- [ ] **RNDR-10**: Кредиты вычитаются атомарно (UPDATE WHERE credits_remaining > 0) до постановки в очередь
 
 ### Payments
 
@@ -84,24 +84,24 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Landing Page
 
-- [ ] **LAND-01**: Hero-секция: заголовок + подзаголовок + CTA "Попробовать бесплатно" + до/после slider
-- [ ] **LAND-02**: Секция "Как это работает" (3 шага с иконками)
-- [ ] **LAND-03**: Секция "До / После" (3-4 примера: одежда, электроника, косметика, еда)
-- [ ] **LAND-04**: Секция "Для какого маркетплейса" (логотипы WB, Ozon, ЯМ)
-- [ ] **LAND-05**: Секция "Тарифы" (3 карточки + toggle месяц/год + разовая покупка)
-- [ ] **LAND-06**: Секция "FAQ" (accordion, 5-7 вопросов)
-- [ ] **LAND-07**: Footer (О сервисе, Тарифы, Поддержка, Политика конфиденциальности)
-- [ ] **LAND-08**: SEO: title, description, OG-tags для MarketFoto
-- [ ] **LAND-09**: Mobile-first responsive (breakpoints 640/768/1024/1280)
-- [ ] **LAND-10**: LCP < 3 секунд, lazy-load изображений
+- [x] **LAND-01**: Hero-секция: заголовок + подзаголовок + CTA "Попробовать бесплатно" + до/после slider
+- [x] **LAND-02**: Секция "Как это работает" (3 шага с иконками)
+- [x] **LAND-03**: Секция "До / После" (3-4 примера: одежда, электроника, косметика, еда)
+- [x] **LAND-04**: Секция "Для какого маркетплейса" (логотипы WB, Ozon, ЯМ)
+- [x] **LAND-05**: Секция "Тарифы" (3 карточки + toggle месяц/год + разовая покупка)
+- [x] **LAND-06**: Секция "FAQ" (accordion, 5-7 вопросов)
+- [x] **LAND-07**: Footer (О сервисе, Тарифы, Поддержка, Политика конфиденциальности)
+- [x] **LAND-08**: SEO: title, description, OG-tags для MarketFoto
+- [x] **LAND-09**: Mobile-first responsive (breakpoints 640/768/1024/1280)
+- [x] **LAND-10**: LCP < 3 секунд, lazy-load изображений
 
 ### Dashboard
 
-- [x] **DASH-01**: GET /api/dashboard/stats возвращает план, кредиты, рендеры за месяц, всего, expires_at
-- [x] **DASH-02**: Сетка созданных карточек (4 колонки desktop, 2 mobile) с thumbnail + marketplace badge + дата
-- [x] **DASH-03**: Каждая карточка: кнопки скачать (PNG/JPG) и удалить
-- [x] **DASH-04**: Пагинация (load more)
-- [x] **DASH-05**: Пустое состояние: "Вы ещё не создали карточек" + кнопка "Создать первую"
+- [ ] **DASH-01**: GET /api/dashboard/stats возвращает план, кредиты, рендеры за месяц, всего, expires_at
+- [ ] **DASH-02**: Сетка созданных карточек (4 колонки desktop, 2 mobile) с thumbnail + marketplace badge + дата
+- [ ] **DASH-03**: Каждая карточка: кнопки скачать (PNG/JPG) и удалить
+- [ ] **DASH-04**: Пагинация (load more)
+- [ ] **DASH-05**: Пустое состояние: "Вы ещё не создали карточек" + кнопка "Создать первую"
 
 ### UI Components
 
@@ -110,7 +110,7 @@ Requirements for MVP release. Each maps to roadmap phases.
 - [x] **UI-03**: ImageUpload: drag & drop зона, file picker, прогресс-бар, preview, шахматный фон для прозрачности
 - [x] **UI-04**: BackgroundPreview: оригинал слева, обработанное справа, кнопка "Далее"
 - [x] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
-- [x] **UI-06**: ExportPanel: превью, информация о размере, кнопки скачать PNG/JPG, "Создать ещё"
+- [ ] **UI-06**: ExportPanel: превью, информация о размере, кнопки скачать PNG/JPG, "Создать ещё"
 - [x] **UI-07**: PricingPage (/pricing): 3 карточки + toggle месяц/год + блок разовой покупки
 - [x] **UI-08**: PaymentSuccess (/payment/success): галочка + новый план + кнопка "Создать карточку"
 - [x] **UI-09**: PaymentModal: "Закончились карточки" + варианты подписки/разовой покупки
@@ -210,17 +210,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDIT-05 | Phase 6 | Pending |
 | EDIT-06 | Phase 6 | Pending |
 | UI-10 | Phase 6 | Pending |
-| RNDR-01 | Phase 7 | Complete |
-| RNDR-02 | Phase 7 | Complete |
-| RNDR-03 | Phase 7 | Complete |
-| RNDR-04 | Phase 7 | Complete |
-| RNDR-05 | Phase 7 | Complete |
-| RNDR-06 | Phase 7 | Complete |
-| RNDR-07 | Phase 7 | Complete |
-| RNDR-08 | Phase 7 | Complete |
-| RNDR-09 | Phase 7 | Complete |
-| RNDR-10 | Phase 7 | Complete |
-| UI-06 | Phase 7 | Complete |
+| RNDR-01 | Phase 7 | Pending |
+| RNDR-02 | Phase 7 | Pending |
+| RNDR-03 | Phase 7 | Pending |
+| RNDR-04 | Phase 7 | Pending |
+| RNDR-05 | Phase 7 | Pending |
+| RNDR-06 | Phase 7 | Pending |
+| RNDR-07 | Phase 7 | Pending |
+| RNDR-08 | Phase 7 | Pending |
+| RNDR-09 | Phase 7 | Pending |
+| RNDR-10 | Phase 7 | Pending |
+| UI-06 | Phase 7 | Pending |
 | PAY-01 | Phase 8 | Complete |
 | PAY-02 | Phase 8 | Complete |
 | PAY-03 | Phase 8 | Complete |
@@ -234,21 +234,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-07 | Phase 8 | Complete |
 | UI-08 | Phase 8 | Complete |
 | UI-09 | Phase 8 | Complete |
-| DASH-01 | Phase 9 | Complete |
-| DASH-02 | Phase 9 | Complete |
-| DASH-03 | Phase 9 | Complete |
-| DASH-04 | Phase 9 | Complete |
-| DASH-05 | Phase 9 | Complete |
-| LAND-01 | Phase 10 | Pending |
-| LAND-02 | Phase 10 | Pending |
-| LAND-03 | Phase 10 | Pending |
-| LAND-04 | Phase 10 | Pending |
-| LAND-05 | Phase 10 | Pending |
-| LAND-06 | Phase 10 | Pending |
-| LAND-07 | Phase 10 | Pending |
-| LAND-08 | Phase 10 | Pending |
-| LAND-09 | Phase 10 | Pending |
-| LAND-10 | Phase 10 | Pending |
+| DASH-01 | Phase 9 | Pending |
+| DASH-02 | Phase 9 | Pending |
+| DASH-03 | Phase 9 | Pending |
+| DASH-04 | Phase 9 | Pending |
+| DASH-05 | Phase 9 | Pending |
+| LAND-01 | Phase 10 | Complete |
+| LAND-02 | Phase 10 | Complete |
+| LAND-03 | Phase 10 | Complete |
+| LAND-04 | Phase 10 | Complete |
+| LAND-05 | Phase 10 | Complete |
+| LAND-06 | Phase 10 | Complete |
+| LAND-07 | Phase 10 | Complete |
+| LAND-08 | Phase 10 | Complete |
+| LAND-09 | Phase 10 | Complete |
+| LAND-10 | Phase 10 | Complete |
 
 **Coverage:**
 - v1 requirements: 82 total
