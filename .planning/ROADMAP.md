@@ -109,7 +109,11 @@ Plans:
   3. User can toggle badges/decorations on and off via the right panel
   4. Switching marketplace (WB/Ozon/YM) changes the canvas dimensions in real-time
   5. 15-20 Cyrillic fonts are available and render correctly in the editor
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 06-01-PLAN.md -- Types, zustand store, fabric.js canvas with drag/resize product image, marketplace switching, zoom
+- [ ] 06-02-PLAN.md -- 15+ Cyrillic woff2 fonts bundled, @font-face CSS, font registry with loader utility
+- [ ] 06-03-PLAN.md -- Right panel controls (marketplace, text, style, font picker, badge), canvas-store sync, Create Card button
 **UI hint**: yes
 
 ### Phase 7: Rendering & Export
@@ -183,7 +187,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 3. Upload Pipeline | 0/? | Not started | - |
 | 4. Background Removal | 0/? | Not started | - |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
-| 6. Canvas Editor | 0/? | Not started | - |
+| 6. Canvas Editor | 0/3 | Planned | - |
 | 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 0/3 | Planned | - |
 | 9. Dashboard | 0/? | Not started | - |
