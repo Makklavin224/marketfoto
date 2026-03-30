@@ -98,4 +98,9 @@ export const imagesApi = {
     api.get<ImageStatusResponse>(`/images/${imageId}/status`),
 
   delete: (imageId: string) => api.delete(`/images/${imageId}`),
+
+  removeBackground: (imageId: string) =>
+    api.post<{ id: string; status: string }>(
+      `/images/${imageId}/remove-background`
+    ),
 };

@@ -1,4 +1,4 @@
-"""Images router with upload, confirm, get, delete, status endpoints."""
+"""Images router with upload, get, delete, status, and remove-background endpoints."""
 
 from __future__ import annotations
 
@@ -6,13 +6,16 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import Response
+from redis import Redis
+from rq import Queue
 from sqlalchemy import select
 
+from app.config import settings
 from app.database import AsyncSessionLocal
 from app.models.image import Image
 from app.models.user import User
 from app.api.deps import get_current_user
-from app.schemas.images import ImageResponse, ImageStatusResponse
+from app.schemas.images import ImageResponse, ImageStatusResponse, RemoveBackgroundResponse
 from app.services import minio as minio_svc
 from app.services import images as image_svc
 
@@ -212,6 +215,7 @@ async def get_image_status(
         status=image.status,
         processed_url=processed_presigned,
         error_message=image.error_message,
+        processing_time_ms=image.processing_time_ms,
     )
 
 
@@ -252,22 +256,22 @@ async def delete_image(
 
 @router.post(
     "/{image_id}/remove-background",
-    response_model=ImageResponse,
+    response_model=RemoveBackgroundResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def remove_background(
     image_id: uuid.UUID,
     user: User = Depends(get_current_user),
-) -> ImageResponse:
-    """Initiate background removal (D-07, UPLD-11).
+) -> RemoveBackgroundResponse:
+    """Initiate background removal via RQ worker (D-07, UPLD-05, UPLD-11).
 
-    NOTE: Actual RQ job enqueue will be added in Phase 4.
-    For now, this endpoint only sets status to 'processing'.
+    Enqueues the remove_background_job with a 30-second timeout (D-04, UPLD-09).
+    Returns 202 Accepted immediately. Client polls GET /status for progress.
     """
     image, session = await _get_image_or_404(image_id, user)
 
     try:
-        # Check if already processing or processed
+        # Check if already processing or processed (D-06)
         if image.status == "processing":
             await session.close()
             raise HTTPException(
@@ -281,28 +285,23 @@ async def remove_background(
                 detail="Фон уже удалён",
             )
 
-        # Set status to processing (Phase 4 will add RQ enqueue here)
+        # Set status to processing for immediate UX feedback
         image.status = "processing"
         await session.commit()
-        await session.refresh(image)
     finally:
         await session.close()
 
-    # Generate presigned URL for response
-    original_presigned = minio_svc.get_presigned_get_url(
-        minio_svc.BUCKET_ORIGINALS, image.original_url
+    # Enqueue RQ job with 30-second timeout (UPLD-05, UPLD-09)
+    redis_conn = Redis.from_url(settings.redis_url)
+    queue = Queue(connection=redis_conn)
+    queue.enqueue(
+        "worker.tasks.remove_background_job",
+        str(image_id),
+        str(user.id),
+        job_timeout=30,
     )
 
-    return ImageResponse(
-        id=image.id,
-        original_url=original_presigned,
-        processed_url=None,
-        status=image.status,
-        original_width=image.original_width,
-        original_height=image.original_height,
-        original_filename=image.original_filename,
-        original_size=image.original_size,
-        processing_time_ms=image.processing_time_ms,
-        error_message=image.error_message,
-        created_at=image.created_at,
+    return RemoveBackgroundResponse(
+        id=str(image.id),
+        status="processing",
     )

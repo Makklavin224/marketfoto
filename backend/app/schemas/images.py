@@ -47,6 +47,14 @@ class ImageStatusResponse(BaseModel):
     status: str
     processed_url: Optional[str] = None
     error_message: Optional[str] = None
+    processing_time_ms: Optional[int] = None
+
+
+class RemoveBackgroundResponse(BaseModel):
+    """Response from POST /api/images/{image_id}/remove-background (202)."""
+
+    id: str
+    status: str  # "processing"
 
 
 class ErrorResponse(BaseModel):
