@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. PostgreSQL contains the full schema (users, images, templates, renders, payments tables) after initialization
 **Plans:** 3 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Docker Compose stack, environment, Nginx configs, Dockerfiles, frontend scaffold
+- [x] 01-01-PLAN.md -- Docker Compose stack, environment, Nginx configs, Dockerfiles, frontend scaffold
 - [ ] 01-02-PLAN.md -- FastAPI application core, health check, SQLAlchemy models
 - [ ] 01-03-PLAN.md -- Alembic migration setup, stack integration verification
 
