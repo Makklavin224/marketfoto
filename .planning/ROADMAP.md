@@ -132,7 +132,11 @@ Plans:
   3. Free-plan renders have a "MarketFoto.ru" watermark (opacity 0.3) in the bottom-right corner
   4. User can download the card as PNG or JPG via a time-limited signed URL
   5. One credit is atomically deducted before rendering begins (no double-spend on concurrent clicks)
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 07-01-PLAN.md -- Renders API: Pydantic schemas, 4 endpoints (create/list/status/delete), atomic credit deduction, RQ enqueue
+- [ ] 07-02-PLAN.md -- Worker render job: Pillow compositing (bg+product+text+decorations), marketplace resize, watermark, TTF fonts in Docker
+- [ ] 07-03-PLAN.md -- Export frontend: renders API client, ExportPanel with preview/download/actions, Create Card button wiring
 **UI hint**: yes
 
 ### Phase 8: Payments & Credits
@@ -200,7 +204,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 4. Background Removal | 2/2 | Complete | 2026-03-30 |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 0/3 | Planned | - |
-| 7. Rendering & Export | 0/? | Not started | - |
+| 7. Rendering & Export | 0/3 | Planned | - |
 | 8. Payments & Credits | 0/3 | Planned | - |
 | 9. Dashboard | 0/2 | Planned | - |
 | 10. Landing Page | 0/2 | Planned | - |
