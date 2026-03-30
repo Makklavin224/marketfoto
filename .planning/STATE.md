@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed Phase 08 (payments-credits) -- all 3 plans (08-01, 08-02, 08-03)
+stopped_at: Completed Phase 09 (dashboard) -- all 2 plans (09-01, 09-02)
 last_updated: "2026-03-30T15:18:42.591Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 25
-  completed_plans: 18
-  percent: 83
+  completed_plans: 20
+  percent: 92
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Phase: 09
-Plan: Not started
-Status: Phase 08 (payments-credits) complete -- all 3 plans (08-01, 08-02, 08-03)
+Plan: 2/2 complete
+Status: Phase 09 (dashboard) complete -- all 2 plans (09-01, 09-02)
 Last activity: 2026-03-30
 
-Progress: [========░░] 83%
+Progress: [=========░] 92%
 
 ## Performance Metrics
 
@@ -55,6 +55,8 @@ Progress: [========░░] 83%
 | Phase 08 P01 | 3min | 2 tasks | 4 files |
 | Phase 08 P02 | 2min | 2 tasks | 3 files |
 | Phase 08 P03 | 3min | 2 tasks | 5 files |
+| Phase 09 P01 | 3min | 2 tasks | 5 files |
+| Phase 09 P02 | 3min | 2 tasks | 3 files |
 
 **Recent Trend:**
 
@@ -90,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Annual plan variants mapped to base plan name for user.plan column constraint
 - [Phase 08]: Sync SQLAlchemy engine for cron script -- avoids asyncio complexity for standalone job
 - [Phase 08]: /pricing route is public so visitors see plans before registering
+- [Phase 09]: credits_total derived from plan via dict mapping (free=3, starter=50, business=999)
+- [Phase 09]: Presigned URLs regenerated on every read (not stored); delete silently ignores missing MinIO files
+- [Phase 09]: Load-more pagination via page*PAGE_SIZE approach with placeholderData for smooth UX
 
 ### Pending Todos
 
@@ -104,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T15:05:00Z
-Stopped at: Completed Phase 08 (payments-credits) -- all 3 plans (08-01, 08-02, 08-03)
+Last session: 2026-03-30T15:28:00Z
+Stopped at: Completed Phase 09 (dashboard) -- all 2 plans (09-01, 09-02)
 Resume file: None

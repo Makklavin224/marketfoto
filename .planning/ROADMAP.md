@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
 - [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
 - [x] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
-- [ ] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
+- [x] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
 - [ ] **Phase 10: Landing Page** - Hero, before/after, pricing, FAQ, SEO, mobile-first responsive
 
 ## Phase Details
@@ -162,7 +162,10 @@ Plans:
   3. User can download any card as PNG/JPG and delete cards they no longer need
   4. Grid supports pagination (load more) for users with many cards
   5. New users see an empty state with "Create your first card" call to action
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [x] 09-01-PLAN.md -- Dashboard backend: stats endpoint, renders list/download/delete endpoints, Pydantic schemas
+- [x] 09-02-PLAN.md -- Dashboard frontend: DashboardPage with stats cards, renders grid, pagination, empty state, router wiring
 **UI hint**: yes
 
 ### Phase 10: Landing Page
@@ -196,5 +199,5 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 6. Canvas Editor | 3/3 | Complete | 2026-03-30 |
 | 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 3/3 | Complete | 2026-03-30 |
-| 9. Dashboard | 0/? | Not started | - |
+| 9. Dashboard | 2/2 | Complete | 2026-03-30 |
 | 10. Landing Page | 0/? | Not started | - |

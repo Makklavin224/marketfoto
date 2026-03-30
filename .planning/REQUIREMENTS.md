@@ -97,11 +97,11 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: GET /api/dashboard/stats возвращает план, кредиты, рендеры за месяц, всего, expires_at
-- [ ] **DASH-02**: Сетка созданных карточек (4 колонки desktop, 2 mobile) с thumbnail + marketplace badge + дата
-- [ ] **DASH-03**: Каждая карточка: кнопки скачать (PNG/JPG) и удалить
-- [ ] **DASH-04**: Пагинация (load more)
-- [ ] **DASH-05**: Пустое состояние: "Вы ещё не создали карточек" + кнопка "Создать первую"
+- [x] **DASH-01**: GET /api/dashboard/stats возвращает план, кредиты, рендеры за месяц, всего, expires_at
+- [x] **DASH-02**: Сетка созданных карточек (4 колонки desktop, 2 mobile) с thumbnail + marketplace badge + дата
+- [x] **DASH-03**: Каждая карточка: кнопки скачать (PNG/JPG) и удалить
+- [x] **DASH-04**: Пагинация (load more)
+- [x] **DASH-05**: Пустое состояние: "Вы ещё не создали карточек" + кнопка "Создать первую"
 
 ### UI Components
 
@@ -234,11 +234,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-07 | Phase 8 | Complete |
 | UI-08 | Phase 8 | Complete |
 | UI-09 | Phase 8 | Complete |
-| DASH-01 | Phase 9 | Pending |
-| DASH-02 | Phase 9 | Pending |
-| DASH-03 | Phase 9 | Pending |
-| DASH-04 | Phase 9 | Pending |
-| DASH-05 | Phase 9 | Pending |
+| DASH-01 | Phase 9 | Complete |
+| DASH-02 | Phase 9 | Complete |
+| DASH-03 | Phase 9 | Complete |
+| DASH-04 | Phase 9 | Complete |
+| DASH-05 | Phase 9 | Complete |
 | LAND-01 | Phase 10 | Pending |
 | LAND-02 | Phase 10 | Pending |
 | LAND-03 | Phase 10 | Pending |
