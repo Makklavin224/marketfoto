@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
+import ProcessingPage from "./pages/ProcessingPage";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "/upload",
         element: <UploadPage />,
+      },
+      {
+        path: "/processing/:imageId",
+        element: <ProcessingPage />,
       },
       {
         path: "/dashboard",

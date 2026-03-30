@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router";
 import ImageUpload from "../components/ImageUpload";
 import { useAuthStore } from "../stores/auth";
 
 export default function UploadPage() {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
 
   return (
@@ -26,8 +28,7 @@ export default function UploadPage() {
       <main className="mx-auto max-w-2xl px-6 py-12">
         <ImageUpload
           onUploadComplete={(image) => {
-            // Phase 4 will navigate to background removal
-            console.log("Upload complete:", image.id);
+            navigate(`/processing/${image.id}`);
           }}
         />
       </main>
