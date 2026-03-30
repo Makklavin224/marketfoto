@@ -11,12 +11,12 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 - [ ] **INFRA-01**: Docker Compose с 7 сервисами (backend, worker, frontend, postgres, redis, minio, nginx) запускается одной командой
 - [ ] **INFRA-02**: MinIO настроен с 3 бакетами (originals, processed, rendered) и lifecycle policies
-- [ ] **INFRA-03**: PostgreSQL 16 инициализируется с полной SQL-схемой (users, images, templates, renders, payments)
+- [x] **INFRA-03**: PostgreSQL 16 инициализируется с полной SQL-схемой (users, images, templates, renders, payments)
 - [ ] **INFRA-04**: Redis доступен для RQ очереди и кэша
 - [ ] **INFRA-05**: Nginx reverse proxy маршрутизирует /api → backend, / → frontend
 - [ ] **INFRA-06**: Docker memory limits для rembg worker (max 2GB per worker) предотвращают OOM на shared VPS
 - [ ] **INFRA-07**: .env файл с всеми переменными окружения (DB, Redis, MinIO, JWT, YooKassa, CORS)
-- [ ] **INFRA-08**: Health check эндпоинт (/api/health) проверяет все зависимости (DB, Redis, MinIO)
+- [x] **INFRA-08**: Health check эндпоинт (/api/health) проверяет все зависимости (DB, Redis, MinIO)
 
 ### Authentication
 
@@ -169,12 +169,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | INFRA-01 | Phase 1 | Pending |
 | INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 1 | Pending |
 | INFRA-05 | Phase 1 | Pending |
 | INFRA-06 | Phase 1 | Pending |
 | INFRA-07 | Phase 1 | Pending |
-| INFRA-08 | Phase 1 | Pending |
+| INFRA-08 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Pending |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |
