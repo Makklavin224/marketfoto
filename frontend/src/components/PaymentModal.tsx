@@ -37,19 +37,38 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
       role="dialog"
       aria-modal="true"
     >
-      {/* Backdrop */}
+      {/* Backdrop — dark with blur */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 animate-fade-in"
+        style={{
+          background: "rgba(9, 9, 11, 0.75)",
+          backdropFilter: "blur(8px)",
+        }}
         onClick={onClose}
       />
 
-      {/* Modal card */}
-      <div className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 p-6">
+      {/* Modal card — glass */}
+      <div
+        className="relative glass-card-static max-w-sm w-full mx-4 p-6 animate-scale-in"
+        style={{
+          border: "var(--border-glass)",
+          boxShadow: "var(--shadow-glow), 0 25px 50px rgba(0, 0, 0, 0.5)",
+        }}
+      >
         {/* Close button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 transition-colors rounded-lg p-1"
+          style={{ color: "var(--text-tertiary)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-tertiary)";
+            e.currentTarget.style.background = "transparent";
+          }}
           aria-label="Закрыть"
         >
           <svg
@@ -68,13 +87,20 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
         </button>
 
         {/* Warning icon */}
-        <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{
+            background: "rgba(251, 146, 60, 0.12)",
+            border: "1px solid rgba(251, 146, 60, 0.25)",
+          }}
+        >
           <svg
-            className="w-7 h-7 text-amber-600"
+            className="w-7 h-7"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
             strokeWidth={2}
+            style={{ color: "var(--orange-400)" }}
           >
             <path
               strokeLinecap="round"
@@ -84,27 +110,33 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
           </svg>
         </div>
 
-        <h2 className="text-xl font-bold text-gray-900 text-center mb-1">
+        <h2 className="heading-card text-center mb-1" style={{ color: "var(--text-primary)" }}>
           Карточки закончились
         </h2>
-        <p className="text-gray-500 text-sm text-center mb-6">
+        <p className="text-sm text-center mb-6" style={{ color: "var(--text-tertiary)" }}>
           У вас 0 карточек. Выберите способ продолжить:
         </p>
 
         {/* One-time purchase option */}
-        <div className="border border-gray-200 rounded-xl p-4 mb-3">
+        <div
+          className="rounded-xl p-4 mb-3"
+          style={{
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold text-gray-900">1 карточка</p>
-              <p className="text-2xl font-bold text-gray-900">
-                49 <span className="text-base font-normal text-gray-500">р</span>
+              <p className="font-semibold" style={{ color: "var(--text-primary)" }}>1 карточка</p>
+              <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+                49 <span className="text-base font-normal" style={{ color: "var(--text-tertiary)" }}>р</span>
               </p>
             </div>
             <button
               type="button"
               disabled={loading}
               onClick={handleOneTime}
-              className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center"
+              className="btn-primary px-6 py-2.5 font-medium disabled:opacity-50 flex items-center text-sm"
             >
               {loading ? (
                 <svg
@@ -136,13 +168,16 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
 
         {/* Subscription option */}
         <div className="text-center">
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm mb-2" style={{ color: "var(--text-tertiary)" }}>
             Или подключите подписку от 499 р/мес
           </p>
           <button
             type="button"
             onClick={handleViewPricing}
-            className="text-blue-600 font-medium text-sm hover:text-blue-700 transition-colors"
+            className="font-medium text-sm transition-colors"
+            style={{ color: "var(--purple-400)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--purple-500)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--purple-400)")}
           >
             Смотреть тарифы
           </button>

@@ -95,45 +95,77 @@ export default function ProcessingPage() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+      <div className="bg-mesh" />
+
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <header
+        className="relative z-10"
+        style={{
+          borderBottom: "var(--border-subtle)",
+          background: "rgba(9, 9, 11, 0.8)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div className="mx-auto max-w-4xl px-6 py-4">
+          <h1 className="heading-card" style={{ color: "var(--text-primary)" }}>
             Удаление фона
           </h1>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-12">
+      <main className="relative z-10 mx-auto max-w-4xl px-6 py-12">
         {/* State 1: Processing */}
         {isProcessing && !isFailed && (
-          <div className="flex flex-col items-center justify-center py-24">
-            {/* Spinner */}
-            <svg
-              className="animate-spin h-12 w-12 text-green-600 mb-6"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
+          <div className="flex flex-col items-center justify-center py-24 animate-fade-in-up">
+            {/* Spinner with purple glow */}
+            <div
+              className="relative mb-8"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
+              {/* Outer glow ring */}
+              <div
+                className="absolute inset-0 rounded-full animate-pulse-glow"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  top: "-4px",
+                  left: "-4px",
+                }}
               />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            <p className="text-lg font-medium text-gray-900">
+              <div
+                className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full"
+                style={{
+                  background: "rgba(124, 58, 237, 0.12)",
+                  border: "2px solid rgba(124, 58, 237, 0.25)",
+                }}
+              >
+                <svg
+                  className="animate-spin h-8 w-8"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  style={{ color: "var(--purple-400)" }}
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <p className="text-lg font-semibold font-display" style={{ color: "var(--text-primary)" }}>
               Убираем фон...
             </p>
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm mt-2" style={{ color: "var(--text-tertiary)" }}>
               Это занимает несколько секунд
             </p>
           </div>
@@ -141,51 +173,60 @@ export default function ProcessingPage() {
 
         {/* State 2: Processed */}
         {isProcessed && !isFailed && (
-          <BackgroundPreview
-            originalUrl={image?.original_url ?? ""}
-            processedUrl={statusData?.processed_url ?? ""}
-            processingTimeMs={statusData?.processing_time_ms ?? undefined}
-            onNext={handleNext}
-            onUploadAnother={handleUploadAnother}
-          />
+          <div className="animate-fade-in-up">
+            <BackgroundPreview
+              originalUrl={image?.original_url ?? ""}
+              processedUrl={statusData?.processed_url ?? ""}
+              processingTimeMs={statusData?.processing_time_ms ?? undefined}
+              onNext={handleNext}
+              onUploadAnother={handleUploadAnother}
+            />
+          </div>
         )}
 
         {/* State 3: Error / Timeout */}
         {isFailed && (
-          <div className="flex flex-col items-center justify-center py-24">
+          <div className="flex flex-col items-center justify-center py-24 animate-fade-in-up">
             {/* Error icon */}
-            <svg
-              className="h-12 w-12 text-red-500 mb-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full mb-6"
+              style={{ background: "rgba(239, 68, 68, 0.1)" }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="text-red-600 font-medium text-lg mb-1">
+              <svg
+                className="h-8 w-8"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                style={{ color: "var(--red-400)" }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <p className="font-semibold text-lg mb-1" style={{ color: "var(--red-400)" }}>
               Не удалось обработать
             </p>
             {errorMessage && (
-              <p className="text-red-500 text-sm mb-6 text-center max-w-md">
+              <p className="text-sm mb-6 text-center max-w-md" style={{ color: "var(--text-tertiary)" }}>
                 {errorMessage}
               </p>
             )}
             <div className="flex flex-col items-center gap-3">
               <button
                 onClick={handleRetry}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors cursor-pointer"
+                className="btn-secondary font-semibold py-2.5 px-6 cursor-pointer"
+                style={{ borderColor: "rgba(239, 68, 68, 0.3)", color: "var(--red-400)" }}
               >
                 Попробовать снова
               </button>
               <button
                 onClick={handleUploadAnother}
-                className="text-gray-500 hover:text-gray-700 text-sm cursor-pointer"
+                className="btn-ghost text-sm cursor-pointer"
               >
                 Загрузить другое фото
               </button>

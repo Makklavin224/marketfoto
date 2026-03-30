@@ -11,6 +11,166 @@ import {
   type RegisterForm,
 } from "../lib/validators";
 
+/* ── Spinner component ── */
+function Spinner() {
+  return (
+    <svg
+      className="animate-spin h-5 w-5"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  );
+}
+
+/* ── Forgot Password (inline) ── */
+function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { authApi } = await import("../lib/api");
+      await authApi.forgotPassword(email);
+      setSent(true);
+    } catch {
+      setError("Не удалось отправить ссылку");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <div className="text-center space-y-4 animate-fade-in">
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            margin: "0 auto",
+            borderRadius: "var(--radius-full)",
+            background: "rgba(16, 185, 129, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-400)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.9375rem", lineHeight: 1.6 }}>
+          Ссылка для сброса пароля отправлена на{" "}
+          <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{email}</span>
+        </p>
+        <button
+          type="button"
+          onClick={onBack}
+          className="btn-ghost"
+          style={{ color: "var(--purple-400)", fontSize: "0.875rem" }}
+        >
+          Вернуться ко входу
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in">
+      <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6 }}>
+        Введите email, и мы отправим ссылку для сброса пароля.
+      </p>
+
+      {error && (
+        <div
+          style={{
+            padding: "0.75rem 1rem",
+            borderRadius: "var(--radius-md)",
+            background: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.2)",
+            color: "var(--red-400)",
+            fontSize: "0.875rem",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.8125rem",
+            fontWeight: 500,
+            color: "var(--text-secondary)",
+            marginBottom: "0.5rem",
+          }}
+        >
+          Email
+        </label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="input-dark"
+          placeholder="you@example.com"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn-primary"
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem",
+          opacity: loading ? 0.6 : 1,
+          cursor: loading ? "not-allowed" : "pointer",
+        }}
+      >
+        {loading ? <Spinner /> : "Отправить ссылку"}
+      </button>
+
+      <div style={{ textAlign: "center" }}>
+        <button
+          type="button"
+          onClick={onBack}
+          className="btn-ghost"
+          style={{ color: "var(--purple-400)", fontSize: "0.875rem" }}
+        >
+          Вернуться ко входу
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ══════════════════════════════════════════
+   Auth Page — Neon Forge Dark Theme
+   ══════════════════════════════════════════ */
 export default function AuthPage() {
   const [tab, setTab] = useState<"login" | "register" | "forgot">("login");
   const [apiError, setApiError] = useState("");
@@ -64,85 +224,185 @@ export default function AuthPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        {/* Logo */}
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
-          MarketFoto
-        </h1>
+  /* ── Label style helper ── */
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "0.8125rem",
+    fontWeight: 500,
+    color: "var(--text-secondary)",
+    marginBottom: "0.5rem",
+  };
 
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setTab("login");
-              setApiError("");
+  const optionalStyle: React.CSSProperties = {
+    color: "var(--text-tertiary)",
+    fontWeight: 400,
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem 1rem",
+        position: "relative",
+      }}
+    >
+      {/* ── Animated mesh background ── */}
+      <div className="bg-mesh" />
+
+      {/* ── Glass card ── */}
+      <div
+        className="glass-card-static animate-scale-in"
+        style={{
+          width: "100%",
+          maxWidth: 440,
+          padding: "2.5rem",
+          borderColor: "rgba(124, 58, 237, 0.12)",
+          boxShadow: "var(--shadow-glow), 0 8px 32px rgba(0, 0, 0, 0.4)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Decorative top glow line */}
+        <div
+          className="glow-line"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "10%",
+            right: "10%",
+            opacity: 0.5,
+          }}
+        />
+
+        {/* ── Logo ── */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <h1
+            className="font-display"
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
             }}
-            className={`flex-1 pb-3 text-sm font-medium transition-colors ${
-              tab === "login"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
           >
-            Вход
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTab("register");
-              setApiError("");
+            <span className="text-gradient">Market</span>
+            <span style={{ color: "var(--text-primary)" }}>Foto</span>
+          </h1>
+          <p
+            style={{
+              color: "var(--text-tertiary)",
+              fontSize: "0.875rem",
+              marginTop: "0.5rem",
             }}
-            className={`flex-1 pb-3 text-sm font-medium transition-colors ${
-              tab === "register"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
           >
-            Регистрация
-          </button>
+            Карточки для маркетплейсов за 30 секунд
+          </p>
         </div>
 
-        {/* API Error */}
+        {/* ── Tab switcher ── */}
+        {tab !== "forgot" && (
+          <div
+            style={{
+              display: "flex",
+              position: "relative",
+              marginBottom: "1.75rem",
+              background: "rgba(255, 255, 255, 0.03)",
+              borderRadius: "var(--radius-md)",
+              padding: "4px",
+              gap: "4px",
+            }}
+          >
+            {(["login", "register"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setTab(t);
+                  setApiError("");
+                }}
+                style={{
+                  flex: 1,
+                  padding: "0.625rem 0",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  fontFamily: "var(--font-body)",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all var(--transition-base)",
+                  position: "relative",
+                  background:
+                    tab === t
+                      ? "var(--gradient-primary)"
+                      : "transparent",
+                  color:
+                    tab === t
+                      ? "#fff"
+                      : "var(--text-tertiary)",
+                  boxShadow:
+                    tab === t
+                      ? "0 2px 8px rgba(124, 58, 237, 0.3)"
+                      : "none",
+                }}
+              >
+                {t === "login" ? "Вход" : "Регистрация"}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ── API Error ── */}
         {apiError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+          <div
+            className="animate-fade-in"
+            style={{
+              marginBottom: "1.25rem",
+              padding: "0.75rem 1rem",
+              borderRadius: "var(--radius-md)",
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              color: "var(--red-400)",
+              fontSize: "0.875rem",
+            }}
+          >
             {apiError}
           </div>
         )}
 
-        {/* Login Form */}
+        {/* ── Login Form ── */}
         {tab === "login" && (
-          <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+          <form
+            onSubmit={loginForm.handleSubmit(onLogin)}
+            className="animate-fade-in"
+            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+          >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label style={labelStyle}>Email</label>
               <input
                 type="email"
                 {...loginForm.register("email")}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="input-dark"
                 placeholder="you@example.com"
               />
               {loginForm.formState.errors.email && (
-                <p className="text-sm text-red-500 mt-1">
+                <p style={{ fontSize: "0.8125rem", color: "var(--red-400)", marginTop: "0.375rem" }}>
                   {loginForm.formState.errors.email.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Пароль
-              </label>
+              <label style={labelStyle}>Пароль</label>
               <input
                 type="password"
                 {...loginForm.register("password")}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="input-dark"
                 placeholder="Минимум 6 символов"
               />
               {loginForm.formState.errors.password && (
-                <p className="text-sm text-red-500 mt-1">
+                <p style={{ fontSize: "0.8125rem", color: "var(--red-400)", marginTop: "0.375rem" }}>
                   {loginForm.formState.errors.password.message}
                 </p>
               )}
@@ -151,39 +411,27 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loginForm.formState.isSubmitting}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors flex items-center justify-center"
+              className="btn-primary"
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginTop: "0.25rem",
+                opacity: loginForm.formState.isSubmitting ? 0.6 : 1,
+                cursor: loginForm.formState.isSubmitting ? "not-allowed" : "pointer",
+              }}
             >
-              {loginForm.formState.isSubmitting ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-              ) : (
-                "Войти"
-              )}
+              {loginForm.formState.isSubmitting ? <Spinner /> : "Войти"}
             </button>
 
-            <div className="text-center">
+            <div style={{ textAlign: "center" }}>
               <button
                 type="button"
-                className="text-sm text-blue-600 hover:text-blue-700"
+                className="btn-ghost"
                 onClick={() => setTab("forgot")}
+                style={{ color: "var(--purple-400)", fontSize: "0.875rem" }}
               >
                 Забыли пароль?
               </button>
@@ -191,57 +439,51 @@ export default function AuthPage() {
           </form>
         )}
 
-        {/* Register Form */}
+        {/* ── Register Form ── */}
         {tab === "register" && (
           <form
             onSubmit={registerForm.handleSubmit(onRegister)}
-            className="space-y-4"
+            className="animate-fade-in"
+            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
           >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label style={labelStyle}>Email</label>
               <input
                 type="email"
                 {...registerForm.register("email")}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="input-dark"
                 placeholder="you@example.com"
               />
               {registerForm.formState.errors.email && (
-                <p className="text-sm text-red-500 mt-1">
+                <p style={{ fontSize: "0.8125rem", color: "var(--red-400)", marginTop: "0.375rem" }}>
                   {registerForm.formState.errors.email.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Пароль
-              </label>
+              <label style={labelStyle}>Пароль</label>
               <input
                 type="password"
                 {...registerForm.register("password")}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="input-dark"
                 placeholder="Минимум 6 символов"
               />
               {registerForm.formState.errors.password && (
-                <p className="text-sm text-red-500 mt-1">
+                <p style={{ fontSize: "0.8125rem", color: "var(--red-400)", marginTop: "0.375rem" }}>
                   {registerForm.formState.errors.password.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Имя{" "}
-                <span className="text-gray-400 font-normal">
-                  (необязательно)
-                </span>
+              <label style={labelStyle}>
+                Имя <span style={optionalStyle}>(необязательно)</span>
               </label>
               <input
                 type="text"
                 {...registerForm.register("full_name")}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="input-dark"
                 placeholder="Как вас зовут"
               />
             </div>
@@ -249,123 +491,38 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={registerForm.formState.isSubmitting}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors flex items-center justify-center"
+              className="btn-primary"
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginTop: "0.25rem",
+                opacity: registerForm.formState.isSubmitting ? 0.6 : 1,
+                cursor: registerForm.formState.isSubmitting ? "not-allowed" : "pointer",
+              }}
             >
-              {registerForm.formState.isSubmitting ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-              ) : (
-                "Зарегистрироваться"
-              )}
+              {registerForm.formState.isSubmitting ? <Spinner /> : "Зарегистрироваться"}
             </button>
           </form>
         )}
 
-        {/* Forgot Password (inline) */}
+        {/* ── Forgot Password ── */}
         {tab === "forgot" && <ForgotPasswordForm onBack={() => setTab("login")} />}
-      </div>
-    </div>
-  );
-}
 
-function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const { authApi } = await import("../lib/api");
-      await authApi.forgotPassword(email);
-      setSent(true);
-    } catch {
-      setError("Не удалось отправить ссылку");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (sent) {
-    return (
-      <div className="text-center space-y-4">
-        <p className="text-gray-600">
-          Ссылка для сброса пароля отправлена на{" "}
-          <span className="font-medium">{email}</span>
-        </p>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm text-blue-600 hover:text-blue-700"
-        >
-          Вернуться ко входу
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-sm text-gray-600 mb-2">
-        Введите email, и мы отправим ссылку для сброса пароля.
-      </p>
-
-      {error && (
-        <p className="text-sm text-red-500">{error}</p>
-      )}
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-          placeholder="you@example.com"
-          required
+        {/* ── Bottom decorative line ── */}
+        <div
+          className="glow-line"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: "20%",
+            right: "20%",
+            opacity: 0.25,
+          }}
         />
       </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors"
-      >
-        {loading ? "Отправка..." : "Отправить ссылку"}
-      </button>
-
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm text-blue-600 hover:text-blue-700"
-        >
-          Вернуться ко входу
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }

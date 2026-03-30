@@ -1,8 +1,8 @@
 /**
  * Side-by-side comparison of original and processed (background removed) images.
  *
- * The processed image is displayed on a checkered transparency pattern (D-09).
- * Green "next" CTA and gray "upload another" link below (D-11).
+ * Dark-themed with checkered transparency pattern and glass cards.
+ * Green "next" CTA and ghost "upload another" link below.
  */
 
 interface BackgroundPreviewProps {
@@ -25,11 +25,17 @@ export default function BackgroundPreview({
       {/* Side-by-side comparison grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {/* Original image */}
-        <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+        <div className="animate-fade-in-up">
+          <p
+            className="text-xs uppercase tracking-wide mb-2 font-semibold"
+            style={{ color: "var(--text-tertiary)" }}
+          >
             Оригинал
           </p>
-          <div className="rounded-lg overflow-hidden shadow-sm border border-gray-200 bg-gray-100">
+          <div
+            className="glass-card-static overflow-hidden"
+            style={{ background: "var(--bg-tertiary)" }}
+          >
             <div className="flex items-center justify-center" style={{ maxHeight: "24rem" }}>
               <img
                 src={originalUrl}
@@ -41,16 +47,19 @@ export default function BackgroundPreview({
           </div>
         </div>
 
-        {/* Processed image on checkered background */}
-        <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+        {/* Processed image on dark checkered background */}
+        <div className="animate-fade-in-up delay-200">
+          <p
+            className="text-xs uppercase tracking-wide mb-2 font-semibold"
+            style={{ color: "var(--text-tertiary)" }}
+          >
             Без фона
           </p>
           <div
-            className="rounded-lg overflow-hidden shadow-sm border border-gray-200"
+            className="glass-card-static overflow-hidden"
             style={{
               backgroundImage:
-                "repeating-conic-gradient(#e5e7eb 0% 25%, #ffffff 0% 50%)",
+                "repeating-conic-gradient(rgba(255,255,255,0.04) 0% 25%, rgba(255,255,255,0.01) 0% 50%)",
               backgroundSize: "16px 16px",
             }}
           >
@@ -68,22 +77,22 @@ export default function BackgroundPreview({
 
       {/* Processing time */}
       {processingTimeMs != null && (
-        <p className="text-xs text-gray-400 text-center mb-4">
+        <p className="text-xs text-center mb-4" style={{ color: "var(--text-tertiary)" }}>
           Обработано за {(processingTimeMs / 1000).toFixed(1)}с
         </p>
       )}
 
       {/* CTAs */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center animate-fade-in-up delay-400">
         <button
           onClick={onNext}
-          className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors cursor-pointer"
+          className="btn-primary w-full md:w-auto text-lg py-3 px-8 cursor-pointer"
         >
           Далее: выбрать шаблон
         </button>
         <button
           onClick={onUploadAnother}
-          className="text-gray-500 hover:text-gray-700 text-sm mt-3 cursor-pointer"
+          className="btn-ghost text-sm mt-3 cursor-pointer"
         >
           Загрузить другое фото
         </button>

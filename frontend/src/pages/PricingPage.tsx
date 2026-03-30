@@ -6,11 +6,12 @@ import { paymentsApi, type PaymentVariant } from "../api/payments";
 
 const CHECK_ICON = (
   <svg
-    className="w-5 h-5 text-green-500 shrink-0"
+    className="w-5 h-5 shrink-0"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
     strokeWidth={2}
+    style={{ color: "var(--green-400)" }}
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
   </svg>
@@ -31,10 +32,7 @@ interface PlanCard {
   annualVariant: PaymentVariant;
   features: PlanFeature[];
   highlight: boolean;
-  borderColor: string;
-  buttonColor: string;
-  crossedPrice?: string;
-  savings?: string;
+  accentColor: string;
 }
 
 const PLANS: PlanCard[] = [
@@ -44,16 +42,15 @@ const PLANS: PlanCard[] = [
     monthlyPrice: "0",
     annualPrice: "0",
     annualTotal: "0",
-    monthlyVariant: "starter", // unused for free
-    annualVariant: "starter", // unused for free
+    monthlyVariant: "starter",
+    annualVariant: "starter",
     features: [
       { text: "3 карточки в месяц" },
       { text: "Водяной знак" },
       { text: "Базовые шаблоны" },
     ],
     highlight: false,
-    borderColor: "border-gray-200",
-    buttonColor: "bg-gray-100 text-gray-600 hover:bg-gray-200",
+    accentColor: "var(--text-tertiary)",
   },
   {
     name: "Starter",
@@ -63,8 +60,6 @@ const PLANS: PlanCard[] = [
     annualTotal: "3 990",
     monthlyVariant: "starter",
     annualVariant: "starter_annual",
-    crossedPrice: "5 988",
-    savings: "33%",
     features: [
       { text: "50 карточек в месяц" },
       { text: "Без водяного знака" },
@@ -72,8 +67,7 @@ const PLANS: PlanCard[] = [
       { text: "Приоритетная обработка" },
     ],
     highlight: true,
-    borderColor: "border-blue-500",
-    buttonColor: "bg-blue-600 text-white hover:bg-blue-700",
+    accentColor: "var(--purple-500)",
   },
   {
     name: "Business",
@@ -83,8 +77,6 @@ const PLANS: PlanCard[] = [
     annualTotal: "7 900",
     monthlyVariant: "business",
     annualVariant: "business_annual",
-    crossedPrice: "11 880",
-    savings: "34%",
     features: [
       { text: "200 карточек в месяц" },
       { text: "Без водяного знака" },
@@ -93,8 +85,7 @@ const PLANS: PlanCard[] = [
       { text: "Пакетная загрузка", badge: "скоро" },
     ],
     highlight: false,
-    borderColor: "border-purple-500",
-    buttonColor: "bg-purple-600 text-white hover:bg-purple-700",
+    accentColor: "var(--blue-500)",
   },
 ];
 
@@ -125,40 +116,45 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen py-12 px-4" style={{ background: "var(--bg-primary)" }}>
+      <div className="bg-mesh" />
+      <div className="max-w-5xl mx-auto relative">
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Тарифы</h1>
-          <p className="text-gray-600">Выберите подходящий план</p>
+        <div className="text-center mb-10 animate-fade-in-up">
+          <h1 className="heading-section mb-3" style={{ color: "var(--text-primary)" }}>
+            Тарифы
+          </h1>
+          <p style={{ color: "var(--text-secondary)" }}>Выберите подходящий план</p>
         </div>
 
         {/* Billing toggle */}
-        <div className="flex items-center justify-center gap-3 mb-10">
+        <div className="flex items-center justify-center gap-3 mb-10 animate-fade-in-up delay-100">
           <button
             type="button"
             onClick={() => setIsAnnual(false)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              !isAnnual
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className="px-4 py-2 rounded-full text-sm font-medium transition-all"
+            style={{
+              background: !isAnnual ? "var(--gradient-primary)" : "rgba(255, 255, 255, 0.06)",
+              color: !isAnnual ? "white" : "var(--text-secondary)",
+              border: !isAnnual ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+            }}
           >
             Ежемесячно
           </button>
           <button
             type="button"
             onClick={() => setIsAnnual(true)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              isAnnual
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className="px-4 py-2 rounded-full text-sm font-medium transition-all"
+            style={{
+              background: isAnnual ? "var(--gradient-primary)" : "rgba(255, 255, 255, 0.06)",
+              color: isAnnual ? "white" : "var(--text-secondary)",
+              border: isAnnual ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+            }}
           >
             Ежегодно
           </button>
           {isAnnual && (
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <span className="badge badge-green text-xs">
               Выгоднее
             </span>
           )}
@@ -166,7 +162,7 @@ export default function PricingPage() {
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {PLANS.map((plan) => {
+          {PLANS.map((plan, idx) => {
             const isCurrent = isCurrentPlan(plan.planKey);
             const variant = isAnnual
               ? plan.annualVariant
@@ -176,17 +172,29 @@ export default function PricingPage() {
             return (
               <div
                 key={plan.planKey}
-                className={`bg-white rounded-2xl shadow-sm border-2 p-6 flex flex-col ${
-                  plan.borderColor
-                } ${plan.highlight ? "ring-2 ring-blue-500 ring-offset-2" : ""}`}
+                className={`glass-card-static p-6 flex flex-col animate-fade-in-up relative overflow-hidden ${
+                  plan.highlight ? "animate-pulse-glow" : ""
+                }`}
+                style={{
+                  animationDelay: `${(idx + 2) * 100}ms`,
+                  border: plan.highlight
+                    ? "1px solid rgba(124, 58, 237, 0.4)"
+                    : "var(--border-subtle)",
+                }}
               >
+                {/* Top accent line */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-[2px]"
+                  style={{ background: plan.highlight ? "var(--gradient-primary)" : "transparent" }}
+                />
+
                 {/* Plan name */}
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">
+                  <h3 className="heading-card" style={{ color: "var(--text-primary)" }}>
                     {plan.name}
                   </h3>
                   {plan.highlight && (
-                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    <span className="badge badge-purple text-xs">
                       Популярный
                     </span>
                   )}
@@ -196,38 +204,37 @@ export default function PricingPage() {
                 <div className="mb-6">
                   {isFree ? (
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-gray-900">
+                      <span className="text-4xl font-bold text-gradient">
                         0
                       </span>
-                      <span className="text-gray-500">р/мес</span>
+                      <span style={{ color: "var(--text-tertiary)" }}>р/мес</span>
                     </div>
                   ) : isAnnual ? (
                     <div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-bold text-gray-900">
+                        <span className="text-4xl font-bold" style={{ color: "var(--text-primary)" }}>
                           {plan.annualPrice}
                         </span>
-                        <span className="text-gray-500">р/год</span>
+                        <span style={{ color: "var(--text-tertiary)" }}>р/год</span>
                       </div>
-                      {plan.crossedPrice && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-400 line-through">
-                            {plan.crossedPrice} р
-                          </span>
-                          {plan.savings && (
-                            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                              Экономия {plan.savings}
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className="text-sm line-through"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {plan.planKey === "starter" ? "5 988" : "11 880"} р
+                        </span>
+                        <span className="badge badge-green text-xs">
+                          Экономия {plan.planKey === "starter" ? "33%" : "34%"}
+                        </span>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-gray-900">
+                      <span className="text-4xl font-bold" style={{ color: "var(--text-primary)" }}>
                         {plan.monthlyPrice}
                       </span>
-                      <span className="text-gray-500">р/мес</span>
+                      <span style={{ color: "var(--text-tertiary)" }}>р/мес</span>
                     </div>
                   )}
                 </div>
@@ -237,11 +244,17 @@ export default function PricingPage() {
                   {plan.features.map((feature) => (
                     <li key={feature.text} className="flex items-center gap-2">
                       {CHECK_ICON}
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
                         {feature.text}
                       </span>
                       {feature.badge && (
-                        <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                        <span
+                          className="text-xs px-1.5 py-0.5 rounded"
+                          style={{
+                            background: "rgba(255, 255, 255, 0.06)",
+                            color: "var(--text-tertiary)",
+                          }}
+                        >
                           {feature.badge}
                         </span>
                       )}
@@ -254,11 +267,16 @@ export default function PricingPage() {
                   <button
                     type="button"
                     disabled
-                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
-                      isCurrent
-                        ? "bg-green-50 text-green-600 cursor-default"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    }`}
+                    className="w-full py-3 rounded-full font-medium font-display text-sm"
+                    style={{
+                      background: isCurrent
+                        ? "rgba(16, 185, 129, 0.1)"
+                        : "rgba(255, 255, 255, 0.04)",
+                      color: isCurrent
+                        ? "var(--green-400)"
+                        : "var(--text-muted)",
+                      cursor: "default",
+                    }}
                   >
                     {isCurrent ? "Текущий план" : "Бесплатный"}
                   </button>
@@ -266,7 +284,12 @@ export default function PricingPage() {
                   <button
                     type="button"
                     disabled
-                    className="w-full py-3 rounded-lg font-medium bg-green-50 text-green-600 cursor-default flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-full font-medium font-display text-sm flex items-center justify-center gap-2"
+                    style={{
+                      background: "rgba(16, 185, 129, 0.1)",
+                      color: "var(--green-400)",
+                      cursor: "default",
+                    }}
                   >
                     <svg
                       className="w-5 h-5"
@@ -288,7 +311,9 @@ export default function PricingPage() {
                     type="button"
                     disabled={loading !== null}
                     onClick={() => handleSubscribe(variant)}
-                    className={`w-full py-3 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center ${plan.buttonColor}`}
+                    className={`w-full py-3 rounded-full font-medium font-display text-sm transition-all disabled:opacity-50 flex items-center justify-center ${
+                      plan.highlight ? "btn-primary" : "btn-secondary"
+                    }`}
                   >
                     {loading === variant ? (
                       <svg
@@ -321,16 +346,19 @@ export default function PricingPage() {
           })}
         </div>
 
+        {/* Glow separator */}
+        <div className="glow-line mb-12" />
+
         {/* One-time purchase */}
-        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+        <div className="max-w-md mx-auto glass-card-static p-6 text-center animate-fade-in-up delay-500">
+          <h3 className="heading-card mb-1" style={{ color: "var(--text-primary)" }}>
             Или купите разово
           </h3>
-          <p className="text-gray-500 text-sm mb-4">
+          <p className="text-sm mb-4" style={{ color: "var(--text-tertiary)" }}>
             Без подписки, без водяного знака
           </p>
           <div className="flex items-center justify-center gap-3">
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
               1 карточка — 49 р
             </span>
           </div>
@@ -338,7 +366,7 @@ export default function PricingPage() {
             type="button"
             disabled={loading !== null}
             onClick={() => handleSubscribe("one_time")}
-            className="mt-4 px-8 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center mx-auto"
+            className="btn-secondary mt-4 px-8 py-3 font-medium disabled:opacity-50 flex items-center justify-center mx-auto"
           >
             {loading === "one_time" ? (
               <svg

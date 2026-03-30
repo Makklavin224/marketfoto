@@ -143,14 +143,21 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
   // ---------- No credits state ----------
   if (!hasCredits) {
     return (
-      <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+      <div
+        className="glass-card-static p-12 text-center"
+        style={{ border: "2px dashed rgba(255, 255, 255, 0.1)" }}
+      >
+        <div
+          className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+          style={{ background: "rgba(255, 255, 255, 0.05)" }}
+        >
           <svg
-            className="h-8 w-8 text-gray-400"
+            className="h-8 w-8"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
+            style={{ color: "var(--text-tertiary)" }}
           >
             <path
               strokeLinecap="round"
@@ -159,15 +166,15 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
             />
           </svg>
         </div>
-        <p className="text-lg font-medium text-gray-700">
+        <p className="text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
           Нет доступных карточек
         </p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm" style={{ color: "var(--text-tertiary)" }}>
           Оформите подписку для продолжения работы
         </p>
         <a
           href="/pricing"
-          className="mt-4 inline-block rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="btn-primary mt-4 inline-block text-sm"
         >
           Выбрать тариф
         </a>
@@ -178,14 +185,21 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
   // ---------- Error state ----------
   if (status === "error") {
     return (
-      <div className="rounded-2xl border-2 border-dashed border-red-300 bg-red-50 p-12 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+      <div
+        className="glass-card-static p-12 text-center"
+        style={{ border: "2px dashed rgba(239, 68, 68, 0.3)" }}
+      >
+        <div
+          className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+          style={{ background: "rgba(239, 68, 68, 0.1)" }}
+        >
           <svg
-            className="h-8 w-8 text-red-500"
+            className="h-8 w-8"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
+            style={{ color: "var(--red-400)" }}
           >
             <path
               strokeLinecap="round"
@@ -194,10 +208,13 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
             />
           </svg>
         </div>
-        <p className="text-lg font-medium text-red-600">{error}</p>
+        <p className="text-lg font-medium" style={{ color: "var(--red-400)" }}>{error}</p>
         <button
           onClick={handleRetry}
-          className="mt-4 text-sm font-medium text-blue-600 hover:underline"
+          className="mt-4 text-sm font-medium transition-colors"
+          style={{ color: "var(--purple-400)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--purple-500)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--purple-400)")}
         >
           Попробовать снова
         </button>
@@ -208,12 +225,19 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
   // ---------- Uploading state ----------
   if (status === "uploading") {
     return (
-      <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 p-12 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+      <div
+        className="glass-card-static p-12 text-center animate-pulse-glow"
+        style={{ border: "2px dashed rgba(124, 58, 237, 0.3)" }}
+      >
+        <div
+          className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+          style={{ background: "rgba(124, 58, 237, 0.15)" }}
+        >
           <svg
-            className="h-8 w-8 animate-spin text-blue-600"
+            className="h-8 w-8 animate-spin"
             fill="none"
             viewBox="0 0 24 24"
+            style={{ color: "var(--purple-400)" }}
           >
             <circle
               className="opacity-25"
@@ -230,14 +254,22 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
             />
           </svg>
         </div>
-        <p className="text-lg font-medium text-blue-700">Загрузка...</p>
-        <div className="mx-auto mt-4 h-2 max-w-xs overflow-hidden rounded-full bg-gray-200">
+        <p className="text-lg font-medium" style={{ color: "var(--text-primary)" }}>
+          Загрузка...
+        </p>
+        <div
+          className="mx-auto mt-4 h-2 max-w-xs overflow-hidden rounded-full"
+          style={{ background: "rgba(255, 255, 255, 0.06)" }}
+        >
           <div
-            className="h-full rounded-full bg-blue-600 transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${progress}%`,
+              background: "var(--gradient-primary)",
+            }}
           />
         </div>
-        <p className="mt-2 text-sm text-gray-500">{progress}%</p>
+        <p className="mt-2 text-sm" style={{ color: "var(--text-tertiary)" }}>{progress}%</p>
       </div>
     );
   }
@@ -245,13 +277,13 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
   // ---------- Uploaded state ----------
   if (status === "uploaded" && uploadedImage && previewUrl) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6">
-        {/* Image preview with checkerboard background for transparency */}
+      <div className="glass-card-static p-6 animate-scale-in">
+        {/* Image preview with dark checkerboard */}
         <div
           className="mx-auto flex max-h-64 items-center justify-center overflow-hidden rounded-lg"
           style={{
             backgroundImage:
-              "repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%)",
+              "repeating-conic-gradient(rgba(255,255,255,0.04) 0% 25%, transparent 0% 50%)",
             backgroundSize: "20px 20px",
           }}
         >
@@ -264,10 +296,10 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
 
         {/* Image info */}
         <div className="mt-4 text-center">
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
             {uploadedImage.original_filename}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs" style={{ color: "var(--text-tertiary)" }}>
             {uploadedImage.original_width} x {uploadedImage.original_height} px
             {" | "}
             {formatSize(uploadedImage.original_size)}
@@ -278,16 +310,18 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
         <div className="mt-6 space-y-3">
           <button
             onClick={() => {
-              // Phase 4 will navigate to background removal
               console.log("Navigate to remove-bg:", uploadedImage.id);
             }}
-            className="w-full rounded-lg bg-green-600 py-3 font-medium text-white hover:bg-green-700"
+            className="btn-primary w-full py-3 text-center"
           >
             Далее: убрать фон
           </button>
           <button
             onClick={handleDelete}
-            className="w-full text-sm text-red-500 hover:text-red-700"
+            className="w-full text-sm transition-colors"
+            style={{ color: "var(--red-400)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--red-500)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--red-400)")}
           >
             Удалить
           </button>
@@ -300,20 +334,29 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
   return (
     <div
       {...getRootProps()}
-      className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-colors ${
-        isDragActive
-          ? "border-blue-500 bg-blue-50"
-          : "border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
-      }`}
+      className="cursor-pointer rounded-2xl p-12 text-center transition-all"
+      style={{
+        border: isDragActive
+          ? "2px dashed var(--purple-500)"
+          : "2px dashed rgba(124, 58, 237, 0.3)",
+        background: isDragActive
+          ? "rgba(124, 58, 237, 0.08)"
+          : "var(--bg-card)",
+        boxShadow: isDragActive ? "var(--shadow-glow)" : "none",
+      }}
     >
       <input {...getInputProps()} />
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+      <div
+        className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+        style={{ background: "rgba(124, 58, 237, 0.12)" }}
+      >
         <svg
-          className="h-8 w-8 text-blue-500"
+          className="h-8 w-8"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
+          style={{ color: "var(--purple-400)" }}
         >
           <path
             strokeLinecap="round"
@@ -322,12 +365,14 @@ export default function ImageUpload({ onUploadComplete }: ImageUploadProps) {
           />
         </svg>
       </div>
-      <p className="text-lg font-medium text-gray-700">
+      <p className="text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
         {isDragActive
           ? "Отпустите для загрузки"
           : "Перетащите фото товара сюда или нажмите для выбора"}
       </p>
-      <p className="mt-2 text-sm text-gray-400">JPG, PNG, WebP до 10 МБ</p>
+      <p className="mt-2 text-sm" style={{ color: "var(--text-tertiary)" }}>
+        JPG, PNG, WebP до 10 МБ
+      </p>
     </div>
   );
 }

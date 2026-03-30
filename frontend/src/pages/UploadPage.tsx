@@ -7,17 +7,26 @@ export default function UploadPage() {
   const user = useAuthStore((s) => s.user);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with title and credits display */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-900">
+    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+      <div className="bg-mesh" />
+
+      {/* Header */}
+      <header
+        className="relative z-10"
+        style={{
+          borderBottom: "var(--border-subtle)",
+          background: "rgba(9, 9, 11, 0.8)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+          <h1 className="heading-card" style={{ color: "var(--text-primary)" }}>
             Загрузка фото
           </h1>
           {user && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
               Осталось карточек:{" "}
-              <span className="font-medium text-gray-900">
+              <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
                 {user.credits_remaining}
               </span>
             </span>
@@ -25,7 +34,7 @@ export default function UploadPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className="relative z-10 mx-auto max-w-2xl px-6 py-12 animate-fade-in-up">
         <ImageUpload
           onUploadComplete={(image) => {
             navigate(`/processing/${image.id}`);

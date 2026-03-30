@@ -1,97 +1,143 @@
+import { useEffect, useRef, useState } from "react";
+
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
+
+const steps = [
+  {
+    number: "01",
+    title: "Загрузите фото",
+    description: "Сфотографируйте товар на телефон и загрузите в сервис. AI на базе BiRefNet уберёт фон за 5 секунд.",
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M4 24l7-9 5 6 5-7 7 10" stroke="var(--purple-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="2" y="4" width="28" height="24" rx="3" stroke="var(--purple-400)" strokeWidth="1.5" />
+        <circle cx="22" cy="12" r="3" stroke="var(--purple-400)" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    number: "02",
+    title: "Выберите шаблон",
+    description: "Подберите шаблон с инфографикой для вашего маркетплейса. Добавьте текст, бейджи и характеристики.",
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect x="2" y="2" width="12" height="12" rx="2" stroke="var(--blue-400)" strokeWidth="1.5" />
+        <rect x="18" y="2" width="12" height="12" rx="2" stroke="var(--blue-400)" strokeWidth="1.5" />
+        <rect x="2" y="18" width="12" height="12" rx="2" stroke="var(--blue-400)" strokeWidth="1.5" />
+        <rect x="18" y="18" width="12" height="12" rx="2" stroke="var(--blue-400)" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    number: "03",
+    title: "Скачайте карточку",
+    description: "Готовая карточка в правильном размере для WB, Ozon или Яндекс.Маркет. Один клик — и на витрину.",
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M16 4v18M10 16l6 6 6-6" stroke="var(--green-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 24v4a2 2 0 002 2h20a2 2 0 002-2v-4" stroke="var(--green-400)" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+];
+
 export default function HowItWorksSection() {
-  const steps = [
-    {
-      number: 1,
-      title: "Загрузите фото",
-      description:
-        "Сфотографируйте товар на телефон и загрузите в сервис. AI уберёт фон за 5 секунд.",
-      icon: (
-        <svg
-          className="h-12 w-12 text-blue-600"
-          fill="none"
-          viewBox="0 0 48 48"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <rect x="8" y="6" width="32" height="36" rx="4" />
-          <circle cx="24" cy="22" r="8" />
-          <circle cx="24" cy="22" r="3" />
-          <rect x="18" y="8" width="12" height="2" rx="1" />
-        </svg>
-      ),
-    },
-    {
-      number: 2,
-      title: "Выберите шаблон",
-      description:
-        "Подберите шаблон с инфографикой для вашего маркетплейса. Добавьте текст и бейджи.",
-      icon: (
-        <svg
-          className="h-12 w-12 text-blue-600"
-          fill="none"
-          viewBox="0 0 48 48"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <rect x="4" y="4" width="18" height="18" rx="2" />
-          <rect x="26" y="4" width="18" height="18" rx="2" />
-          <rect x="4" y="26" width="18" height="18" rx="2" />
-          <rect x="26" y="26" width="18" height="18" rx="2" />
-        </svg>
-      ),
-    },
-    {
-      number: 3,
-      title: "Скачайте карточку",
-      description:
-        "Готовая карточка в правильном размере для WB, Ozon или Яндекс.Маркет.",
-      icon: (
-        <svg
-          className="h-12 w-12 text-blue-600"
-          fill="none"
-          viewBox="0 0 48 48"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path d="M24 6v24M16 22l8 8 8-8" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M8 34v6a2 2 0 002 2h28a2 2 0 002-2v-6" strokeLinecap="round" />
-        </svg>
-      ),
-    },
-  ];
+  const { ref, isVisible } = useInView();
 
   return (
-    <section className="bg-white py-16">
-      <div className="mx-auto max-w-6xl px-4">
-        <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">
-          Как это работает
-        </h2>
+    <section
+      id="how-it-works"
+      ref={ref}
+      className="relative py-24 lg:py-32"
+    >
+      {/* Section header */}
+      <div className="mx-auto max-w-[1200px] px-6">
+        <div className={`text-center ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+          <span className="badge badge-blue mb-4">Просто как 1-2-3</span>
+          <h2 className="heading-section" style={{ color: "var(--text-primary)" }}>
+            Как это работает
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-base" style={{ color: "var(--text-secondary)" }}>
+            От фото с телефона до готовой карточки на маркетплейсе за три простых шага
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        {/* Steps grid */}
+        <div className="relative mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {/* Connecting glow line (desktop only) */}
+          <div className="glow-line absolute top-[60px] left-[16.67%] right-[16.67%] hidden md:block" />
+
           {steps.map((step, index) => (
-            <div key={step.number} className="relative text-center">
-              {/* Connecting arrow (desktop only, not on last step) */}
-              {index < steps.length - 1 && (
-                <div className="absolute top-10 left-[calc(50%+40px)] hidden h-0.5 w-[calc(100%-80px)] bg-blue-200 md:block">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 border-t-4 border-b-4 border-l-6 border-t-transparent border-b-transparent border-l-blue-200" />
+            <div
+              key={step.number}
+              className={`relative ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}
+              style={{ animationDelay: `${(index + 1) * 150}ms` }}
+            >
+              {/* Card */}
+              <div className="glass-card relative z-10 p-8 text-center">
+                {/* Step number */}
+                <div
+                  className="mx-auto mb-6 flex h-[72px] w-[72px] items-center justify-center rounded-2xl"
+                  style={{
+                    background: "var(--gradient-surface)",
+                    border: "var(--border-glass)",
+                  }}
+                >
+                  <span
+                    className="font-display text-2xl font-bold text-gradient"
+                  >
+                    {step.number}
+                  </span>
                 </div>
-              )}
 
-              {/* Numbered circle */}
-              <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600">
-                {step.number}
+                {/* Icon */}
+                <div className="mx-auto mb-5 flex justify-center">
+                  {step.icon}
+                </div>
+
+                {/* Text */}
+                <h3
+                  className="heading-card mb-3"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {step.description}
+                </p>
               </div>
 
-              {/* Icon */}
-              <div className="mx-auto mb-4 flex justify-center">
-                {step.icon}
+              {/* Glow dot on the connecting line (desktop only) */}
+              <div
+                className="absolute top-[56px] left-1/2 -translate-x-1/2 hidden md:block"
+                style={{ zIndex: 20 }}
+              >
+                <div className="glow-dot" />
               </div>
-
-              {/* Title and description */}
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                {step.title}
-              </h3>
-              <p className="text-gray-600">{step.description}</p>
             </div>
           ))}
         </div>
