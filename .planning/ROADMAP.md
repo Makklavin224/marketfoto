@@ -53,9 +53,9 @@ Plans:
   5. Unauthenticated requests to protected endpoints receive 401 with clear error message
 **Plans:** 3 plans
 Plans:
-- [ ] 02-01-PLAN.md -- Auth backend: schemas, service (pwdlib + PyJWT), dependency, router with 5 endpoints
-- [ ] 02-02-PLAN.md -- Auth frontend: API client, auth store, React Router, AuthPage with tabs
-- [ ] 02-03-PLAN.md -- UserBadge in Header, ProtectedRoute, router wiring, end-to-end verification
+- [x] 02-01-PLAN.md -- Auth backend: schemas, service (pwdlib + PyJWT), dependency, router with 5 endpoints
+- [x] 02-02-PLAN.md -- Auth frontend: API client, auth store, React Router, AuthPage with tabs
+- [x] 02-03-PLAN.md -- UserBadge in Header, ProtectedRoute, router wiring, end-to-end verification
 **UI hint**: yes
 
 ### Phase 3: Upload Pipeline
@@ -68,10 +68,7 @@ Plans:
   3. Uploaded file appears in MinIO originals bucket at the correct path (originals/{user_id}/{image_id}.ext)
   4. User with 0 credits remaining gets a 403 and sees a message about upgrading their plan
   5. Oversized images (>4000px) are automatically resized before storage
-**Plans:** 2 plans
-Plans:
-- [ ] 03-01-PLAN.md -- Upload backend: MinIO service, image validation (magic bytes, resize), schemas, images router with 5 endpoints
-- [ ] 03-02-PLAN.md -- Upload frontend: ImageUpload component with react-dropzone, UploadPage, route wiring, end-to-end verification
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 4: Background Removal
@@ -84,10 +81,7 @@ Plans:
   3. Processed PNG with alpha channel is stored in MinIO processed bucket
   4. Processing that exceeds 30 seconds is marked as failed with a clear error message
   5. RQ worker stays within 2GB memory limit and recycles after prolonged use (no memory leak)
-**Plans:** 2 plans
-Plans:
-- [ ] 04-01-PLAN.md -- RQ worker job with rembg session reuse, remove-background endpoint, status polling endpoint
-- [ ] 04-02-PLAN.md -- BackgroundPreview component, polling hook, ProcessingPage with states, visual verification
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Template System
@@ -177,10 +171,10 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure Foundation | 0/3 | Planned | - |
-| 2. Authentication & User System | 0/3 | Planned | - |
-| 3. Upload Pipeline | 0/2 | Planned | - |
-| 4. Background Removal | 0/2 | Planned | - |
+| 1. Infrastructure Foundation | 3/3 | Complete | 2026-03-30 |
+| 2. Authentication & User System | 3/3 | Complete | 2026-03-30 |
+| 3. Upload Pipeline | 0/? | Not started | - |
+| 4. Background Removal | 0/? | Not started | - |
 | 5. Template System | 0/? | Not started | - |
 | 6. Canvas Editor | 0/? | Not started | - |
 | 7. Rendering & Export | 0/? | Not started | - |
