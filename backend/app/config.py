@@ -20,9 +20,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expires_hours: int = 168
 
-    # YooKassa (placeholder for Phase 8)
+    # YooKassa
     yookassa_shop_id: str = ""
     yookassa_secret_key: str = ""
+
+    # AI Image Generation (Nano Banana 2 / Gemini 3.1 Flash Image)
+    gemini_api_key: str = ""
 
     # App
     app_url: str = "https://marketfoto.ru"
