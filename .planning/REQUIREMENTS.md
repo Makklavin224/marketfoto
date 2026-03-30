@@ -84,16 +84,16 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Landing Page
 
-- [ ] **LAND-01**: Hero-секция: заголовок + подзаголовок + CTA "Попробовать бесплатно" + до/после slider
-- [ ] **LAND-02**: Секция "Как это работает" (3 шага с иконками)
-- [ ] **LAND-03**: Секция "До / После" (3-4 примера: одежда, электроника, косметика, еда)
-- [ ] **LAND-04**: Секция "Для какого маркетплейса" (логотипы WB, Ozon, ЯМ)
-- [ ] **LAND-05**: Секция "Тарифы" (3 карточки + toggle месяц/год + разовая покупка)
-- [ ] **LAND-06**: Секция "FAQ" (accordion, 5-7 вопросов)
-- [ ] **LAND-07**: Footer (О сервисе, Тарифы, Поддержка, Политика конфиденциальности)
-- [ ] **LAND-08**: SEO: title, description, OG-tags для MarketFoto
-- [ ] **LAND-09**: Mobile-first responsive (breakpoints 640/768/1024/1280)
-- [ ] **LAND-10**: LCP < 3 секунд, lazy-load изображений
+- [x] **LAND-01**: Hero-секция: заголовок + подзаголовок + CTA "Попробовать бесплатно" + до/после slider
+- [x] **LAND-02**: Секция "Как это работает" (3 шага с иконками)
+- [x] **LAND-03**: Секция "До / После" (3-4 примера: одежда, электроника, косметика, еда)
+- [x] **LAND-04**: Секция "Для какого маркетплейса" (логотипы WB, Ozon, ЯМ)
+- [x] **LAND-05**: Секция "Тарифы" (3 карточки + toggle месяц/год + разовая покупка)
+- [x] **LAND-06**: Секция "FAQ" (accordion, 5-7 вопросов)
+- [x] **LAND-07**: Footer (О сервисе, Тарифы, Поддержка, Политика конфиденциальности)
+- [x] **LAND-08**: SEO: title, description, OG-tags для MarketFoto
+- [x] **LAND-09**: Mobile-first responsive (breakpoints 640/768/1024/1280)
+- [x] **LAND-10**: LCP < 3 секунд, lazy-load изображений
 
 ### Dashboard
 
@@ -239,16 +239,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-03 | Phase 9 | Pending |
 | DASH-04 | Phase 9 | Pending |
 | DASH-05 | Phase 9 | Pending |
-| LAND-01 | Phase 10 | Pending |
-| LAND-02 | Phase 10 | Pending |
-| LAND-03 | Phase 10 | Pending |
-| LAND-04 | Phase 10 | Pending |
-| LAND-05 | Phase 10 | Pending |
-| LAND-06 | Phase 10 | Pending |
-| LAND-07 | Phase 10 | Pending |
-| LAND-08 | Phase 10 | Pending |
-| LAND-09 | Phase 10 | Pending |
-| LAND-10 | Phase 10 | Pending |
+| LAND-01 | Phase 10 | Complete |
+| LAND-02 | Phase 10 | Complete |
+| LAND-03 | Phase 10 | Complete |
+| LAND-04 | Phase 10 | Complete |
+| LAND-05 | Phase 10 | Complete |
+| LAND-06 | Phase 10 | Complete |
+| LAND-07 | Phase 10 | Complete |
+| LAND-08 | Phase 10 | Complete |
+| LAND-09 | Phase 10 | Complete |
+| LAND-10 | Phase 10 | Complete |
 
 **Coverage:**
 - v1 requirements: 82 total
