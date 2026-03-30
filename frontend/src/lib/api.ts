@@ -55,3 +55,47 @@ export const authApi = {
   forgotPassword: (email: string) =>
     api.post<{ message: string }>("/auth/forgot-password", { email }),
 };
+
+// --- Image types ---
+export interface ImageRecord {
+  id: string;
+  original_url: string;
+  processed_url: string | null;
+  status: "uploaded" | "processing" | "processed" | "failed";
+  original_width: number;
+  original_height: number;
+  original_filename: string;
+  original_size: number;
+  processing_time_ms: number | null;
+  error_message: string | null;
+  created_at: string;
+}
+
+export interface ImageStatusResponse {
+  status: "uploaded" | "processing" | "processed" | "failed";
+  processed_url: string | null;
+  error_message: string | null;
+}
+
+// --- Images API ---
+export const imagesApi = {
+  upload: (file: File, onProgress?: (percent: number) => void) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post<ImageRecord>("/images/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: (e) => {
+        if (onProgress && e.total) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      },
+    });
+  },
+
+  get: (imageId: string) => api.get<ImageRecord>(`/images/${imageId}`),
+
+  getStatus: (imageId: string) =>
+    api.get<ImageStatusResponse>(`/images/${imageId}/status`),
+
+  delete: (imageId: string) => api.delete(`/images/${imageId}`),
+};

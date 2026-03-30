@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
+from app.api.images import router as images_router
 from app.api.templates import router as templates_router
 
 
@@ -24,11 +25,9 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(health_router)
-<<<<<<< HEAD
     app.include_router(auth_router)
-=======
+    app.include_router(images_router)
     app.include_router(templates_router)
->>>>>>> worktree-agent-aa3959b0
 
     return app
 

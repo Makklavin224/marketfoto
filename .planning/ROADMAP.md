@@ -68,7 +68,10 @@ Plans:
   3. Uploaded file appears in MinIO originals bucket at the correct path (originals/{user_id}/{image_id}.ext)
   4. User with 0 credits remaining gets a 403 and sees a message about upgrading their plan
   5. Oversized images (>4000px) are automatically resized before storage
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 03-01-PLAN.md -- Upload backend: MinIO service, image validation (magic bytes, dimensions, auto-resize), Pydantic schemas, images router with 5 endpoints
+- [x] 03-02-PLAN.md -- Upload frontend: react-dropzone ImageUpload component, UploadPage, images API client, /upload route
 **UI hint**: yes
 
 ### Phase 4: Background Removal
@@ -184,7 +187,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 |-------|----------------|--------|-----------|
 | 1. Infrastructure Foundation | 3/3 | Complete | 2026-03-30 |
 | 2. Authentication & User System | 3/3 | Complete | 2026-03-30 |
-| 3. Upload Pipeline | 0/? | Not started | - |
+| 3. Upload Pipeline | 2/2 | Complete | 2026-03-30 |
 | 4. Background Removal | 0/? | Not started | - |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 0/3 | Planned | - |
