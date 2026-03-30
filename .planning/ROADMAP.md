@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Upload Pipeline** - Photo upload with validation, presigned URLs, MinIO storage, upload UI with drag-and-drop
 - [x] **Phase 4: Background Removal** - Async rembg processing via RQ worker, status polling, before/after preview UI
 - [ ] **Phase 5: Template System** - Template data model, seed templates, API with filtering, template selector UI
-- [ ] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
+- [x] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
 - [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
 - [ ] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
 - [ ] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
@@ -117,9 +117,9 @@ Plans:
   5. 15-20 Cyrillic fonts are available and render correctly in the editor
 **Plans:** 3 plans
 Plans:
-- [ ] 06-01-PLAN.md -- Types, zustand store, fabric.js canvas with drag/resize product image, marketplace switching, zoom
-- [ ] 06-02-PLAN.md -- 15+ Cyrillic woff2 fonts bundled, @font-face CSS, font registry with loader utility
-- [ ] 06-03-PLAN.md -- Right panel controls (marketplace, text, style, font picker, badge), canvas-store sync, Create Card button
+- [x] 06-01-PLAN.md -- Types, zustand store, fabric.js canvas with drag/resize product image, marketplace switching, zoom
+- [x] 06-02-PLAN.md -- 15+ Cyrillic woff2 fonts bundled, @font-face CSS, font registry with loader utility
+- [x] 06-03-PLAN.md -- Right panel controls (marketplace, text, style, font picker, badge), canvas-store sync, Create Card button
 **UI hint**: yes
 
 ### Phase 7: Rendering & Export
@@ -132,11 +132,7 @@ Plans:
   3. Free-plan renders have a "MarketFoto.ru" watermark (opacity 0.3) in the bottom-right corner
   4. User can download the card as PNG or JPG via a time-limited signed URL
   5. One credit is atomically deducted before rendering begins (no double-spend on concurrent clicks)
-**Plans:** 3 plans
-Plans:
-- [ ] 07-01-PLAN.md -- Renders API: Pydantic schemas, 4 endpoints (create/list/status/delete), atomic credit deduction, RQ enqueue
-- [ ] 07-02-PLAN.md -- Worker render job: Pillow compositing (bg+product+text+decorations), marketplace resize, watermark, TTF fonts in Docker
-- [ ] 07-03-PLAN.md -- Export frontend: renders API client, ExportPanel with preview/download/actions, Create Card button wiring
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 8: Payments & Credits
@@ -166,10 +162,7 @@ Plans:
   3. User can download any card as PNG/JPG and delete cards they no longer need
   4. Grid supports pagination (load more) for users with many cards
   5. New users see an empty state with "Create your first card" call to action
-**Plans:** 2 plans
-Plans:
-- [ ] 09-01-PLAN.md -- Dashboard backend: stats endpoint, renders list/download/delete endpoints, Pydantic schemas
-- [ ] 09-02-PLAN.md -- Dashboard frontend: DashboardPage with stats cards, card grid, pagination, empty state
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 10: Landing Page
@@ -182,10 +175,7 @@ Plans:
   3. Pricing section shows 3 plans with month/year toggle matching the app pricing page
   4. Page is fully responsive (mobile-first, breakpoints at 640/768/1024/1280)
   5. LCP is under 3 seconds with lazy-loaded images and proper SEO meta tags
-**Plans:** 2 plans
-Plans:
-- [ ] 10-01-PLAN.md -- Landing page: Hero, HowItWorks, BeforeAfter, Marketplaces, Pricing, FAQ, Footer sections + router
-- [ ] 10-02-PLAN.md -- SEO meta tags (title, OG, Twitter Card) and LCP optimization (lazy loading below-fold sections)
+**Plans**: TBD
 **UI hint**: yes
 
 ## Progress
@@ -203,8 +193,8 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 3. Upload Pipeline | 2/2 | Complete | 2026-03-30 |
 | 4. Background Removal | 2/2 | Complete | 2026-03-30 |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
-| 6. Canvas Editor | 0/3 | Planned | - |
-| 7. Rendering & Export | 0/3 | Planned | - |
+| 6. Canvas Editor | 3/3 | Complete | 2026-03-30 |
+| 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 0/3 | Planned | - |
-| 9. Dashboard | 0/2 | Planned | - |
-| 10. Landing Page | 0/2 | Planned | - |
+| 9. Dashboard | 0/? | Not started | - |
+| 10. Landing Page | 0/? | Not started | - |

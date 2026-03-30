@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import type { TemplateDetail } from "../types/editor";
 
 export interface TemplateListItem {
   id: string;
@@ -36,5 +37,24 @@ export function useTemplates(params: FetchTemplatesParams) {
   return useQuery({
     queryKey: ["templates", params.category, params.marketplace],
     queryFn: () => fetchTemplates(params),
+  });
+}
+
+// --- Template detail (for editor page) ---
+
+interface TemplateDetailResponse {
+  template: TemplateDetail;
+}
+
+export function useTemplateDetail(templateId: string | null) {
+  return useQuery({
+    queryKey: ["templates", "detail", templateId],
+    queryFn: async () => {
+      const { data } = await axios.get<TemplateDetailResponse>(
+        `/api/templates/${templateId}`
+      );
+      return data.template;
+    },
+    enabled: !!templateId,
   });
 }
