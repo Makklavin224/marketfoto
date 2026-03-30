@@ -49,12 +49,12 @@ Requirements for MVP release. Each maps to roadmap phases.
 - [x] **TMPL-02**: 5 seed-шаблонов загружены в БД (clean-white, info-features, lifestyle-shadow, info-badge-hit, collage-two)
 - [x] **TMPL-03**: Каждый шаблон имеет JSON config (background, product_area, text_areas, decorations)
 - [x] **TMPL-04**: Premium шаблоны (collage-two) недоступны для free-плана (403 с предложением upgrade)
-- [ ] **EDIT-01**: Canvas-редактор на fabric.js: фото товара draggable и resizable на шаблоне
-- [ ] **EDIT-02**: Текстовые области из шаблона кликабельны с inline-editing
-- [ ] **EDIT-03**: Бейджи/декорации включаются/выключаются toggle
-- [ ] **EDIT-04**: Выбор маркетплейса (WB/Ozon/ЯМ) переключает размеры canvas
-- [ ] **EDIT-05**: Правая панель: секции Маркетплейс, Тексты, Стиль (fontSize/color/bold), Бейдж
-- [ ] **EDIT-06**: Zoom +/- кнопки для canvas
+- [x] **EDIT-01**: Canvas-редактор на fabric.js: фото товара draggable и resizable на шаблоне
+- [x] **EDIT-02**: Текстовые области из шаблона кликабельны с inline-editing
+- [x] **EDIT-03**: Бейджи/декорации включаются/выключаются toggle
+- [x] **EDIT-04**: Выбор маркетплейса (WB/Ozon/ЯМ) переключает размеры canvas
+- [x] **EDIT-05**: Правая панель: секции Маркетплейс, Тексты, Стиль (fontSize/color/bold), Бейдж
+- [x] **EDIT-06**: Zoom +/- кнопки для canvas
 
 ### Rendering & Export
 
@@ -114,7 +114,7 @@ Requirements for MVP release. Each maps to roadmap phases.
 - [ ] **UI-07**: PricingPage (/pricing): 3 карточки + toggle месяц/год + блок разовой покупки
 - [ ] **UI-08**: PaymentSuccess (/payment/success): галочка + новый план + кнопка "Создать карточку"
 - [ ] **UI-09**: PaymentModal: "Закончились карточки" + варианты подписки/разовой покупки
-- [ ] **UI-10**: 15-20 Cyrillic fonts bundled (Montserrat, Inter, Golos, Rubik, Nunito и др.)
+- [x] **UI-10**: 15-20 Cyrillic fonts bundled (Montserrat, Inter, Golos, Rubik, Nunito и др.)
 
 ## v2 Requirements
 
@@ -203,13 +203,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TMPL-03 | Phase 5 | Complete |
 | TMPL-04 | Phase 5 | Complete |
 | UI-05 | Phase 5 | Complete |
-| EDIT-01 | Phase 6 | Pending |
-| EDIT-02 | Phase 6 | Pending |
-| EDIT-03 | Phase 6 | Pending |
-| EDIT-04 | Phase 6 | Pending |
-| EDIT-05 | Phase 6 | Pending |
-| EDIT-06 | Phase 6 | Pending |
-| UI-10 | Phase 6 | Pending |
+| EDIT-01 | Phase 6 | Complete |
+| EDIT-02 | Phase 6 | Complete |
+| EDIT-03 | Phase 6 | Complete |
+| EDIT-04 | Phase 6 | Complete |
+| EDIT-05 | Phase 6 | Complete |
+| EDIT-06 | Phase 6 | Complete |
+| UI-10 | Phase 6 | Complete |
 | RNDR-01 | Phase 7 | Pending |
 | RNDR-02 | Phase 7 | Pending |
 | RNDR-03 | Phase 7 | Pending |

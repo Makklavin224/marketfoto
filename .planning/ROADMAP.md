@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Upload Pipeline** - Photo upload with validation, presigned URLs, MinIO storage, upload UI with drag-and-drop
 - [x] **Phase 4: Background Removal** - Async rembg processing via RQ worker, status polling, before/after preview UI
 - [ ] **Phase 5: Template System** - Template data model, seed templates, API with filtering, template selector UI
-- [ ] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
+- [x] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
 - [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
 - [ ] **Phase 8: Payments & Credits** - YooKassa integration, subscriptions, one-time purchase, webhooks, credit enforcement, pricing/payment UI
 - [ ] **Phase 9: Dashboard** - Card history grid, stats, download/delete management, empty states, pagination
@@ -117,9 +117,9 @@ Plans:
   5. 15-20 Cyrillic fonts are available and render correctly in the editor
 **Plans:** 3 plans
 Plans:
-- [ ] 06-01-PLAN.md -- Types, zustand store, fabric.js canvas with drag/resize product image, marketplace switching, zoom
-- [ ] 06-02-PLAN.md -- 15+ Cyrillic woff2 fonts bundled, @font-face CSS, font registry with loader utility
-- [ ] 06-03-PLAN.md -- Right panel controls (marketplace, text, style, font picker, badge), canvas-store sync, Create Card button
+- [x] 06-01-PLAN.md -- Types, zustand store, fabric.js canvas with drag/resize product image, marketplace switching, zoom
+- [x] 06-02-PLAN.md -- 15+ Cyrillic woff2 fonts bundled, @font-face CSS, font registry with loader utility
+- [x] 06-03-PLAN.md -- Right panel controls (marketplace, text, style, font picker, badge), canvas-store sync, Create Card button
 **UI hint**: yes
 
 ### Phase 7: Rendering & Export
@@ -193,7 +193,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 3. Upload Pipeline | 2/2 | Complete | 2026-03-30 |
 | 4. Background Removal | 2/2 | Complete | 2026-03-30 |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
-| 6. Canvas Editor | 0/3 | Planned | - |
+| 6. Canvas Editor | 3/3 | Complete | 2026-03-30 |
 | 7. Rendering & Export | 0/? | Not started | - |
 | 8. Payments & Credits | 0/3 | Planned | - |
 | 9. Dashboard | 0/? | Not started | - |
