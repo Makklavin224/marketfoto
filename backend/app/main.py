@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.api.auth import router as auth_router
+from app.api.dashboard import router as dashboard_router
 from app.api.health import router as health_router
 from app.api.images import router as images_router
 from app.api.payments import router as payments_router
+from app.api.renders import router as renders_router
 from app.api.templates import router as templates_router
 
 
@@ -27,8 +29,10 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(dashboard_router)
     app.include_router(images_router)
     app.include_router(payments_router)
+    app.include_router(renders_router)
     app.include_router(templates_router)
 
     return app
