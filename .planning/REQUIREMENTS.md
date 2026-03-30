@@ -167,13 +167,94 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Pending |
+| INFRA-06 | Phase 1 | Pending |
+| INFRA-07 | Phase 1 | Pending |
+| INFRA-08 | Phase 1 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-02 | Phase 2 | Pending |
+| UPLD-01 | Phase 3 | Pending |
+| UPLD-02 | Phase 3 | Pending |
+| UPLD-03 | Phase 3 | Pending |
+| UPLD-04 | Phase 3 | Pending |
+| UPLD-10 | Phase 3 | Pending |
+| UPLD-11 | Phase 3 | Pending |
+| UI-03 | Phase 3 | Pending |
+| UPLD-05 | Phase 4 | Pending |
+| UPLD-06 | Phase 4 | Pending |
+| UPLD-07 | Phase 4 | Pending |
+| UPLD-08 | Phase 4 | Pending |
+| UPLD-09 | Phase 4 | Pending |
+| UPLD-12 | Phase 4 | Pending |
+| UI-04 | Phase 4 | Pending |
+| TMPL-01 | Phase 5 | Pending |
+| TMPL-02 | Phase 5 | Pending |
+| TMPL-03 | Phase 5 | Pending |
+| TMPL-04 | Phase 5 | Pending |
+| UI-05 | Phase 5 | Pending |
+| EDIT-01 | Phase 6 | Pending |
+| EDIT-02 | Phase 6 | Pending |
+| EDIT-03 | Phase 6 | Pending |
+| EDIT-04 | Phase 6 | Pending |
+| EDIT-05 | Phase 6 | Pending |
+| EDIT-06 | Phase 6 | Pending |
+| UI-10 | Phase 6 | Pending |
+| RNDR-01 | Phase 7 | Pending |
+| RNDR-02 | Phase 7 | Pending |
+| RNDR-03 | Phase 7 | Pending |
+| RNDR-04 | Phase 7 | Pending |
+| RNDR-05 | Phase 7 | Pending |
+| RNDR-06 | Phase 7 | Pending |
+| RNDR-07 | Phase 7 | Pending |
+| RNDR-08 | Phase 7 | Pending |
+| RNDR-09 | Phase 7 | Pending |
+| RNDR-10 | Phase 7 | Pending |
+| UI-06 | Phase 7 | Pending |
+| PAY-01 | Phase 8 | Pending |
+| PAY-02 | Phase 8 | Pending |
+| PAY-03 | Phase 8 | Pending |
+| PAY-04 | Phase 8 | Pending |
+| PAY-05 | Phase 8 | Pending |
+| PAY-06 | Phase 8 | Pending |
+| PAY-07 | Phase 8 | Pending |
+| PAY-08 | Phase 8 | Pending |
+| PAY-09 | Phase 8 | Pending |
+| PAY-10 | Phase 8 | Pending |
+| UI-07 | Phase 8 | Pending |
+| UI-08 | Phase 8 | Pending |
+| UI-09 | Phase 8 | Pending |
+| DASH-01 | Phase 9 | Pending |
+| DASH-02 | Phase 9 | Pending |
+| DASH-03 | Phase 9 | Pending |
+| DASH-04 | Phase 9 | Pending |
+| DASH-05 | Phase 9 | Pending |
+| LAND-01 | Phase 10 | Pending |
+| LAND-02 | Phase 10 | Pending |
+| LAND-03 | Phase 10 | Pending |
+| LAND-04 | Phase 10 | Pending |
+| LAND-05 | Phase 10 | Pending |
+| LAND-06 | Phase 10 | Pending |
+| LAND-07 | Phase 10 | Pending |
+| LAND-08 | Phase 10 | Pending |
+| LAND-09 | Phase 10 | Pending |
+| LAND-10 | Phase 10 | Pending |
 
 **Coverage:**
-- v1 requirements: 76 total
-- Mapped to phases: 0
-- Unmapped: 76 ⚠️
+- v1 requirements: 82 total
+- Mapped to phases: 82
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-30*
-*Last updated: 2026-03-30 after initial definition*
+*Last updated: 2026-03-30 after roadmap creation*
