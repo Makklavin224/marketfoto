@@ -45,10 +45,10 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Templates & Editor
 
-- [ ] **TMPL-01**: GET /api/templates возвращает список шаблонов с фильтрацией по category и marketplace
-- [ ] **TMPL-02**: 5 seed-шаблонов загружены в БД (clean-white, info-features, lifestyle-shadow, info-badge-hit, collage-two)
-- [ ] **TMPL-03**: Каждый шаблон имеет JSON config (background, product_area, text_areas, decorations)
-- [ ] **TMPL-04**: Premium шаблоны (collage-two) недоступны для free-плана (403 с предложением upgrade)
+- [x] **TMPL-01**: GET /api/templates возвращает список шаблонов с фильтрацией по category и marketplace
+- [x] **TMPL-02**: 5 seed-шаблонов загружены в БД (clean-white, info-features, lifestyle-shadow, info-badge-hit, collage-two)
+- [x] **TMPL-03**: Каждый шаблон имеет JSON config (background, product_area, text_areas, decorations)
+- [x] **TMPL-04**: Premium шаблоны (collage-two) недоступны для free-плана (403 с предложением upgrade)
 - [ ] **EDIT-01**: Canvas-редактор на fabric.js: фото товара draggable и resizable на шаблоне
 - [ ] **EDIT-02**: Текстовые области из шаблона кликабельны с inline-editing
 - [ ] **EDIT-03**: Бейджи/декорации включаются/выключаются toggle
@@ -109,7 +109,7 @@ Requirements for MVP release. Each maps to roadmap phases.
 - [ ] **UI-02**: UserBadge в Header: аватар + имя + план + "Осталось N карточек" + dropdown menu
 - [ ] **UI-03**: ImageUpload: drag & drop зона, file picker, прогресс-бар, preview, шахматный фон для прозрачности
 - [ ] **UI-04**: BackgroundPreview: оригинал слева, обработанное справа, кнопка "Далее"
-- [ ] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
+- [x] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
 - [ ] **UI-06**: ExportPanel: превью, информация о размере, кнопки скачать PNG/JPG, "Создать ещё"
 - [ ] **UI-07**: PricingPage (/pricing): 3 карточки + toggle месяц/год + блок разовой покупки
 - [ ] **UI-08**: PaymentSuccess (/payment/success): галочка + новый план + кнопка "Создать карточку"
@@ -198,11 +198,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPLD-09 | Phase 4 | Pending |
 | UPLD-12 | Phase 4 | Pending |
 | UI-04 | Phase 4 | Pending |
-| TMPL-01 | Phase 5 | Pending |
-| TMPL-02 | Phase 5 | Pending |
-| TMPL-03 | Phase 5 | Pending |
-| TMPL-04 | Phase 5 | Pending |
-| UI-05 | Phase 5 | Pending |
+| TMPL-01 | Phase 5 | Complete |
+| TMPL-02 | Phase 5 | Complete |
+| TMPL-03 | Phase 5 | Complete |
+| TMPL-04 | Phase 5 | Complete |
+| UI-05 | Phase 5 | Complete |
 | EDIT-01 | Phase 6 | Pending |
 | EDIT-02 | Phase 6 | Pending |
 | EDIT-03 | Phase 6 | Pending |
