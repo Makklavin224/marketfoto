@@ -71,16 +71,16 @@ Requirements for MVP release. Each maps to roadmap phases.
 
 ### Payments
 
-- [ ] **PAY-01**: POST /api/payments/create создаёт платёж в YooKassa (subscription или one_time)
-- [ ] **PAY-02**: Поддержка 6 вариантов: starter (49900 коп), business (99000), starter_annual (399000), business_annual (790000), one_time (4900)
-- [ ] **PAY-03**: YooKassa возвращает confirmation_url → фронт редиректит пользователя
-- [ ] **PAY-04**: POST /api/payments/webhook обрабатывает YooKassa notifications с идемпотентностью по payment_id
-- [ ] **PAY-05**: Webhook проверяет IP из белого списка YooKassa
-- [ ] **PAY-06**: При payment.succeeded: обновляет plan, credits_remaining, subscription_expires_at
-- [ ] **PAY-07**: one_time покупка: credits_remaining += 1 (не меняет план)
-- [ ] **PAY-08**: GET /api/payments/history возвращает историю платежей пользователя
-- [ ] **PAY-09**: POST /api/payments/cancel-subscription отменяет auto-renewal (план действует до expires_at)
-- [ ] **PAY-10**: Cron job ежедневно: если subscription_expires_at < now и нет autopay → plan='free', credits=3
+- [x] **PAY-01**: POST /api/payments/create создаёт платёж в YooKassa (subscription или one_time)
+- [x] **PAY-02**: Поддержка 6 вариантов: starter (49900 коп), business (99000), starter_annual (399000), business_annual (790000), one_time (4900)
+- [x] **PAY-03**: YooKassa возвращает confirmation_url → фронт редиректит пользователя
+- [x] **PAY-04**: POST /api/payments/webhook обрабатывает YooKassa notifications с идемпотентностью по payment_id
+- [x] **PAY-05**: Webhook проверяет IP из белого списка YooKassa
+- [x] **PAY-06**: При payment.succeeded: обновляет plan, credits_remaining, subscription_expires_at
+- [x] **PAY-07**: one_time покупка: credits_remaining += 1 (не меняет план)
+- [x] **PAY-08**: GET /api/payments/history возвращает историю платежей пользователя
+- [x] **PAY-09**: POST /api/payments/cancel-subscription отменяет auto-renewal (план действует до expires_at)
+- [x] **PAY-10**: Cron job ежедневно: если subscription_expires_at < now и нет autopay → plan='free', credits=3
 
 ### Landing Page
 
@@ -111,9 +111,9 @@ Requirements for MVP release. Each maps to roadmap phases.
 - [x] **UI-04**: BackgroundPreview: оригинал слева, обработанное справа, кнопка "Далее"
 - [x] **UI-05**: TemplateSelector: табы-фильтры по категориям, чипы по маркетплейсу, сетка 3 колонки, замок на premium
 - [ ] **UI-06**: ExportPanel: превью, информация о размере, кнопки скачать PNG/JPG, "Создать ещё"
-- [ ] **UI-07**: PricingPage (/pricing): 3 карточки + toggle месяц/год + блок разовой покупки
-- [ ] **UI-08**: PaymentSuccess (/payment/success): галочка + новый план + кнопка "Создать карточку"
-- [ ] **UI-09**: PaymentModal: "Закончились карточки" + варианты подписки/разовой покупки
+- [x] **UI-07**: PricingPage (/pricing): 3 карточки + toggle месяц/год + блок разовой покупки
+- [x] **UI-08**: PaymentSuccess (/payment/success): галочка + новый план + кнопка "Создать карточку"
+- [x] **UI-09**: PaymentModal: "Закончились карточки" + варианты подписки/разовой покупки
 - [ ] **UI-10**: 15-20 Cyrillic fonts bundled (Montserrat, Inter, Golos, Rubik, Nunito и др.)
 
 ## v2 Requirements
@@ -221,19 +221,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RNDR-09 | Phase 7 | Pending |
 | RNDR-10 | Phase 7 | Pending |
 | UI-06 | Phase 7 | Pending |
-| PAY-01 | Phase 8 | Pending |
-| PAY-02 | Phase 8 | Pending |
-| PAY-03 | Phase 8 | Pending |
-| PAY-04 | Phase 8 | Pending |
-| PAY-05 | Phase 8 | Pending |
-| PAY-06 | Phase 8 | Pending |
-| PAY-07 | Phase 8 | Pending |
-| PAY-08 | Phase 8 | Pending |
-| PAY-09 | Phase 8 | Pending |
-| PAY-10 | Phase 8 | Pending |
-| UI-07 | Phase 8 | Pending |
-| UI-08 | Phase 8 | Pending |
-| UI-09 | Phase 8 | Pending |
+| PAY-01 | Phase 8 | Complete |
+| PAY-02 | Phase 8 | Complete |
+| PAY-03 | Phase 8 | Complete |
+| PAY-04 | Phase 8 | Complete |
+| PAY-05 | Phase 8 | Complete |
+| PAY-06 | Phase 8 | Complete |
+| PAY-07 | Phase 8 | Complete |
+| PAY-08 | Phase 8 | Complete |
+| PAY-09 | Phase 8 | Complete |
+| PAY-10 | Phase 8 | Complete |
+| UI-07 | Phase 8 | Complete |
+| UI-08 | Phase 8 | Complete |
+| UI-09 | Phase 8 | Complete |
 | DASH-01 | Phase 9 | Pending |
 | DASH-02 | Phase 9 | Pending |
 | DASH-03 | Phase 9 | Pending |
