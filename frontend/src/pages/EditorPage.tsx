@@ -1,24 +1,19 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import toast from 'react-hot-toast';
 import { useTemplateDetail } from '../api/templates';
+import { useCreateRender, useRenderStatus } from '../api/renders';
 import { useEditorStore } from '../stores/editor';
 import FabricCanvas from '../components/editor/FabricCanvas';
 import RightPanel from '../components/editor/RightPanel';
+import ExportPanel from '../components/editor/ExportPanel';
 import { loadAllFonts } from '../lib/fonts';
-
-// Placeholder product image (gray rectangle as data URL) for MVP
-const PLACEHOLDER_PRODUCT_IMAGE =
-  'data:image/svg+xml;base64,' +
-  btoa(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">' +
-      '<rect width="600" height="600" fill="#D1D5DB"/>' +
-      '<text x="300" y="310" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#6B7280">Product Photo</text>' +
-      '</svg>'
-  );
 
 export default function EditorPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const templateId = searchParams.get('template');
+  const imageId = searchParams.get('image');
 
   const { data: template, isLoading, error } = useTemplateDetail(templateId);
 
@@ -30,6 +25,13 @@ export default function EditorPage() {
   const marketplace = useEditorStore((s) => s.marketplace);
   const zoom = useEditorStore((s) => s.zoom);
 
+  // Export state
+  const [renderId, setRenderId] = useState<string | null>(null);
+  const [showExport, setShowExport] = useState(false);
+
+  const createRender = useCreateRender();
+  const renderStatus = useRenderStatus(renderId);
+
   // Preload all editor fonts on mount
   useEffect(() => {
     loadAllFonts().then(() => {
@@ -37,13 +39,64 @@ export default function EditorPage() {
     });
   }, []);
 
-  // Set template in store when loaded
+  // Set template in store when loaded, use processed image if available
   useEffect(() => {
     if (template) {
       setTemplate(template);
-      setProductImageUrl(PLACEHOLDER_PRODUCT_IMAGE);
+      // If we have a processed image URL from previous steps, use it
+      // Otherwise use a placeholder SVG
+      if (!productImageUrl) {
+        const placeholder =
+          'data:image/svg+xml;base64,' +
+          btoa(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">' +
+              '<rect width="600" height="600" fill="#D1D5DB"/>' +
+              '<text x="300" y="310" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#6B7280">Product Photo</text>' +
+              '</svg>'
+          );
+        setProductImageUrl(placeholder);
+      }
     }
-  }, [template, setTemplate, setProductImageUrl]);
+  }, [template, setTemplate, setProductImageUrl, productImageUrl]);
+
+  // Handle "Create Card" button press
+  const handleCreateCard = async () => {
+    const editorState = useEditorStore.getState();
+    const overlayData = editorState.getOverlayData();
+    if (!overlayData || !editorState.template) return;
+
+    if (!imageId) {
+      toast.error('Изображение не выбрано');
+      return;
+    }
+
+    try {
+      const render = await createRender.mutateAsync({
+        image_id: imageId,
+        template_id: editorState.template.id,
+        overlay_data: overlayData,
+        marketplace: editorState.marketplace,
+      });
+      setRenderId(render.id);
+      setShowExport(true);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      const detail = error?.response?.data?.detail || 'Ошибка создания карточки';
+      toast.error(detail);
+    }
+  };
+
+  // Handle returning to editor from export
+  const handleEdit = () => {
+    setShowExport(false);
+    setRenderId(null);
+  };
+
+  // Handle "Create More" -- reset and go to upload
+  const handleCreateMore = () => {
+    useEditorStore.getState().reset();
+    navigate('/upload');
+  };
 
   // Loading state
   if (!templateId) {
@@ -96,21 +149,35 @@ export default function EditorPage() {
           </span>
         </div>
         <div className="text-xs text-gray-400">
-          Zoom: {Math.round(zoom * 100)}%
+          {showExport ? 'Экспорт' : `Zoom: ${Math.round(zoom * 100)}%`}
         </div>
       </div>
 
       {/* Main area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Canvas area (70%) */}
-        <FabricCanvas
-          templateConfig={templateConfig}
-          productImageUrl={productImageUrl}
+      {showExport && renderId ? (
+        <ExportPanel
+          renderId={renderId}
+          renderStatus={renderStatus.data}
+          marketplace={marketplace}
+          isLoading={renderStatus.isLoading}
+          onEdit={handleEdit}
+          onCreateMore={handleCreateMore}
         />
+      ) : (
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left: Canvas area */}
+          <FabricCanvas
+            templateConfig={templateConfig}
+            productImageUrl={productImageUrl}
+          />
 
-        {/* Right: Control panel */}
-        <RightPanel />
-      </div>
+          {/* Right: Control panel */}
+          <RightPanel
+            onCreateCard={handleCreateCard}
+            isCreating={createRender.isPending}
+          />
+        </div>
+      )}
     </div>
   );
 }

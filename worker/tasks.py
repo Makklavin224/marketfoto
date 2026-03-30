@@ -191,3 +191,389 @@ def remove_background_job(image_id: str, user_id: str) -> None:
             logger.exception("Failed to update image status to 'failed'")
 
         raise
+
+
+# ---------------------------------------------------------------------------
+# Render card job: Pillow compositing pipeline
+# ---------------------------------------------------------------------------
+
+import numpy as np
+from PIL import ImageDraw, ImageFilter, ImageFont
+
+FONTS_DIR = os.environ.get("FONTS_DIR", "/app/fonts")
+
+MARKETPLACE_SIZES = {
+    "wb": (900, 1200),
+    "ozon": (1200, 1200),
+    "ym": (800, 800),
+}
+
+# Font family name -> TTF filename mapping (matches frontend font registry)
+FONT_MAP = {
+    "Inter": "Inter",
+    "Montserrat": "Montserrat",
+    "Rubik": "Rubik",
+    "Nunito": "Nunito",
+    "Roboto": "Roboto",
+    "Open Sans": "Open_Sans",
+    "Raleway": "Raleway",
+    "PT Sans": "PT_Sans",
+    "Comfortaa": "Comfortaa",
+    "Exo 2": "Exo_2",
+    "Jost": "Jost",
+    "Manrope": "Manrope",
+    "Play": "Play",
+    "Golos Text": "Golos_Text",
+}
+
+
+def _load_font(family: str, size: int, weight: str = "normal") -> ImageFont.FreeTypeFont:
+    """Load TTF font from FONTS_DIR. Falls back to default if not found."""
+    base_name = FONT_MAP.get(family, "Inter")
+    suffix = "Bold" if weight == "bold" else "Regular"
+
+    # Try specific weight file first, then variable font, then Inter fallback
+    candidates = [
+        os.path.join(FONTS_DIR, f"{base_name}-{suffix}.ttf"),
+        os.path.join(FONTS_DIR, f"{base_name}-Variable.ttf"),
+        os.path.join(FONTS_DIR, "Inter-Variable.ttf"),  # ultimate fallback
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                return ImageFont.truetype(path, size=int(size))
+            except Exception:
+                continue
+
+    # Pillow built-in fallback (basic, no Cyrillic -- last resort)
+    logger.warning("Font not found: %s %s, using default", family, suffix)
+    return ImageFont.load_default()
+
+
+def _hex_to_rgba(hex_color: str, alpha: int = 255) -> tuple:
+    """Convert '#RRGGBB' or 'rgba(r,g,b,a)' to (R, G, B, A) tuple."""
+    if hex_color.startswith("rgba("):
+        parts = hex_color.replace("rgba(", "").replace(")", "").split(",")
+        r, g, b = int(parts[0].strip()), int(parts[1].strip()), int(parts[2].strip())
+        a = int(float(parts[3].strip()) * 255)
+        return (r, g, b, a)
+    hex_color = hex_color.lstrip("#")
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return (r, g, b, alpha)
+
+
+def _get_render_data(render_id: str):
+    """Fetch render record + template config + image processed_url + user plan."""
+    with _sync_engine.connect() as conn:
+        result = conn.execute(
+            text(
+                "SELECT r.id, r.user_id, r.image_id, r.template_id, "
+                "r.overlay_data, r.marketplace, r.output_width, r.output_height, "
+                "t.config AS template_config, "
+                "i.processed_url, "
+                "u.plan AS user_plan "
+                "FROM renders r "
+                "JOIN templates t ON t.id = r.template_id "
+                "JOIN images i ON i.id = r.image_id "
+                "JOIN users u ON u.id = r.user_id "
+                "WHERE r.id = :render_id::uuid"
+            ),
+            {"render_id": render_id},
+        )
+        row = result.mappings().fetchone()
+        return dict(row) if row else None
+
+
+def _update_render_status(
+    render_id: str,
+    *,
+    output_url: str | None = None,
+    error_message: str | None = None,
+) -> None:
+    """Update render record in PostgreSQL."""
+    with _sync_engine.connect() as conn:
+        conn.execute(
+            text(
+                "UPDATE renders SET output_url = :output_url "
+                "WHERE id = :render_id::uuid"
+            ),
+            {"output_url": output_url, "render_id": render_id},
+        )
+        conn.commit()
+
+
+def render_card_job(render_id: str) -> None:
+    """Render a product card using Pillow compositing.
+
+    Called by RQ with job_timeout=60.
+    Composites: background + shadow + product image + text areas + decorations.
+    Applies watermark for free plan. Saves to MinIO rendered bucket.
+    """
+    start_time = time.time()
+
+    try:
+        # Step 1: Fetch all data needed for rendering
+        data = _get_render_data(render_id)
+        if not data:
+            raise ValueError(f"Render record not found: {render_id}")
+
+        overlay = data["overlay_data"]  # Already parsed from JSONB
+        config = data["template_config"]  # Template JSON config
+        marketplace = data["marketplace"]
+        user_plan = data["user_plan"]
+        output_w = data["output_width"]
+        output_h = data["output_height"]
+
+        logger.info(
+            "Rendering card %s (%s %dx%d)", render_id, marketplace, output_w, output_h
+        )
+
+        # Step 2: Create base canvas at marketplace dimensions
+        canvas = Image.new("RGBA", (output_w, output_h), (255, 255, 255, 255))
+
+        # Step 3: Draw background
+        bg = config.get("background", {})
+        if bg.get("type") == "gradient":
+            # Vertical gradient using numpy for performance
+            from_color = _hex_to_rgba(bg.get("from", "#FFFFFF"))
+            to_color = _hex_to_rgba(bg.get("to", "#FFFFFF"))
+            gradient = np.zeros((output_h, output_w, 4), dtype=np.uint8)
+            for ch in range(3):
+                gradient[:, :, ch] = np.linspace(
+                    from_color[ch], to_color[ch], output_h, dtype=np.uint8
+                )[:, np.newaxis]
+            gradient[:, :, 3] = 255
+            canvas = Image.fromarray(gradient, "RGBA")
+        elif bg.get("type") == "solid":
+            color = _hex_to_rgba(bg.get("color", "#FFFFFF"))
+            canvas = Image.new("RGBA", (output_w, output_h), color)
+
+        # Step 4: Load product image
+        product_img = None
+        px, py = 0, 0
+        processed_url = data["processed_url"]
+        if processed_url:
+            try:
+                response = _minio_client.get_object("processed", processed_url)
+                product_bytes = response.read()
+                response.close()
+                response.release_conn()
+
+                product_img = Image.open(io.BytesIO(product_bytes)).convert("RGBA")
+
+                # Position and resize per overlay_data.product
+                prod = overlay.get("product", {})
+                px = int(prod.get("x", 0))
+                py = int(prod.get("y", 0))
+                pw = int(prod.get("width", product_img.width))
+                ph = int(prod.get("height", product_img.height))
+                rotation = float(prod.get("rotation", 0))
+
+                # Resize product image to target dimensions
+                product_img = product_img.resize((pw, ph), Image.LANCZOS)
+
+                # Apply rotation if non-zero
+                if abs(rotation) > 0.5:
+                    product_img = product_img.rotate(
+                        -rotation, expand=True, resample=Image.BICUBIC
+                    )
+            except Exception as exc:
+                logger.warning("Failed to load product image: %s", exc)
+
+        # Step 5: Draw shadow decorations BEFORE product (so shadow is behind)
+        decorations = config.get("decorations", [])
+        for deco in decorations:
+            if deco.get("type") == "shadow" and product_img is not None:
+                shadow_offset_x = int(deco.get("offsetX", 0))
+                shadow_offset_y = int(deco.get("offsetY", 0))
+                shadow_blur = int(deco.get("blur", 10))
+                shadow_color = _hex_to_rgba(deco.get("color", "rgba(0,0,0,0.15)"))
+
+                # Create shadow from product silhouette
+                shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+                if product_img.mode == "RGBA":
+                    alpha_mask = product_img.split()[3]
+                    shadow_fill = Image.new("RGBA", product_img.size, shadow_color)
+                    shadow_fill.putalpha(alpha_mask)
+                    shadow.paste(
+                        shadow_fill,
+                        (px + shadow_offset_x, py + shadow_offset_y),
+                        shadow_fill,
+                    )
+                shadow = shadow.filter(ImageFilter.GaussianBlur(radius=shadow_blur))
+                canvas = Image.alpha_composite(canvas, shadow)
+
+        # Step 6: Composite product image onto canvas
+        if product_img is not None:
+            canvas.paste(product_img, (px, py), product_img)
+
+        # Step 7: Draw text areas
+        draw = ImageDraw.Draw(canvas)
+
+        texts_overlay = overlay.get("texts", [])
+        text_areas_config = config.get("text_areas", [])
+
+        # Build a lookup from area_id to config defaults
+        ta_config_map = {ta["id"]: ta for ta in text_areas_config}
+
+        for text_item in texts_overlay:
+            area_id = text_item.get("area_id", "")
+            content = text_item.get("content", "")
+            if not content.strip():
+                continue
+
+            # Get position from template config (canonical positions)
+            ta_cfg = ta_config_map.get(area_id, {})
+            tx = int(ta_cfg.get("x", 0))
+            ty = int(ta_cfg.get("y", 0))
+            tw = int(ta_cfg.get("width", 800))
+            t_align = ta_cfg.get("align", "left")
+
+            # Get style from overlay (user overrides)
+            font_size = int(
+                text_item.get("fontSize", ta_cfg.get("fontSize", 24))
+            )
+            font_family = text_item.get("fontFamily", "Inter")
+            font_weight = text_item.get(
+                "fontWeight", ta_cfg.get("fontWeight", "normal")
+            )
+            text_color = text_item.get("color", ta_cfg.get("color", "#000000"))
+
+            font = _load_font(font_family, font_size, font_weight)
+            fill_color = _hex_to_rgba(text_color)[:3]  # RGB for draw.text
+
+            # Calculate text position based on alignment
+            bbox = draw.textbbox((0, 0), content, font=font)
+            text_w = bbox[2] - bbox[0]
+
+            if t_align == "center":
+                tx = tx + (tw - text_w) // 2
+            elif t_align == "right":
+                tx = tx + tw - text_w
+
+            draw.text((tx, ty), content, fill=fill_color, font=font)
+
+        # Step 8: Draw non-shadow decorations (badges, lines)
+        badge_overlay = overlay.get("badge", {})
+
+        for deco in decorations:
+            deco_type = deco.get("type")
+
+            if deco_type == "badge" and badge_overlay.get("enabled", True):
+                # Draw rounded rectangle badge with text
+                bx = int(deco.get("x", 0))
+                by = int(deco.get("y", 0))
+                bw = int(deco.get("width", 100))
+                bh = int(deco.get("height", 40))
+                bg_color = _hex_to_rgba(deco.get("bg", "#FF0000"))
+                text_color_badge = _hex_to_rgba(deco.get("color", "#FFFFFF"))[:3]
+                badge_font_size = int(deco.get("fontSize", 16))
+                border_radius = int(deco.get("borderRadius", 0))
+                badge_text = badge_overlay.get("text", deco.get("text", ""))
+
+                # Draw rounded rectangle on separate layer
+                badge_layer = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+                badge_draw = ImageDraw.Draw(badge_layer)
+                badge_draw.rounded_rectangle(
+                    [(0, 0), (bw - 1, bh - 1)],
+                    radius=border_radius,
+                    fill=bg_color,
+                )
+                # Draw badge text centered
+                badge_font = _load_font("Inter", badge_font_size, "bold")
+                bbox = badge_draw.textbbox((0, 0), badge_text, font=badge_font)
+                tw_b = bbox[2] - bbox[0]
+                th_b = bbox[3] - bbox[1]
+                badge_draw.text(
+                    ((bw - tw_b) // 2, (bh - th_b) // 2),
+                    badge_text,
+                    fill=text_color_badge,
+                    font=badge_font,
+                )
+                canvas.paste(badge_layer, (bx, by), badge_layer)
+
+            elif deco_type == "line":
+                x1 = int(deco.get("x1", 0))
+                y1 = int(deco.get("y1", 0))
+                x2 = int(deco.get("x2", 0))
+                y2 = int(deco.get("y2", 0))
+                line_color = _hex_to_rgba(deco.get("color", "#000000"))[:3]
+                line_width = int(deco.get("width", 1))
+                draw.line(
+                    [(x1, y1), (x2, y2)], fill=line_color, width=line_width
+                )
+
+        # Step 9: Apply watermark for free plan (per D-04, RNDR-06)
+        if user_plan == "free":
+            watermark_text = "MarketFoto.ru"
+            # ~3% of output width for readable but subtle font size
+            wm_font_size = max(int(output_w * 0.03), 14)
+            wm_font = _load_font("Inter", wm_font_size, "normal")
+
+            wm_layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+            wm_draw = ImageDraw.Draw(wm_layer)
+
+            bbox = wm_draw.textbbox((0, 0), watermark_text, font=wm_font)
+            wm_w = bbox[2] - bbox[0]
+            wm_h = bbox[3] - bbox[1]
+
+            # Bottom-right corner with 20px padding
+            wm_x = output_w - wm_w - 20
+            wm_y = output_h - wm_h - 20
+
+            # Opacity 0.3 = alpha 77
+            wm_draw.text(
+                (wm_x, wm_y),
+                watermark_text,
+                fill=(128, 128, 128, 77),
+                font=wm_font,
+            )
+            canvas = Image.alpha_composite(canvas, wm_layer)
+
+        # Step 10: Convert to RGB for final output (no alpha in final PNG)
+        final_image = canvas.convert("RGB")
+
+        # Step 11: Save to bytes
+        output_buffer = io.BytesIO()
+        final_image.save(output_buffer, format="PNG", optimize=True)
+        output_buffer.seek(0)
+        png_bytes = output_buffer.getvalue()
+
+        # Step 12: Upload to MinIO rendered bucket (per D-01, RNDR-04)
+        user_id = str(data["user_id"])
+        output_key = f"{user_id}/{render_id}.png"
+
+        _minio_client.put_object(
+            "rendered",
+            output_key,
+            io.BytesIO(png_bytes),
+            len(png_bytes),
+            content_type="image/png",
+        )
+
+        # Step 13: Update render record with output_url
+        _update_render_status(render_id, output_url=output_key)
+
+        elapsed = int((time.time() - start_time) * 1000)
+        logger.info(
+            "Render %s complete in %dms (%d bytes)",
+            render_id,
+            elapsed,
+            len(png_bytes),
+        )
+
+    except Exception as exc:
+        elapsed = int((time.time() - start_time) * 1000)
+        error_msg = str(exc)[:500]
+        logger.error(
+            "Render %s failed after %dms: %s", render_id, elapsed, error_msg
+        )
+
+        try:
+            _update_render_status(render_id, error_message=error_msg)
+        except Exception:
+            logger.exception("Failed to update render status to failed")
+
+        raise
