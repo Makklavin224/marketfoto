@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
 import ProcessingPage from "./pages/ProcessingPage";
 import EditorPage from "./pages/EditorPage";
+import LandingPage from "./pages/LandingPage";
 
 const router = createBrowserRouter([
   {
@@ -47,11 +48,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: (
-      <div className="p-8 text-center text-gray-500">
-        Landing — coming in Phase 10
-      </div>
-    ),
+    element: <LandingPage />,
   },
 ]);
 
