@@ -135,7 +135,11 @@ Plans:
   3. YooKassa webhook correctly updates user plan, credits, and subscription expiry with idempotent processing
   4. User who runs out of credits sees a modal with upgrade options (subscription or one-time 49r purchase)
   5. Expired subscriptions automatically revert to free plan with 3 credits via daily cron job
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 08-01-PLAN.md -- Payment backend: Pydantic schemas, YooKassa service, /create and /webhook endpoints
+- [ ] 08-02-PLAN.md -- Payment management: /history, /cancel-subscription endpoints, subscription cron job
+- [ ] 08-03-PLAN.md -- Payment frontend: PricingPage, PaymentSuccessPage, PaymentModal, router wiring
 **UI hint**: yes
 
 ### Phase 9: Dashboard
@@ -181,6 +185,6 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 0/? | Not started | - |
 | 7. Rendering & Export | 0/? | Not started | - |
-| 8. Payments & Credits | 0/? | Not started | - |
+| 8. Payments & Credits | 0/3 | Planned | - |
 | 9. Dashboard | 0/? | Not started | - |
 | 10. Landing Page | 0/? | Not started | - |
