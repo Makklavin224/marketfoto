@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Infrastructure Foundation** - Docker Compose stack with 7 services, DB schema, MinIO buckets, health checks
 - [ ] **Phase 2: Authentication & User System** - Registration, login, JWT, password reset, user profile, auth UI
 - [ ] **Phase 3: Upload Pipeline** - Photo upload with validation, presigned URLs, MinIO storage, upload UI with drag-and-drop
-- [ ] **Phase 4: Background Removal** - Async rembg processing via RQ worker, status polling, before/after preview UI
+- [x] **Phase 4: Background Removal** - Async rembg processing via RQ worker, status polling, before/after preview UI
 - [ ] **Phase 5: Template System** - Template data model, seed templates, API with filtering, template selector UI
 - [ ] **Phase 6: Canvas Editor** - fabric.js editor with drag/resize, text editing, badges, marketplace switching, bundled fonts
 - [ ] **Phase 7: Rendering & Export** - Server-side Pillow rendering, marketplace sizes, watermark, download, export panel UI
@@ -84,7 +84,10 @@ Plans:
   3. Processed PNG with alpha channel is stored in MinIO processed bucket
   4. Processing that exceeds 30 seconds is marked as failed with a clear error message
   5. RQ worker stays within 2GB memory limit and recycles after prolonged use (no memory leak)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 04-01-PLAN.md -- Backend: RQ worker job with rembg session reuse, remove-background endpoint with RQ enqueue, status polling endpoint
+- [x] 04-02-PLAN.md -- Frontend: useImageStatus polling hook, BackgroundPreview with checkered pattern, ProcessingPage with 3-state UI
 **UI hint**: yes
 
 ### Phase 5: Template System
@@ -188,7 +191,7 @@ Phase 10 depends only on Phase 2 and can be parallelized with later phases if de
 | 1. Infrastructure Foundation | 3/3 | Complete | 2026-03-30 |
 | 2. Authentication & User System | 3/3 | Complete | 2026-03-30 |
 | 3. Upload Pipeline | 2/2 | Complete | 2026-03-30 |
-| 4. Background Removal | 0/? | Not started | - |
+| 4. Background Removal | 2/2 | Complete | 2026-03-30 |
 | 5. Template System | 2/2 | Complete | 2026-03-30 |
 | 6. Canvas Editor | 0/3 | Planned | - |
 | 7. Rendering & Export | 0/? | Not started | - |
