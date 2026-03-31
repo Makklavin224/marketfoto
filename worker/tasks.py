@@ -939,9 +939,9 @@ def ai_photoshoot_job(
             os.environ["HTTP_PROXY"] = proxy_url
         # Try primary model, fallback to secondary if unavailable
         MODELS = [
-            "gemini-2.0-flash-exp-image-generation",
+            "gemini-2.0-flash-exp",
             "gemini-3.1-flash-image-preview",
-            "gemini-2.0-flash",
+            "imagen-3.0-generate-002",
         ]
         client = genai.Client(api_key=GEMINI_API_KEY)
         gemini_response = None
