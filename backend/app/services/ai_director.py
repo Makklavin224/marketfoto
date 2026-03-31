@@ -165,48 +165,110 @@ STYLE_HINTS: dict[str, str] = {
 
 CATEGORY_PROMPT_PATTERNS: dict[str, str] = {
     "cosmetics": (
-        "Reference style: product on glass surface with water rivulets. "
-        "Around the base — elegant cream foam partially dripping down. "
-        "Glass surface reflects product softly and cleanly. "
-        "Background — gentle cool gradient. Light — high-end beauty lighting, "
-        "controlled highlights, deep soft shadow. Premium advertising style."
+        "Reference technique: luxury natural skincare photography, top-down angle. "
+        "Product bottle (USE EXACT PRODUCT IMAGE) lying perfectly centered on a smooth wet stone. "
+        "Surrounding: moss, small flowing stream, natural rocks, water droplets on the bottle surface. "
+        "Do not alter product design — match bottle geometry, labels, logo, transparency and cap. "
+        "Soft diffused forest light, mid-green tones, cinematic realism, organic textures, "
+        "ultra-high detail, premium eco-beauty advertising style."
+    ),
+    "cosmetics_glass": (
+        "Reference technique: product on transparent glass shelf tilted at slight angle. "
+        "Along glass edge — neat transparent water streams. Around base — exquisite cream foam, "
+        "partially sliding down. Glass surface reflects product softly and cleanly. "
+        "Background — gentle cool blue gradient. Light — high-end beauty lighting, "
+        "controlled highlights, deep soft shadow. Premium advertising style. "
+        "Photorealistic, 8K resolution."
+    ),
+    "cosmetics_floral": (
+        "Reference technique: product bottle surrounded by fresh peonies and cornflowers. "
+        "Soft natural light filtering through petals. Product perfectly sharp, flowers slightly soft. "
+        "Pastel color palette matching product tones. Fresh, feminine, spring atmosphere. "
+        "Editorial beauty photography, shallow depth of field."
     ),
     "food": (
-        "Reference style: ultra-realistic sporty/themed snack advertisement. "
-        "Clean minimal studio composition. Product on themed surface with soft "
-        "pastel tones inspired by product color palette. "
-        "Several related items arranged around the product. "
-        "Food photography lighting — appetizing and fresh."
+        "Reference technique: ultra-realistic outdoor food photography. "
+        "Product package stood upright on a cutting board next to rustic barbecue grill. "
+        "In the foreground — a few related food items (toasted pieces, fresh vegetables). "
+        "Small embers and sparks from grill appear subtly in the air. "
+        "Lighting simulates warm evening outdoor lighting with natural sunlight from side "
+        "and soft warm glow from the grill. Photorealistic, premium outdoor food advertising. "
+        "Shallow depth of field, natural color grading, 4K resolution."
+    ),
+    "food_sweet": (
+        "Reference technique: put the product on smooth 3D-rendered ceramic white plate. "
+        "Product cross-section visible showing texture and layers inside. "
+        "Key ingredient (pistachio/chocolate/cream) flowing down creating swirling patterns. "
+        "Scattered ingredient pieces around the plate. Rich dark cinematic lighting, "
+        "cinematic food photography lighting with strong side light creating depth and shadows, "
+        "soft shadows emphasizing the glossy surface. Ultra-realistic food commercial."
+    ),
+    "food_flatlay": (
+        "Reference technique: creative product photo on coffee shop table. "
+        "Laying bars/packages from side against warm brown surface. "
+        "Coffee cups, bread slices, scattered nuts and ingredients around. "
+        "Warm rustic light, food photography, FMCG lifestyle, "
+        "natural textures (wood, linen, ceramic). Top-down flat lay angle."
+    ),
+    "food_conceptual": (
+        "Reference technique: conceptual art meets food photography. "
+        "A slice of fresh toast spread with smooth chocolate/cream sauce. "
+        "Glossy product placed directly on the spread. "
+        "Minimalist beige background, ceramic plate, stainless knife. "
+        "Top-down flat lay. Warm directional studio light, soft shadows. "
+        "Style: modern editorial beauty advertising meets food art."
     ),
     "electronics": (
-        "Reference style: selling marketplace card. Center — large product. "
-        "Clean infographics, contrast, large numbers. "
-        "Tech aesthetic — subtle reflections, dark moody or bright minimal. "
-        "Guarantee badge, clear readable information blocks."
+        "Reference technique: detailed 3D-deconstruction style. "
+        "Product positioned at center, disassembled components floating around it "
+        "showing internal parts, circuits, LED displays, chipsets. "
+        "Clean pink/white/brand-colored studio background. "
+        "Every detail hyper-rendered. Subtle shadows. "
+        "Apple-style exploded view product photography. Professional and tech-forward."
     ),
     "beauty_with_model": (
-        "Reference style: model with clean natural skin holds product near face. "
+        "Reference technique: model with clean natural skin holds product near face. "
         "Airy background, natural makeup. Skin glowing without overexposure. "
-        "Product fully readable. Background — pastel, soft gradient. "
-        "Light — diffused editorial beauty lighting. "
-        "No overload, no chaos, clean premium."
+        "Product fully readable — label, cap, design intact. "
+        "Background — pastel, soft gradient. Light — diffused editorial beauty lighting. "
+        "No overload, no chaos, clean premium. "
+        "Close-up beauty photography, shallow depth of field, magazine editorial quality."
     ),
     "clothing": (
-        "Reference style: aspirational lifestyle context. "
+        "Reference technique: aspirational lifestyle context. "
         "Complementary accessories visible. Natural confident pose. "
-        "Fabric texture clearly visible. Professional fashion photography "
-        "with editorial feel. Clean but styled background."
+        "Fabric texture clearly visible — threads, weave pattern, drape. "
+        "Professional fashion photography with editorial feel. "
+        "Clean but styled background. Soft rim light separating subject from background."
     ),
     "home_goods": (
-        "Reference style: cozy interior scene. Warm natural light from window. "
-        "Styled setting with complementary home elements. "
-        "Product naturally integrated into the scene. "
-        "Interior design photography aesthetic."
+        "Reference technique: cozy interior scene. Warm natural light from window. "
+        "Product naturally integrated into styled kitchen/living room setting. "
+        "Complementary home elements: plants, textiles, ceramic dishes. "
+        "Interior design photography aesthetic. Warm color temperature, "
+        "inviting and aspirational."
     ),
     "supplements": (
-        "Reference style: clean medical-grade aesthetic combined with nature. "
+        "Reference technique: clean medical-grade aesthetic combined with nature. "
         "Product on clean surface with natural ingredient accents "
-        "(herbs, fruits, leaves). Trust-building, professional, health-focused."
+        "(herbs, fruits, leaves matching the supplement type). "
+        "Trust-building, professional, health-focused. "
+        "Clinical white combined with fresh green accents."
+    ),
+    "gift_set": (
+        "Reference technique: create a bright and inviting gift box visual. "
+        "Product inside premium packaging with tissue paper/ribbons. "
+        "Festive elements: Christmas ornaments, confetti, or seasonal decorations. "
+        "Rich green/red/gold velvet or satin backdrop. Warm holiday lighting. "
+        "Gift photography style — premium unboxing experience."
+    ),
+    "storyboard": (
+        "Reference technique: create cinematographic storyboard collage. "
+        "Based on decorative AI-generated images showing product in use — "
+        "7 frames: close portrait, full-length shot, medium shot detail, "
+        "action scene, hero product shot, lifestyle moment, artistic angle. "
+        "Each frame has slight color grading. "
+        "Floral details in pastel tones. Soft editorial cinema feel."
     ),
 }
 
@@ -334,14 +396,46 @@ def analyze_product_and_create_prompt(
         if "preserve form" not in prompt.lower() and "uploaded product" not in prompt.lower():
             prompt += f"\n{preservation}"
 
-        # Inject category-specific prompt patterns if we identified the product type
+        # Inject category-specific prompt patterns based on product type + style
         product_type = director_result.get("product_type", "").lower()
-        category_pattern = CATEGORY_PROMPT_PATTERNS.get(product_type, "")
-        if category_pattern and style == "with_model" and product_type in ("cosmetics", "beauty"):
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("beauty_with_model", "")
+
+        # Smart category-to-pattern mapping based on product type + selected style
+        category_pattern = ""
+        if product_type in ("cosmetics", "beauty", "skincare"):
+            if style == "with_model":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("beauty_with_model", "")
+            elif style == "glass_surface":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_glass", "")
+            elif style == "ingredients":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_floral", "")
+            else:
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics", "")
+        elif product_type in ("food", "snack", "drink", "beverage"):
+            if style in ("minimal_flat", "lifestyle_scene"):
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_flatlay", "")
+            elif style == "creative_art":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_conceptual", "")
+            elif style in ("detail_texture", "ingredients"):
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_sweet", "")
+            else:
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food", "")
+        elif product_type in ("electronics", "gadget", "tech"):
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("electronics", "")
+        elif product_type in ("clothing", "fashion", "apparel"):
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("clothing", "")
+        elif product_type in ("home", "kitchen", "furniture", "decor"):
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("home_goods", "")
+        elif product_type in ("supplements", "vitamins", "health"):
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("supplements", "")
+        elif style == "unboxing":
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("gift_set", "")
+        elif style == "storyboard":
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get("storyboard", "")
+        else:
+            category_pattern = CATEGORY_PROMPT_PATTERNS.get(product_type, "")
 
         if category_pattern:
-            prompt += f"\n\nAdditional reference for {product_type} category: {category_pattern}"
+            prompt += f"\n\nProfessional reference technique for this category: {category_pattern}"
 
         director_result["prompt"] = prompt
 
