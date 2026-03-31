@@ -937,17 +937,41 @@ def ai_photoshoot_job(
             http_options = {"api_version": "v1beta"}
             os.environ["HTTPS_PROXY"] = proxy_url
             os.environ["HTTP_PROXY"] = proxy_url
+        # Try primary model, fallback to secondary if unavailable
+        MODELS = [
+            "gemini-2.0-flash-exp-image-generation",
+            "gemini-3.1-flash-image-preview",
+            "gemini-2.0-flash",
+        ]
         client = genai.Client(api_key=GEMINI_API_KEY)
-        gemini_response = client.models.generate_content(
-            model="gemini-3.1-flash-image-preview",
-            contents=[product_image, prompt],
-            config=genai_types.GenerateContentConfig(
-                response_modalities=["IMAGE"],
-                image_config=genai_types.ImageConfig(
-                    aspect_ratio=aspect_ratio,
-                ),
-            ),
-        )
+        gemini_response = None
+        last_error = None
+
+        for model_name in MODELS:
+            try:
+                logger.info("Trying model: %s", model_name)
+                gemini_response = client.models.generate_content(
+                    model=model_name,
+                    contents=[product_image, prompt],
+                    config=genai_types.GenerateContentConfig(
+                        response_modalities=["IMAGE"],
+                        image_config=genai_types.ImageConfig(
+                            aspect_ratio=aspect_ratio,
+                        ),
+                    ),
+                )
+                if gemini_response and gemini_response.candidates:
+                    logger.info("Success with model: %s", model_name)
+                    break
+            except Exception as e:
+                last_error = e
+                logger.warning("Model %s failed: %s", model_name, str(e)[:200])
+                continue
+
+        if gemini_response is None:
+            raise RuntimeError(f"All models failed. Last error: {last_error}")
+
+        # gemini_response is now set by the model fallback loop above
 
         # Extract image bytes from response
         result_bytes = None
