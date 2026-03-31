@@ -525,20 +525,25 @@ async def create_series(
 
         await session.commit()
 
-    # Enqueue RQ jobs for each card
+    # Enqueue ONE parallel series job (ThreadPoolExecutor inside worker)
     redis_conn = Redis.from_url(settings.redis_url)
     queue = Queue(connection=redis_conn)
-    for render_item in renders:
-        queue.enqueue(
-            "worker.tasks.ai_photoshoot_job",
-            str(render_item.id),
-            str(body.image_id),
-            str(user.id),
-            render_item.style,
-            body.marketplace,
-            product_info,
-            job_timeout=300,
-        )
+    series_renders = [
+        {
+            "render_id": str(render_item.id),
+            "style": render_item.style,
+            "product_info": product_info,
+        }
+        for render_item in renders
+    ]
+    queue.enqueue(
+        "worker.tasks.ai_photoshoot_series_job",
+        series_renders,
+        str(body.image_id),
+        str(user.id),
+        body.marketplace,
+        job_timeout=600,  # 10 min for parallel series
+    )
 
     return SeriesResponse(series_id=series_id, renders=renders)
 

@@ -1,12 +1,11 @@
-"""RQ worker job for background removal using rembg.
+"""RQ worker jobs: background removal via Gemini + AI photoshoot generation.
 
-This module runs in a SYNCHRONOUS forked subprocess managed by RQ.
+All jobs are SYNCHRONOUS (RQ forks a subprocess for each).
 Do NOT use async/await anywhere in this file.
 
-CRITICAL (PITFALLS.md Pitfall 1, UPLD-12):
-- rembg session is created ONCE at module level and reused across all jobs.
-- Docker --max-jobs 100 (in docker-compose.yml) handles process recycling.
-- Docker memory limit is 2GB (in docker-compose.yml).
+Background removal: uses Gemini API (lightweight HTTP call, no local ML model).
+AI Photoshoot: uses Gemini 3.1 Flash Image with AI Director prompts.
+Both go through HTTP proxy to bypass Russia geo-block.
 """
 
 from __future__ import annotations
@@ -15,23 +14,13 @@ import io
 import logging
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from PIL import Image
 from minio import Minio
-from rembg import new_session, remove
 from sqlalchemy import create_engine, text
 
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Module-level rembg session: loaded once, reused across all jobs in this fork.
-# The model is pre-downloaded and pre-warmed in the worker Dockerfile.
-# ---------------------------------------------------------------------------
-# Use u2net on 4GB VPS (300MB RAM, ~3s per image)
-# Switch to birefnet-general when VPS has 8GB+ RAM
-_model = os.environ.get("REMBG_MODEL", "u2net")
-logger.info("Loading rembg model: %s", _model)
-rembg_session = new_session(_model)
 
 # ---------------------------------------------------------------------------
 # Configuration from environment (shared .env with backend)
@@ -131,10 +120,45 @@ def remove_background_job(image_id: str, user_id: str) -> None:
         except Exception as exc:
             raise RuntimeError(f"Failed to download original image: {exc}") from exc
 
-        # Step 4: Open with Pillow, remove background with rembg session reuse
+        # Step 4: Remove background via Gemini API (lightweight, no local ML model)
         try:
+            from google import genai
+            from google.genai import types as genai_types
+
+            proxy_url = os.environ.get("HTTP_PROXY", "")
+            if proxy_url:
+                os.environ["HTTPS_PROXY"] = proxy_url
+
+            api_key = os.environ.get("GEMINI_API_KEY", "")
+            if not api_key:
+                raise RuntimeError("GEMINI_API_KEY not configured")
+
             input_image = Image.open(io.BytesIO(original_bytes)).convert("RGBA")
-            result_image = remove(input_image, session=rembg_session)
+            client = genai.Client(api_key=api_key)
+
+            bg_response = client.models.generate_content(
+                model="gemini-2.5-flash-image",
+                contents=[
+                    input_image,
+                    "Remove the background from this product image completely. "
+                    "Return ONLY the product with a fully transparent background (PNG with alpha channel). "
+                    "Keep the product exactly as is — do not modify its shape, colors, labels, or proportions. "
+                    "Clean edges, no artifacts, no remnants of the original background."
+                ],
+                config=genai_types.GenerateContentConfig(
+                    response_modalities=["IMAGE"],
+                ),
+            )
+
+            result_image = None
+            for part in bg_response.parts:
+                if part.inline_data:
+                    result_image = Image.open(io.BytesIO(part.inline_data.data)).convert("RGBA")
+                    break
+
+            if result_image is None:
+                raise RuntimeError("Gemini returned no image for background removal")
+
         except Exception as exc:
             raise RuntimeError(f"Background removal failed: {exc}") from exc
 
@@ -991,3 +1015,51 @@ def ai_photoshoot_job(
             logger.exception("Failed to update photoshoot status to failed")
 
         raise
+
+
+# ---------------------------------------------------------------------------
+# Parallel series job: generates multiple cards concurrently via ThreadPool
+# ---------------------------------------------------------------------------
+
+def ai_photoshoot_series_job(
+    series_renders: list[dict],
+    image_id: str,
+    user_id: str,
+    marketplace: str,
+) -> None:
+    """Generate multiple AI photoshoot cards in parallel using ThreadPoolExecutor.
+
+    Each dict in series_renders has: render_id, style, product_info.
+    All Gemini API calls are HTTP-only (no local RAM), so safe to parallelize.
+    """
+    logger.info(
+        "Series job: %d cards for image %s, marketplace %s",
+        len(series_renders), image_id, marketplace,
+    )
+
+    def _generate_single(render_info: dict) -> str:
+        try:
+            ai_photoshoot_job(
+                render_id=render_info["render_id"],
+                image_id=image_id,
+                user_id=user_id,
+                style=render_info["style"],
+                marketplace=marketplace,
+                product_info=render_info.get("product_info"),
+            )
+            return f"{render_info['render_id']}: OK"
+        except Exception as e:
+            return f"{render_info['render_id']}: FAILED ({str(e)[:100]})"
+
+    max_workers = min(3, len(series_renders))
+
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = {
+            pool.submit(_generate_single, r): r["render_id"]
+            for r in series_renders
+        }
+        for future in as_completed(futures):
+            result = future.result()
+            logger.info("Series progress: %s", result)
+
+    logger.info("Series complete: %d cards", len(series_renders))

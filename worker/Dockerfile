@@ -10,13 +10,10 @@ COPY backend/app ./app
 COPY worker/ ./worker/
 ENV PYTHONPATH=/app
 
-# Copy fonts for server-side Pillow text rendering (14 Cyrillic font families)
+# Copy fonts for server-side Pillow text rendering
 COPY worker/fonts/ /app/fonts/
 ENV FONTS_DIR=/app/fonts
 
-# Pre-download u2net model (~176MB, works on 4GB VPS)
-# For 8GB+ VPS, switch to birefnet-general for better quality
-RUN python -c "from rembg import new_session; new_session('u2net')"
-
+# No rembg model download needed — background removal via Gemini API
 ENV NUMBA_CACHE_DIR=/tmp/numba_cache
-CMD ["rq", "worker", "--url", "redis://redis:6379", "--max-jobs", "100"]
+CMD ["rq", "worker", "--url", "redis://redis:6379", "--max-jobs", "500"]
