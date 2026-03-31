@@ -680,83 +680,80 @@ def _get_processed_url(image_id: str) -> str | None:
 
 _FALLBACK_STYLE_PROMPTS = {
     "hero": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create a clean hero product photograph for a marketplace listing. "
-        "Place the product perfectly centered, taking up 60-70% of the frame. "
-        "Background: smooth gradient from a complementary color (lighter at top, slightly darker at bottom). "
-        "Lighting: professional three-point setup — key light from upper-left at 45 degrees, "
-        "fill light from right at 30%, subtle rim light from behind for clean edge separation. "
-        "Soft diffused shadow directly beneath the product on a reflective surface. "
-        "Do NOT add any text, labels, badges, props, or decorative elements. "
-        "Do NOT add any extra products or objects — only the uploaded product. "
-        "Resolution: {width}x{height}px. "
-        "Style: high-end commercial product photography, Apple-style clean aesthetic."
+        "Профессиональное коммерческое макро-фото для маркетплейса. "
+        "Используй загруженное фото продукта как единственный Референс Объекта "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Поставь объект на гладкую поверхность (мрамор или матовый камень). "
+        "Вокруг разложены 2-3 тематических предмета, дополняющих товар. "
+        "Мягкий, естественный утренний свет (golden hour), контровое освещение, "
+        "создающее блики на гранях объекта. Очень высокая детализация. "
+        "Товар занимает 60-70% кадра, по центру. "
+        "Разрешение: {width}x{height}px. "
+        "Фотореалистичное коммерческое фото, 8K качество."
     ),
     "lifestyle": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create a warm, aspirational lifestyle product photograph. "
-        "Place the product as the hero (40-50% of the frame) in a carefully styled real-world scene. "
-        "Add 2-3 complementary props that match the product's category. "
-        "The scene should look like the product is already in the buyer's home — warm, inviting. "
-        "Lighting: soft natural golden-hour light from a window, warm color temperature. "
-        "Shallow depth of field — product tack-sharp, background softly blurred. "
-        "Do NOT add any text overlays or badges. "
-        "Resolution: {width}x{height}px. "
-        "Style: premium lifestyle editorial photography, Instagram-worthy."
+        "Кинематографический кадр, рекламное фото для маркетплейса. "
+        "Используй загруженное фото продукта как единственный Референс Объекта "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Помести товар в стильную реальную сцену — уютный интерьер, кухонный стол "
+        "или ванная комната (в зависимости от типа товара). "
+        "Добавь 2-3 подходящих предмета для атмосферы. "
+        "Глубина резкости — товар резкий, фон мягко размыт. "
+        "Тёплое естественное освещение из окна (golden hour). "
+        "Атмосфера уюта и комфорта. Реалистичные отражения, блики. "
+        "Разрешение: {width}x{height}px. "
+        "8K коммерческое фото."
     ),
     "creative": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create a bold, eye-catching creative product advertisement that stops the scroll. "
-        "Place the product dynamically (40-50% of the frame), slightly tilted or at a dynamic angle. "
-        "Add dramatic visual elements: flying ingredients/particles, bold color splashes, "
-        "motion blur trails, energy lines, or liquid/powder explosions. "
-        "Lighting: dramatic side lighting with vivid colored rim lights. "
-        "The composition should feel like a frozen moment of action — dynamic, energetic, bold. "
-        "Do NOT add any text overlays or badges. "
-        "Resolution: {width}x{height}px. "
-        "Style: award-winning creative advertising, bold and scroll-stopping."
+        "Рекламная фотография с элементами левитации для маркетплейса. "
+        "Используй загруженное фото продукта как единственный Референс Объекта "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Товар парит в воздухе на ярком, контрастном фоне. "
+        "Вокруг летают тематические элементы — брызги, частицы, ингредиенты, "
+        "цветные всплески. "
+        "Яркое драматичное боковое освещение с цветными контровыми источниками "
+        "реалистично отражается на гранях объекта. "
+        "Атмосфера энергии и динамики. Замороженный момент действия. "
+        "Разрешение: {width}x{height}px. "
+        "8K коммерческое фото."
     ),
     "closeup": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create a detail showcase photograph highlighting the product's quality and craftsmanship. "
-        "Compose as a 2x2 grid layout with thin white divider lines between cells: "
-        "Top-left cell: full product shot at a slight angle. "
-        "Top-right cell: extreme macro close-up of the most impressive texture or material detail. "
-        "Bottom-left cell: close-up of a functional detail — button, clasp, label, mechanism. "
-        "Bottom-right cell: another macro angle showing surface finish or internal quality. "
-        "Professional macro photography lighting. Sharp focus on textures. "
-        "Resolution: {width}x{height}px. "
-        "Style: luxury product detail photography, quality showcase."
+        "Используй загруженное фото продукта как единственный источник "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Создай серию из 4 кадров в формате 2x2 с тонкими белыми разделителями: "
+        "1. Общий вид спереди — товар целиком. "
+        "2. Детали/текстура крупно — самая впечатляющая деталь. "
+        "3. Вид сбоку/под углом — показать объём и форму. "
+        "4. Макро-кадр с акцентом на качество материала или механизм. "
+        "Каждый кадр — единообразный стиль освещения, чистый фон. "
+        "Профессиональная макросъёмка, резкий фокус на текстурах. "
+        "Разрешение: {width}x{height}px. "
+        "Последовательный внешний вид, 8K качество."
     ),
     "ingredients": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create a product photograph surrounded by its key ingredients or related items. "
-        "Place the product in the center (40-45% of the frame). "
-        "Artfully arrange around it 4-6 photogenic items related to the product. "
-        "Some ingredients cut in half to show freshness and interior. "
-        "Lighting: soft, even diffused lighting from above. Natural, organic feel. "
-        "Color palette: harmonized with the product — earthy, fresh tones. "
-        "Do NOT add any text overlays. "
-        "Resolution: {width}x{height}px. "
-        "Style: like Anua or The Ordinary beauty ads — product hero with ingredient story."
+        "Профессиональное коммерческое макро-фото для маркетплейса. "
+        "Используй загруженное фото продукта как единственный Референс Объекта "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Поставь товар в центр (40-45% кадра). "
+        "Вокруг красиво разложены 4-6 ингредиентов или компонентов, "
+        "связанных с товаром. Некоторые разрезаны пополам, чтобы показать свежесть. "
+        "Мягкое рассеянное освещение сверху. Натуральная, органическая атмосфера. "
+        "Цветовая палитра гармонирует с товаром — свежие, природные тона. "
+        "Разрешение: {width}x{height}px. "
+        "8K коммерческое фото."
     ),
     "white_clean": (
-        "Use the uploaded product image exactly as the main product — do not modify its design, "
-        "packaging, label, colors, or proportions. "
-        "Create an ultra-clean product photograph on a pure white background. "
-        "Place the product perfectly centered, taking up 65-75% of the frame. "
-        "Background: pure white (#FFFFFF), seamless, no visible horizon line. "
-        "Only a very subtle, soft contact shadow directly beneath the product. "
-        "Lighting: bright, even, diffused studio lighting from all sides — no harsh shadows. "
-        "Do NOT add any text, badges, props, decorations, or additional objects. "
-        "Do NOT add any colored backgrounds, gradients, or patterns. "
-        "Resolution: {width}x{height}px. "
-        "Style: standard e-commerce white background photography."
+        "Изолируй главный объект на фото и замени текущий фон на бесшовный, "
+        "идеально белый студийный фон (RGB 255,255,255). "
+        "Используй загруженное фото продукта как единственный Референс Объекта "
+        "— строго сохраняя форму, пропорции, материал, цвет и детали без изменений. "
+        "Сохрани точную форму и пропорции объекта. "
+        "Товар по центру, занимает 65-75% кадра. "
+        "Студийные софтбоксы, мягкие тени только под объектом. "
+        "Никаких предметов, текстов, декораций, цветных элементов. "
+        "Идеально для каталога маркетплейса. "
+        "Разрешение: {width}x{height}px. "
+        "8K качество."
     ),
 }
 
@@ -887,55 +884,53 @@ def ai_photoshoot_job(
             # Fallback: use static style template (old behavior)
             prompt = _FALLBACK_STYLE_PROMPTS[style].format(width=width, height=height)
 
-            # Append product info to fallback prompt if provided
+            # Append product info as infographic text overlays (proven WB/Ozon format)
             if product_info:
                 title = product_info.get("title", "")
                 features = product_info.get("features", [])
                 badge = product_info.get("badge", "")
 
-                extras = []
-                if title:
-                    extras.append(f"Product name: {title}.")
-                if features:
-                    extras.append(f"Key features: {', '.join(features)}.")
-                if badge:
-                    extras.append(f"Badge/label on the image: {badge}.")
-
-                if extras:
-                    prompt += "\n\nTEXT OVERLAYS (MANDATORY — must appear on the final image):\n"
+                if title or features or badge:
+                    text_section = (
+                        "\n\nОБЯЗАТЕЛЬНЫЕ ТЕКСТОВЫЕ ЭЛЕМЕНТЫ НА ИЗОБРАЖЕНИИ "
+                        "(стиль инфографики Wildberries/Ozon):\n"
+                    )
 
                     if title:
-                        prompt += (
-                            f"1. PRODUCT TITLE: Add '{title}' as large bold text (48-72pt) "
-                            "at the top or center of the image. White or light text on dark backgrounds, "
-                            "dark text on light backgrounds. Modern sans-serif font. "
-                            "The title must be clearly readable and prominent.\n"
+                        text_section += (
+                            f"НАЗВАНИЕ ТОВАРА: Крупно сверху или по центру — '{title}'. "
+                            "Шрифт жирный, 48-72pt, контрастный к фону. "
+                            "Белый текст на тёмном фоне, тёмный текст на светлом фоне.\n"
                         )
 
                     if features:
-                        prompt += "2. FEATURE BADGES: Add these as styled rounded-rectangle badges/plashki:\n"
+                        text_section += (
+                            "ПРЕИМУЩЕСТВА в стильных плашках "
+                            "(полупрозрачные скруглённые прямоугольники):\n"
+                        )
+                        positions = [
+                            "слева сверху", "справа сверху",
+                            "слева снизу", "справа снизу",
+                            "по центру снизу",
+                        ]
                         for i, feat in enumerate(features):
-                            prompt += (
-                                f"   - '{feat}' — in a small semi-transparent rounded rectangle "
-                                f"(pill shape), positioned {'to the left' if i % 2 == 0 else 'to the right'} "
-                                "of the product. White text on dark semi-transparent background, "
-                                "or dark text on light semi-transparent background. "
-                                "Clean, modern, readable. Like marketplace infographic badges.\n"
-                            )
+                            pos = positions[i] if i < len(positions) else "рядом с товаром"
+                            text_section += f"  \u2022 '{feat}' — плашка {pos} от товара\n"
 
                     if badge:
-                        prompt += (
-                            f"3. ACCENT BADGE: Add '{badge}' as an eye-catching colored badge "
-                            "(red circle or ribbon) in the top-right corner. Bold white text. "
-                            "Like a sale/promo sticker.\n"
+                        text_section += (
+                            f"БЕЙДЖ: '{badge}' — яркий цветной бейдж "
+                            "(красный/оранжевый круг или лента) в верхнем правом углу. "
+                            "Жирный белый текст.\n"
                         )
 
-                    prompt += (
-                        "\nSTYLE REFERENCE for text overlays: Think Wildberries/Ozon infographic cards. "
-                        "Clean typography, rounded pill-shaped feature badges arranged around the product, "
-                        "large product title, accent badge. Text must be in RUSSIAN and perfectly readable. "
-                        "DO NOT just write text — make it DESIGNED with backgrounds, shadows, proper spacing."
+                    text_section += (
+                        "\nВсе тексты на РУССКОМ ЯЗЫКЕ. Чистая типографика, читаемые шрифты, "
+                        "стильные плашки с полупрозрачным фоном. Крупные цифры и ключевые слова. "
+                        "Стиль: продающая карточка Wildberries/Ozon.\n"
                     )
+
+                    prompt += text_section
 
             logger.info("Using fallback style template (%d chars)", len(prompt))
 

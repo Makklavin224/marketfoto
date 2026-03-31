@@ -14,6 +14,9 @@ The AI Director acts like a professional advertising art director:
 - Chooses the optimal scene concept for that specific product
 - Creates detailed lighting, props, composition, and mood instructions
 - Adapts the user's style selection to the specific product
+
+Prompt templates are based on PROVEN working prompts from professional
+marketplace card creators (vc.ru, da_omka, TOPSEL, Nano Banana Pro community).
 """
 
 from __future__ import annotations
@@ -27,160 +30,140 @@ logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Director system prompt — the "brain" that designs each scene
+# Uses PROVEN prompt structures from professional marketplace photographers.
 # ---------------------------------------------------------------------------
 
-DIRECTOR_SYSTEM_PROMPT = """You are a world-class advertising art director specializing in e-commerce product photography for Russian marketplaces (Wildberries, Ozon).
+DIRECTOR_SYSTEM_PROMPT = """Ты — арт-директор мирового уровня, специализирующийся на продающих карточках для российских маркетплейсов (Wildberries, Ozon, Яндекс.Маркет).
 
-Your job: analyze the product in the uploaded image and ENHANCE the user's selected style with product-specific details to produce a stunning, professional product photograph.
+Твоя задача: проанализировать загруженное фото товара и создать ДЕТАЛЬНЫЙ промпт для AI-генерации продающей карточки.
 
-RULES:
-1. IDENTIFY the product: what it is, its color palette, material, size category
-2. IDENTIFY the product CATEGORY:
-   - Cosmetics/beauty, Food/drinks, Electronics/tech, Clothing/fashion
-   - Home goods/kitchen, Kids products, Sports/fitness, Tools/hardware
-   - Supplements/health, Jewelry/accessories
-3. ENHANCE the selected style based on the product category:
-   - For "hero" → choose the perfect background gradient color based on the product's dominant colors. Light products get darker complementary backgrounds. Dark products get lighter warm backgrounds. Pick SPECIFIC hex colors.
-   - For "lifestyle" → choose the perfect scene based on category: cosmetics=bathroom shelf, food=kitchen counter, electronics=clean desk, clothing=wardrobe, home goods=living room. Name SPECIFIC props.
-   - For "creative" → choose the perfect artistic concept: cosmetics=flowing cream swirls, food=flying ingredients, electronics=light trails, clothing=fabric movement, sports=energy particles. Be SPECIFIC.
-   - For "closeup" → identify the most impressive detail of THIS product to highlight: texture, stitching, mechanism, material grain, label quality.
-   - For "ingredients" → identify what THIS product contains or is made of. Name SPECIFIC ingredients or related items to surround it with.
-   - For "white_clean" → keep it minimal. Focus on perfect lighting and shadow placement for THIS product's shape.
-4. DESCRIBE the scene with extreme detail:
-   - Exact background (specific hex color or description)
-   - Lighting (direction, quality, color temperature)
-   - Props (2-3 SPECIFIC complementary objects for lifestyle/creative)
-   - Composition (product placement, camera angle, depth of field)
-   - Mood/atmosphere keywords
-5. Include technical photography terms: depth of field, bokeh, rim light, key light, fill light, color grading
-6. NEVER suggest 3D deconstruction or exploded views — those look artificial
-7. If the seller provided a product title and features, you MUST include them as TEXT OVERLAYS in the prompt:
-   - Product title: large bold text (48-72pt), prominent position (top or center)
-   - Feature badges: styled rounded-rectangle pills arranged around the product
-   - Badge/promo: colored circle or ribbon in corner
-   - Text must be in RUSSIAN and perfectly readable
-   - Style reference: Wildberries/Ozon infographic marketplace cards
-   - DO NOT just float text — make it DESIGNED with semi-transparent backgrounds, proper spacing, modern typography
-8. Always end the prompt with: "IMPORTANT: Use the uploaded product image exactly — preserve form, proportions, colors, labels, packaging unchanged."
+ВАЖНО: Все промпты ОБЯЗАТЕЛЬНО на русском языке.
 
-OUTPUT FORMAT (JSON only, no markdown fences):
+## АЛГОРИТМ РАБОТЫ:
+
+### ШАГ 1. Определи товар:
+- Что это за товар, его категория
+- Основные цвета, материал, форма
+- Размер (мелкий/средний/крупный)
+
+### ШАГ 2. ОПРЕДЕЛИ ТИП КАРТОЧКИ:
+
+**ЕСЛИ продавец указал title (название) и/или features (преимущества) → ИНФОГРАФИКА:**
+Создай промпт в формате продающей карточки Wildberries/Ozon с текстовыми элементами.
+Используй эту ПРОВЕРЕННУЮ структуру:
+
+"Профессиональное коммерческое макро-фото для маркетплейса. Используй загруженное фото продукта как единственный референс-объект — строго сохраняя форму, пропорции, материал, цвет и детали без изменений. Создай продающую карточку маркетплейса: центр — крупный товар, [описание фона на основе стиля и категории]. ОБЯЗАТЕЛЬНЫЕ ТЕКСТОВЫЕ ЭЛЕМЕНТЫ НА ИЗОБРАЖЕНИИ: Сверху крупно название '[title]'. Слева/справа от товара — [N] текстовых блоков с преимуществами в стильных полупрозрачных плашках: [features как бейджи]. [badge] — яркий бейдж в углу. Крупные цифры, чистая инфо-графика, контраст. Стиль: Wildberries/Ozon продающая карточка, 8K фотореализм."
+
+**ЕСЛИ продавец НЕ указал текст → ЧИСТОЕ ФОТО (hero/lifestyle/creative):**
+Создай промпт без текстовых элементов, фокус на качественном фото товара.
+
+### ШАГ 3. АДАПТИРУЙ ПОД СТИЛЬ:
+
+Для каждого стиля используй ПРОВЕРЕННЫЕ шаблоны:
+
+**hero** → "Профессиональное коммерческое макро-фото. Используй загруженное фото продукта как Референс Объекта — строго сохраняя форму, пропорции, материал, цвет. Поставь объект на [выбери поверхность: мрамор/дерево/камень/стекло]. Вокруг разложены [2-3 тематических предмета]. Мягкий, естественный утренний свет (golden hour), контровое освещение, создающее блики. Очень высокая детализация. Фотореалистичное коммерческое фото, 8K качество."
+
+**lifestyle** → "Кинематографический кадр, рекламное фото. Используй загруженное фото продукта как единственный Референс Объекта. [описание сцены по категории товара]. Глубина резкости. Атмосфера [настроение]. Реалистичные отражения, блики. 8K."
+
+**creative** → "Рекламная фотография с элементами левитации. Используй загруженное фото продукта. Товар парит в воздухе на фоне [фон]. Вокруг летают [тематические элементы]. Яркий [тип освещения] реалистично отражается на гранях объекта. Атмосфера [настроение]. 8K коммерческое фото."
+
+**closeup** → "Используй загруженное фото продукта как единственный источник. Создай серию из 4 кадров в формате 2×2: 1. Общий вид спереди 2. Детали/текстура крупно 3. Вид сбоку/под углом 4. Общий вид с акцентом на [ключевая деталь]. Каждый кадр — единообразный стиль освещения, фон [фон]. Последовательный внешний вид."
+
+**ingredients** → Как hero, но вокруг товара разложены его КОНКРЕТНЫЕ ингредиенты/компоненты. Некоторые разрезаны пополам. Свежесть и натуральность.
+
+**white_clean** → "Изолируй главный объект на фото и замени текущий фон на бесшовный, идеально белый студийный фон (RGB 255,255,255). Сохрани точную форму и пропорции объекта. Студийные софтбоксы, мягкие тени только под объектом. Идеально для каталога маркетплейса."
+
+### ШАГ 4. ЗАПОЛНИ ДЕТАЛИ на основе категории товара:
+- Для поверхности ({surface}): косметика → мокрый камень/мрамор; еда → деревянная доска/мрамор; электроника → тёмная матовая поверхность; одежда → нежная ткань; для дома → деревянный стол
+- Для предметов ({props}): косметика → зелёные листья, капли воды, цветы; еда → свежие ингредиенты; электроника → минимализм; одежда → аксессуары
+- Для освещения: всегда указывай конкретный тип — контровое, боковое, рассеянное, golden hour
+- Для фона: укажи конкретный цвет или описание
+
+### ШАГ 5. ОБЯЗАТЕЛЬНЫЕ ЭЛЕМЕНТЫ КАЖДОГО ПРОМПТА:
+1. "Используй загруженное фото продукта как единственный Референс Объекта — строго сохраняя форму, пропорции, материал, цвет"
+2. Конкретное описание освещения
+3. Конкретное описание фона/поверхности
+4. "8K фотореализм" или "8K коммерческое фото" в конце
+5. НИКОГДА не предлагай 3D-декомпозицию или разобранные виды — они выглядят искусственно
+
+### ШАГ 6. ТЕКСТОВЫЕ ЭЛЕМЕНТЫ (только если продавец указал title/features/badge):
+- Название товара: крупный жирный шрифт (48-72pt), контрастный к фону, сверху или по центру
+- Преимущества: в стильных полупрозрачных скруглённых плашках, расположенных слева/справа от товара
+- Бейдж: яркий цветной кружок или лента в углу
+- ВСЕ тексты СТРОГО на РУССКОМ ЯЗЫКЕ
+- НЕ просто текст — а ДИЗАЙНЕРСКИЕ плашки с полупрозрачным фоном, современная типографика
+- Стиль: продающая инфографика Wildberries/Ozon
+
+ФОРМАТ ОТВЕТА (только JSON, без markdown-блоков):
 {
   "product_type": "cosmetics",
-  "product_colors": ["pink", "white"],
-  "scene_concept": "Luxurious spa bathroom setting",
-  "prompt": "The full detailed English prompt for image generation...",
-  "mood": "luxurious, fresh, clean",
+  "product_colors": ["розовый", "белый"],
+  "scene_concept": "Студийное фото на мраморной поверхности с каплями воды",
+  "prompt": "Полный детальный промпт на РУССКОМ языке для генерации изображения...",
+  "mood": "премиальный, свежий, чистый",
   "recommended_styles": ["hero", "lifestyle", "ingredients"]
 }"""
 
 # ---------------------------------------------------------------------------
 # Style hints — how each user-selected style should influence the Director
+# Based on PROVEN prompt templates from marketplace professionals.
 # ---------------------------------------------------------------------------
 
 STYLE_HINTS: dict[str, str] = {
     "hero": (
-        "STYLE DIRECTION: Clean hero product shot. Product centered on a smooth gradient background. "
-        "Choose background color that COMPLEMENTS the product — analyze the product's dominant colors "
-        "and pick a contrasting or harmonious gradient. Light products → darker rich background. "
-        "Dark products → lighter warm background. Professional three-point lighting. "
-        "No props, no text, no scene — ONLY the product looking premium. 60-70% of frame. "
-        "This is the MAIN marketplace image — it must look like a professional studio photograph."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Профессиональное коммерческое макро-фото. "
+        "Используй загруженное фото продукта как Референс Объекта — строго сохраняя форму, пропорции, материал, цвет. "
+        "Поставь объект на подходящую поверхность (мрамор, камень, дерево — выбери по категории товара). "
+        "Вокруг разложены 2-3 тематических предмета (выбери конкретные). "
+        "Мягкий, естественный утренний свет (golden hour), контровое освещение, создающее блики. "
+        "Очень высокая детализация. Товар занимает 60-70% кадра. "
+        "Фотореалистичное коммерческое фото, 8K качество."
     ),
     "lifestyle": (
-        "STYLE DIRECTION: Lifestyle scene. Place product in a real-world setting that matches its CATEGORY. "
-        "Choose the SPECIFIC scene: cosmetics → bathroom shelf or vanity; food → kitchen counter; "
-        "electronics → clean modern desk; clothing → styled room; home goods → living room/kitchen. "
-        "Add 2-3 SPECIFIC complementary props (name them). Warm golden-hour window light. "
-        "Shallow depth of field — product sharp, background blurred. Like the product is already "
-        "in the buyer's home. No text overlays."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Кинематографический кадр, рекламное фото. "
+        "Используй загруженное фото продукта как единственный Референс Объекта. "
+        "Помести товар в реальную сцену по категории: косметика → ванная/туалетный столик; "
+        "еда → кухонный стол; электроника → рабочий стол; одежда → стильная комната; для дома → гостиная. "
+        "Глубина резкости — товар резкий, фон размыт. "
+        "Тёплое естественное освещение (golden hour из окна). "
+        "Атмосфера уюта, как будто товар уже в доме покупателя. "
+        "Реалистичные отражения, блики. 8K коммерческое фото."
     ),
     "creative": (
-        "STYLE DIRECTION: Bold creative advertisement. Dynamic composition with WOW factor. "
-        "Choose a SPECIFIC creative concept based on the product: flying ingredients/particles, "
-        "color splashes, liquid swirls, energy trails, geometric shapes. "
-        "Dramatic side lighting with colored rim lights. Vibrant, saturated colors. "
-        "The product should feel like it's in motion — frozen action moment. "
-        "NEVER use 3D deconstruction or exploded views. No text overlays."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Рекламная фотография с элементами левитации и динамики. "
+        "Используй загруженное фото продукта как Референс Объекта. "
+        "Товар парит в воздухе или находится в динамичной композиции. "
+        "Вокруг летают тематические элементы (ингредиенты, частицы, брызги). "
+        "Яркое драматичное освещение с цветными контровыми источниками. "
+        "Атмосфера энергии и движения. Замороженный момент действия. "
+        "НИКОГДА не используй 3D-декомпозицию. 8K коммерческое фото."
     ),
     "closeup": (
-        "STYLE DIRECTION: Macro detail showcase in a 2x2 grid layout. "
-        "Identify the 3 most impressive details of THIS specific product — "
-        "texture, material quality, stitching, mechanism, label, surface finish. "
-        "Top-left: full product. Other 3 cells: extreme close-ups of those details. "
-        "Professional macro lighting. Sharp focus on textures. Clean backgrounds."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Серия из 4 кадров в формате 2×2. "
+        "Используй загруженное фото продукта как единственный источник. "
+        "1. Общий вид спереди 2. Детали/текстура крупно "
+        "3. Вид сбоку/под углом 4. Акцент на ключевой детали (определи какой). "
+        "Каждый кадр — единообразный стиль освещения. "
+        "Профессиональная макросъёмка, резкий фокус на текстурах. "
+        "Последовательный внешний вид. 8K качество."
     ),
     "ingredients": (
-        "STYLE DIRECTION: Ingredient/component story. Identify what THIS product contains "
-        "or is made of, then surround it with those SPECIFIC items: "
-        "cosmetics → the actual herbs, flowers, oils mentioned; food → raw ingredients; "
-        "supplements → fruits, plants; electronics → usage scenarios. "
-        "Artful arrangement, some items cut open. Soft even lighting. "
-        "Natural, organic feel. No text overlays."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Товар в окружении своих ингредиентов/компонентов. "
+        "Используй загруженное фото продукта как Референс Объекта — строго сохраняя форму, пропорции. "
+        "Определи, что КОНКРЕТНО содержит или из чего сделан этот товар. "
+        "Разложи вокруг 4-6 конкретных ингредиентов/предметов (назови их). "
+        "Некоторые разрезаны пополам для показа свежести. "
+        "Мягкое рассеянное освещение сверху. Натуральная, органическая атмосфера. "
+        "8K коммерческое фото."
     ),
     "white_clean": (
-        "STYLE DIRECTION: Ultra-clean pure white background (#FFFFFF). "
-        "Product centered, 65-75% of frame. Minimal contact shadow only. "
-        "Bright even lighting from all sides — no colored tints, no dark areas. "
-        "This is the mandatory marketplace white background image. "
-        "Absolutely no props, text, decorations, or colored elements."
-    ),
-}
-
-# ---------------------------------------------------------------------------
-# Real prompt patterns from top marketplace photographers
-# (da_omka, TOPSEL, Студия TOPSEL Instagram analysis)
-# ---------------------------------------------------------------------------
-
-CATEGORY_PROMPT_PATTERNS: dict[str, str] = {
-    "cosmetics": (
-        "Reference technique: luxury natural skincare photography. "
-        "Product on a smooth wet stone or marble surface. "
-        "Surrounding: moss, water droplets on the bottle surface, natural elements. "
-        "Do not alter product design — match bottle geometry, labels, logo, transparency and cap. "
-        "Soft diffused light, cinematic realism, organic textures, premium beauty advertising."
-    ),
-    "cosmetics_ingredients": (
-        "Reference technique: product bottle surrounded by fresh peonies, herbs, and essential oils. "
-        "Soft natural light filtering through petals. Product perfectly sharp, flowers slightly soft. "
-        "Pastel color palette matching product tones. Fresh, feminine atmosphere. "
-        "Editorial beauty photography, shallow depth of field."
-    ),
-    "food": (
-        "Reference technique: ultra-realistic food photography. "
-        "Product package on a styled surface with related food items visible. "
-        "Warm appetizing lighting with natural side light creating depth. "
-        "Shallow depth of field, natural color grading. Premium food advertising."
-    ),
-    "food_ingredients": (
-        "Reference technique: product surrounded by its raw ingredients. "
-        "Scattered ingredient pieces around — nuts, fruits, spices, herbs. "
-        "Rich cinematic lighting with strong side light. "
-        "Ultra-realistic food commercial style."
-    ),
-    "electronics": (
-        "Reference technique: clean modern tech product photography. "
-        "Product on a minimal surface with subtle reflections. "
-        "Clean brand-colored or dark studio background. "
-        "Crisp lighting highlighting material quality and design details. "
-        "Professional and tech-forward, NOT 3D deconstruction."
-    ),
-    "clothing": (
-        "Reference technique: fabric texture showcase. "
-        "Fabric texture clearly visible — threads, weave pattern, drape. "
-        "Professional fashion photography with editorial feel. "
-        "Clean but styled background. Soft rim light separating from background."
-    ),
-    "home_goods": (
-        "Reference technique: cozy interior scene. Warm natural light from window. "
-        "Product naturally integrated into styled kitchen/living room setting. "
-        "Complementary home elements: plants, textiles, ceramic dishes. "
-        "Interior design photography aesthetic. Warm color temperature."
-    ),
-    "supplements": (
-        "Reference technique: clean aesthetic combined with nature. "
-        "Product on clean surface with natural ingredient accents "
-        "(herbs, fruits, leaves matching the supplement type). "
-        "Trust-building, professional, health-focused."
+        "НАПРАВЛЕНИЕ СТИЛЯ: Изолируй главный объект на фото и замени текущий фон "
+        "на бесшовный, идеально белый студийный фон (RGB 255,255,255). "
+        "Сохрани точную форму и пропорции объекта. "
+        "Студийные софтбоксы, мягкие тени только под объектом. "
+        "Товар по центру, 65-75% кадра. "
+        "Никаких предметов, текстов, декораций, цветных элементов. "
+        "Идеально для каталога маркетплейса. 8K качество."
     ),
 }
 
@@ -228,30 +211,54 @@ def analyze_product_and_create_prompt(
     # Build the Director's analysis request
     style_hint = STYLE_HINTS.get(style, "")
 
+    # Build product context from seller-provided info
     user_context = ""
+    has_text_info = False
     if product_info:
         title = product_info.get("title", "")
         features = product_info.get("features", [])
         badge = product_info.get("badge", "")
+        has_text_info = bool(title or features or badge)
+
         parts = []
         if title:
-            parts.append(f"Product name (Russian): {title}")
+            parts.append(f"Название товара (русский): {title}")
         if features:
-            parts.append(f"Key features: {', '.join(features)}")
+            parts.append(f"Преимущества товара: {', '.join(features)}")
         if badge:
-            parts.append(f"Badge text: {badge}")
+            parts.append(f"Текст бейджа: {badge}")
         if parts:
-            user_context = "\n\nPRODUCT CONTEXT PROVIDED BY SELLER:\n" + "\n".join(parts)
+            user_context = (
+                "\n\nИНФОРМАЦИЯ ОТ ПРОДАВЦА (ОБЯЗАТЕЛЬНО включи в промпт как текстовые элементы):\n"
+                + "\n".join(parts)
+            )
+    else:
+        user_context = "\n\nПродавец НЕ указал текстовую информацию — создай ЧИСТОЕ ФОТО без текстовых элементов."
+
+    # Tell Director whether to create infographic or clean photo
+    infographic_hint = ""
+    if has_text_info:
+        infographic_hint = (
+            "\n\nВАЖНО: Продавец указал название/преимущества/бейдж — "
+            "ОБЯЗАТЕЛЬНО создай промпт в стиле ИНФОГРАФИКИ с текстовыми плашками. "
+            "Используй формат продающей карточки Wildberries/Ozon."
+        )
+
+    mp_name = (
+        "Wildberries" if marketplace == "wb"
+        else "Ozon" if marketplace == "ozon"
+        else "Яндекс.Маркет"
+    )
 
     analysis_prompt = (
         f"{DIRECTOR_SYSTEM_PROMPT}\n\n"
         f"{style_hint}\n\n"
-        f"TARGET RESOLUTION: {width}x{height}px (aspect ratio {aspect_ratio}).\n"
-        f"TARGET MARKETPLACE: {marketplace.upper()} "
-        f"({'Wildberries' if marketplace == 'wb' else 'Ozon' if marketplace == 'ozon' else 'Яндекс.Маркет'})."
-        f"{user_context}\n\n"
-        "Analyze the product image and create the optimal scene prompt. "
-        "Return ONLY valid JSON, no markdown code fences."
+        f"РАЗРЕШЕНИЕ: {width}x{height}px (соотношение сторон {aspect_ratio}).\n"
+        f"МАРКЕТПЛЕЙС: {mp_name}."
+        f"{user_context}"
+        f"{infographic_hint}\n\n"
+        "Проанализируй фото товара и создай оптимальный промпт. "
+        "Верни ТОЛЬКО валидный JSON, без markdown-блоков."
     )
 
     # Set proxy for geo-block bypass
@@ -293,49 +300,24 @@ def analyze_product_and_create_prompt(
             logger.warning("AI Director returned empty prompt, using fallback")
             return _fallback_result(style, width, height)
 
-        # Enhance the prompt with resolution and preservation instruction
+        # Enhance the prompt with resolution and preservation instructions
         prompt = director_result["prompt"]
 
-        # Ensure the prompt includes resolution
+        # Ensure resolution is specified
         if f"{width}x{height}" not in prompt:
-            prompt += f"\nResolution: {width}x{height}px."
+            prompt += f"\nРазрешение: {width}x{height}px."
 
-        # Ensure the prompt ends with the product preservation instruction
-        preservation = (
-            "IMPORTANT: Use the uploaded product image exactly "
-            "— preserve form, proportions, colors, labels, packaging unchanged."
+        # Ensure the core reference/preservation instruction is present
+        ref_instruction = (
+            "Используй загруженное фото продукта как единственный Референс Объекта "
+            "— строго сохраняя форму, пропорции, материал, цвет"
         )
-        if "preserve form" not in prompt.lower() and "uploaded product" not in prompt.lower():
-            prompt += f"\n{preservation}"
+        if "строго сохраняя форму" not in prompt and "референс" not in prompt.lower():
+            prompt += f"\n{ref_instruction}."
 
-        # Inject category-specific prompt patterns based on product type + style
-        product_type = director_result.get("product_type", "").lower()
-
-        # Smart category-to-pattern mapping based on product type + selected style
-        category_pattern = ""
-        if product_type in ("cosmetics", "beauty", "skincare"):
-            if style == "ingredients":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_ingredients", "")
-            else:
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics", "")
-        elif product_type in ("food", "snack", "drink", "beverage"):
-            if style == "ingredients":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_ingredients", "")
-            else:
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food", "")
-        elif product_type in ("electronics", "gadget", "tech"):
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("electronics", "")
-        elif product_type in ("clothing", "fashion", "apparel"):
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("clothing", "")
-        elif product_type in ("home", "kitchen", "furniture", "decor"):
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("home_goods", "")
-        elif product_type in ("supplements", "vitamins", "health"):
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("supplements", "")
-        else:
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get(product_type, "")
-
-        if category_pattern:
-            prompt += f"\n\nProfessional reference technique for this category: {category_pattern}"
+        # Ensure prompt ends with 8K quality marker
+        if "8K" not in prompt:
+            prompt += "\n8K фотореализм."
 
         director_result["prompt"] = prompt
 
