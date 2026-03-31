@@ -902,11 +902,39 @@ def ai_photoshoot_job(
                     extras.append(f"Badge/label on the image: {badge}.")
 
                 if extras:
+                    prompt += "\n\nTEXT OVERLAYS (MANDATORY — must appear on the final image):\n"
+
+                    if title:
+                        prompt += (
+                            f"1. PRODUCT TITLE: Add '{title}' as large bold text (48-72pt) "
+                            "at the top or center of the image. White or light text on dark backgrounds, "
+                            "dark text on light backgrounds. Modern sans-serif font. "
+                            "The title must be clearly readable and prominent.\n"
+                        )
+
+                    if features:
+                        prompt += "2. FEATURE BADGES: Add these as styled rounded-rectangle badges/plashki:\n"
+                        for i, feat in enumerate(features):
+                            prompt += (
+                                f"   - '{feat}' — in a small semi-transparent rounded rectangle "
+                                f"(pill shape), positioned {'to the left' if i % 2 == 0 else 'to the right'} "
+                                "of the product. White text on dark semi-transparent background, "
+                                "or dark text on light semi-transparent background. "
+                                "Clean, modern, readable. Like marketplace infographic badges.\n"
+                            )
+
+                    if badge:
+                        prompt += (
+                            f"3. ACCENT BADGE: Add '{badge}' as an eye-catching colored badge "
+                            "(red circle or ribbon) in the top-right corner. Bold white text. "
+                            "Like a sale/promo sticker.\n"
+                        )
+
                     prompt += (
-                        "\n\nAdditional product context: "
-                        + " ".join(extras)
-                        + " Include text overlays on the image showing the product name "
-                        "and features in clean, readable Russian typography."
+                        "\nSTYLE REFERENCE for text overlays: Think Wildberries/Ozon infographic cards. "
+                        "Clean typography, rounded pill-shaped feature badges arranged around the product, "
+                        "large product title, accent badge. Text must be in RUSSIAN and perfectly readable. "
+                        "DO NOT just write text — make it DESIGNED with backgrounds, shadows, proper spacing."
                     )
 
             logger.info("Using fallback style template (%d chars)", len(prompt))

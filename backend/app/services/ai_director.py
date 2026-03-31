@@ -54,7 +54,14 @@ RULES:
    - Mood/atmosphere keywords
 5. Include technical photography terms: depth of field, bokeh, rim light, key light, fill light, color grading
 6. NEVER suggest 3D deconstruction or exploded views — those look artificial
-7. Always end the prompt with: "IMPORTANT: Use the uploaded product image exactly — preserve form, proportions, colors, labels, packaging unchanged."
+7. If the seller provided a product title and features, you MUST include them as TEXT OVERLAYS in the prompt:
+   - Product title: large bold text (48-72pt), prominent position (top or center)
+   - Feature badges: styled rounded-rectangle pills arranged around the product
+   - Badge/promo: colored circle or ribbon in corner
+   - Text must be in RUSSIAN and perfectly readable
+   - Style reference: Wildberries/Ozon infographic marketplace cards
+   - DO NOT just float text — make it DESIGNED with semi-transparent backgrounds, proper spacing, modern typography
+8. Always end the prompt with: "IMPORTANT: Use the uploaded product image exactly — preserve form, proportions, colors, labels, packaging unchanged."
 
 OUTPUT FORMAT (JSON only, no markdown fences):
 {
