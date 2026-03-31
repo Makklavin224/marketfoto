@@ -594,3 +594,248 @@ def render_card_job(render_id: str) -> None:
             logger.exception("Failed to update render status to failed")
 
         raise
+
+
+# ---------------------------------------------------------------------------
+# AI Photoshoot job: Gemini 3.1 Flash Image multimodal generation
+# ---------------------------------------------------------------------------
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+
+def _update_photoshoot_status(
+    render_id: str,
+    *,
+    status: str,
+    output_url: str | None = None,
+    error_message: str | None = None,
+    processing_time_ms: int | None = None,
+) -> None:
+    """Update ai_photoshoots record in PostgreSQL (sync)."""
+    with _sync_engine.connect() as conn:
+        conn.execute(
+            text(
+                "UPDATE ai_photoshoots SET status = :status, "
+                "output_url = :output_url, "
+                "error_message = :error_message, "
+                "processing_time_ms = :processing_time_ms "
+                "WHERE id = CAST(:render_id AS uuid)"
+            ),
+            {
+                "status": status,
+                "output_url": output_url,
+                "error_message": error_message,
+                "processing_time_ms": processing_time_ms,
+                "render_id": render_id,
+            },
+        )
+        conn.commit()
+
+
+def _get_processed_url(image_id: str) -> str | None:
+    """Fetch processed_url from images table for the given image."""
+    with _sync_engine.connect() as conn:
+        result = conn.execute(
+            text(
+                "SELECT processed_url FROM images "
+                "WHERE id = CAST(:image_id AS uuid) AND status = 'processed'"
+            ),
+            {"image_id": image_id},
+        )
+        row = result.fetchone()
+        return row[0] if row else None
+
+
+def ai_photoshoot_job(
+    render_id: str,
+    image_id: str,
+    user_id: str,
+    style: str,
+    marketplace: str,
+) -> None:
+    """Generate AI product photoshoot using Gemini 3.1 Flash Image.
+
+    Called by RQ with job_timeout=120.
+    Downloads product image from MinIO, calls Gemini multimodal API,
+    saves result to MinIO rendered bucket, updates DB record.
+    """
+    start_time = time.time()
+
+    try:
+        # Mark as generating
+        _update_photoshoot_status(render_id, status="generating")
+        logger.info(
+            "AI photoshoot %s: style=%s, marketplace=%s, user=%s",
+            render_id, style, marketplace, user_id,
+        )
+
+        # Step 1: Get processed image URL from DB
+        processed_url = _get_processed_url(image_id)
+        if not processed_url:
+            raise ValueError(f"Processed image not found for image_id={image_id}")
+
+        # Step 2: Download product image from MinIO
+        try:
+            response = _minio_client.get_object("processed", processed_url)
+            product_bytes = response.read()
+            response.close()
+            response.release_conn()
+        except Exception as exc:
+            raise RuntimeError(f"Failed to download product image: {exc}") from exc
+
+        # Step 3: Call Gemini multimodal API
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY not configured")
+
+        from google import genai
+        from google.genai import types as genai_types
+
+        # Style prompts (duplicated from service to avoid importing app modules in worker)
+        STYLE_PROMPTS = {
+            "studio": (
+                "Create a professional studio product photography. "
+                "Place this exact product as the hero subject on a clean, soft gradient background. "
+                "Professional three-point studio lighting with key light from the upper-left, "
+                "fill light from the right, and subtle rim light. "
+                "Soft shadows beneath the product. "
+                "The product should be the clear focal point, centered, taking up 60% of the frame. "
+                "Resolution: {width}x{height}px. "
+                "Style: high-end commercial product photography, FMCG brand campaign, ultra-realistic. "
+                "IMPORTANT: Use the uploaded product image exactly as the product "
+                "without modifying its design, packaging, label, or color."
+            ),
+            "lifestyle": (
+                "Create an ultra-realistic lifestyle product advertisement. "
+                "Place this exact product as the hero in a carefully styled scene "
+                "that matches its category. "
+                "Add complementary props and a themed background that enhances the product's appeal. "
+                "Soft natural lighting with golden hour warmth. "
+                "Shallow depth of field with the product perfectly sharp. "
+                "The product takes up 40-50% of the frame. "
+                "Background should be harmonious and not distract from the product. "
+                "Resolution: {width}x{height}px. "
+                "Style: premium lifestyle photography, Instagram-worthy, aspirational. "
+                "IMPORTANT: Use the uploaded product image exactly as the product "
+                "without modifying its design, packaging, label, or color."
+            ),
+            "minimal": (
+                "Create a minimalist product photograph. "
+                "Place this exact product centered on a pure white background. "
+                "Add only a subtle soft shadow beneath the product for depth. "
+                "Clean, bright, even lighting. No props, no distractions. "
+                "The product should occupy 50-60% of the frame. "
+                "Resolution: {width}x{height}px. "
+                "Style: Apple-like product photography, ultra-clean, white space, premium minimalism. "
+                "IMPORTANT: Use the uploaded product image exactly as the product "
+                "without modifying its design, packaging, label, or color."
+            ),
+            "creative": (
+                "Create a creative, eye-catching product advertisement. "
+                "Place this exact product in a dynamic, artistic composition with bold colors, "
+                "geometric shapes, or abstract elements that complement the product's color palette. "
+                "Dramatic lighting with vibrant color accents. "
+                "Flying elements, splashes, or particles related to the product category. "
+                "The product is the clear hero, taking 40% of the frame. "
+                "Resolution: {width}x{height}px. "
+                "Style: high-end advertising campaign, bold and memorable, "
+                "award-winning creative direction. "
+                "IMPORTANT: Use the uploaded product image exactly as the product "
+                "without modifying its design, packaging, label, or color."
+            ),
+            "infographic": (
+                "Create a professional product infographic card. "
+                "Place this exact product on the left side (40% of width) "
+                "on a clean light gradient background. "
+                "On the right side, add space for text overlays (will be added separately). "
+                "Add subtle decorative lines connecting the product to the text area. "
+                "Clean, professional look suitable for marketplace listing. "
+                "Resolution: {width}x{height}px. "
+                "Style: e-commerce product infographic, Wildberries/Ozon marketplace card. "
+                "IMPORTANT: Use the uploaded product image exactly as the product "
+                "without modifying its design, packaging, label, or color."
+            ),
+        }
+
+        MP_DIMS = {
+            "wb": (900, 1200, "3:4"),
+            "ozon": (1200, 1200, "1:1"),
+            "ym": (800, 800, "1:1"),
+        }
+
+        width, height, aspect_ratio = MP_DIMS[marketplace]
+        prompt = STYLE_PROMPTS[style].format(width=width, height=height)
+
+        # Load product image as PIL
+        product_image = Image.open(io.BytesIO(product_bytes))
+
+        # Call Gemini
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        gemini_response = client.models.generate_content(
+            model="gemini-3.1-flash-image-preview",
+            contents=[
+                genai_types.Part.from_image(product_image),
+                genai_types.Part.from_text(prompt),
+            ],
+            config=genai_types.GenerateContentConfig(
+                response_modalities=["IMAGE"],
+                image_config=genai_types.ImageConfig(
+                    aspect_ratio=aspect_ratio,
+                ),
+            ),
+        )
+
+        # Extract image bytes from response
+        result_bytes = None
+        for part in gemini_response.parts:
+            if part.inline_data:
+                result_bytes = part.inline_data.data
+                break
+
+        if result_bytes is None:
+            raise RuntimeError("Gemini did not return an image")
+
+        # Step 4: Upload result to MinIO rendered bucket
+        output_key = f"{user_id}/ai_{render_id}.png"
+        _minio_client.put_object(
+            "rendered",
+            output_key,
+            io.BytesIO(result_bytes),
+            len(result_bytes),
+            content_type="image/png",
+        )
+
+        # Step 5: Update DB with success
+        processing_time_ms = int((time.time() - start_time) * 1000)
+        _update_photoshoot_status(
+            render_id,
+            status="complete",
+            output_url=output_key,
+            processing_time_ms=processing_time_ms,
+        )
+
+        logger.info(
+            "AI photoshoot %s complete in %dms (%d bytes)",
+            render_id,
+            processing_time_ms,
+            len(result_bytes),
+        )
+
+    except Exception as exc:
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        error_msg = str(exc)[:500]
+        logger.error(
+            "AI photoshoot %s failed after %dms: %s",
+            render_id, elapsed_ms, error_msg,
+        )
+
+        try:
+            _update_photoshoot_status(
+                render_id,
+                status="failed",
+                error_message=error_msg,
+                processing_time_ms=elapsed_ms,
+            )
+        except Exception:
+            logger.exception("Failed to update photoshoot status to failed")
+
+        raise

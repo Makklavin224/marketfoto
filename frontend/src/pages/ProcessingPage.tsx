@@ -87,7 +87,7 @@ export default function ProcessingPage() {
 
   // Navigation handlers
   const handleNext = useCallback(() => {
-    navigate(`/templates?image=${imageId}`);
+    navigate(`/styles?image=${imageId}`);
   }, [navigate, imageId]);
 
   const handleUploadAnother = useCallback(() => {

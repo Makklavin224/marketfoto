@@ -10,6 +10,7 @@ from app.api.payments import router as payments_router
 from app.api.renders import router as renders_router
 from app.api.templates import router as templates_router
 from app.api.ai_images import router as ai_images_router
+from app.api.ai_photoshoot import router as ai_photoshoot_router
 
 
 def create_app() -> FastAPI:
@@ -36,6 +37,7 @@ def create_app() -> FastAPI:
     app.include_router(renders_router)
     app.include_router(templates_router)
     app.include_router(ai_images_router)
+    app.include_router(ai_photoshoot_router)
 
     return app
 

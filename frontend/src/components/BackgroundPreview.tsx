@@ -100,7 +100,7 @@ export default function BackgroundPreview({
           onClick={onNext}
           className="btn-primary w-full md:w-auto text-lg py-3 px-8 cursor-pointer"
         >
-          Далее: выбрать шаблон
+          Далее: AI фотосессия
         </button>
         <button
           onClick={onUploadAnother}

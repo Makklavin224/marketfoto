@@ -13,3 +13,6 @@ Pillow~=12.1.0
 rembg[cpu]>=2.0.0
 pycairo~=1.29.0
 numpy>=1.26.0
+
+# AI Image Generation (Gemini 3.1 Flash Image for AI photoshoot)
+google-genai>=1.0.0

@@ -12,6 +12,9 @@ import EditorPage from "./pages/EditorPage";
 import DashboardPage from "./pages/DashboardPage";
 import PricingPage from "./pages/PricingPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import StyleSelectorPage from "./pages/StyleSelectorPage";
+import GeneratingPage from "./pages/GeneratingPage";
+import GenerationResultPage from "./pages/GenerationResultPage";
 
 export default function App() {
   const initialize = useAuthStore((s) => s.initialize);
@@ -47,6 +50,9 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/processing/:imageId" element={<ProcessingPage />} />
+          <Route path="/styles" element={<StyleSelectorPage />} />
+          <Route path="/generating/:renderId" element={<GeneratingPage />} />
+          <Route path="/result/:renderId" element={<GenerationResultPage />} />
           <Route path="/templates" element={<TemplateSelectorPage />} />
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
