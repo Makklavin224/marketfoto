@@ -145,6 +145,38 @@ def build_prompt(style: str, marketplace: str) -> str:
     return template.format(width=width, height=height)
 
 
+def build_prompt_with_product_info(
+    style: str,
+    marketplace: str,
+    product_info: dict | None = None,
+) -> str:
+    """Build prompt with optional product info appended."""
+    prompt = build_prompt(style, marketplace)
+
+    if product_info:
+        title = product_info.get("title", "")
+        features = product_info.get("features", [])
+        badge = product_info.get("badge", "")
+
+        extras = []
+        if title:
+            extras.append(f"Product name: {title}.")
+        if features:
+            extras.append(f"Key features: {', '.join(features)}.")
+        if badge:
+            extras.append(f"Badge/label on the image: {badge}.")
+
+        if extras:
+            prompt += (
+                "\n\nAdditional product context: "
+                + " ".join(extras)
+                + " Include text overlays on the image showing the product name "
+                "and features in clean, readable Russian typography."
+            )
+
+    return prompt
+
+
 def generate_photoshoot_sync(
     product_image_bytes: bytes,
     style: str,

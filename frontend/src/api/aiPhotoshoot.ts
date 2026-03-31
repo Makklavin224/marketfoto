@@ -23,6 +23,11 @@ export interface PhotoshootResponse {
   output_height: number;
   status: "pending" | "generating" | "complete" | "failed";
   processing_time_ms: number | null;
+  product_info: {
+    title?: string;
+    features?: string[];
+    badge?: string;
+  } | null;
   created_at: string;
 }
 
@@ -37,6 +42,18 @@ export interface CreatePhotoshootRequest {
   image_id: string;
   style: string;
   marketplace: string;
+  title?: string;
+  features?: string[];
+  badge?: string;
+}
+
+export interface SuggestRequest {
+  image_id: string;
+}
+
+export interface SuggestResponse {
+  title: string;
+  features: string[];
 }
 
 // --- API functions ---
@@ -47,6 +64,9 @@ export const aiPhotoshootApi = {
 
   generate: (data: CreatePhotoshootRequest) =>
     api.post<PhotoshootResponse>("/ai-photoshoot/generate", data),
+
+  suggest: (data: SuggestRequest) =>
+    api.post<SuggestResponse>("/ai-photoshoot/suggest", data),
 
   getStatus: (renderId: string) =>
     api.get<PhotoshootStatusResponse>(`/ai-photoshoot/${renderId}/status`),
@@ -74,6 +94,13 @@ export function useCreatePhotoshoot() {
   return useMutation({
     mutationFn: (data: CreatePhotoshootRequest) =>
       aiPhotoshootApi.generate(data).then((res) => res.data),
+  });
+}
+
+export function useSuggestProductInfo() {
+  return useMutation({
+    mutationFn: (data: SuggestRequest) =>
+      aiPhotoshootApi.suggest(data).then((res) => res.data),
   });
 }
 

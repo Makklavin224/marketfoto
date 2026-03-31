@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -29,6 +29,10 @@ class CreatePhotoshootRequest(BaseModel):
     image_id: UUID
     style: str  # 'studio', 'lifestyle', 'minimal', 'creative', 'infographic'
     marketplace: str  # 'wb', 'ozon', 'ym'
+    # Optional product info for enhanced prompts and text overlays
+    title: Optional[str] = None
+    features: Optional[list[str]] = None
+    badge: Optional[str] = None
 
 
 class PhotoshootResponse(BaseModel):
@@ -43,6 +47,7 @@ class PhotoshootResponse(BaseModel):
     output_height: int
     status: str  # 'pending', 'generating', 'complete', 'failed'
     processing_time_ms: Optional[int] = None
+    product_info: Optional[dict[str, Any]] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -55,3 +60,16 @@ class PhotoshootStatusResponse(BaseModel):
     output_url: Optional[str] = None
     error_message: Optional[str] = None
     processing_time_ms: Optional[int] = None
+
+
+class SuggestRequest(BaseModel):
+    """Request body for POST /api/ai-photoshoot/suggest."""
+
+    image_id: UUID
+
+
+class SuggestResponse(BaseModel):
+    """AI-suggested product title and features."""
+
+    title: str
+    features: list[str]

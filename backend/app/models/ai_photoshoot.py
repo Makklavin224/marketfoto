@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 import sqlalchemy as sa
 from sqlalchemy import CheckConstraint, ForeignKey, Index, text
@@ -60,6 +60,10 @@ class AIPhotoshoot(Base):
     )
     processing_time_ms: Mapped[Optional[int]] = mapped_column(
         sa.Integer, nullable=True
+    )
+    # Product info: {title, features, badge} for prompt enhancement & text overlays
+    product_info: Mapped[Optional[dict[str, Any]]] = mapped_column(
+        pg.JSONB, nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=text("now()")

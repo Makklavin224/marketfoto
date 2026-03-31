@@ -9,8 +9,7 @@
 
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import toast from "react-hot-toast";
-import { useAIStyles, useCreatePhotoshoot } from "../api/aiPhotoshoot";
+import { useAIStyles } from "../api/aiPhotoshoot";
 import { useAuthStore } from "../stores/auth";
 
 // Style card gradients and icons for visual differentiation
@@ -53,24 +52,12 @@ export default function StyleSelectorPage() {
   const [selectedMarketplace, setSelectedMarketplace] = useState("wb");
 
   const { data: styles, isLoading: stylesLoading } = useAIStyles();
-  const createMutation = useCreatePhotoshoot();
 
-  const handleGenerate = async () => {
+  const handleNext = () => {
     if (!imageId || !selectedStyle) return;
-
-    try {
-      const result = await createMutation.mutateAsync({
-        image_id: imageId,
-        style: selectedStyle,
-        marketplace: selectedMarketplace,
-      });
-      navigate(`/generating/${result.id}`);
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } }; message?: string };
-      toast.error(
-        error?.response?.data?.detail || "Не удалось запустить генерацию"
-      );
-    }
+    navigate(
+      `/product-info?image=${imageId}&style=${selectedStyle}&marketplace=${selectedMarketplace}`
+    );
   };
 
   if (!imageId) {
@@ -303,39 +290,14 @@ export default function StyleSelectorPage() {
           )}
         </div>
 
-        {/* Generate button + secondary actions */}
+        {/* Next button + secondary actions */}
         <div className="flex flex-col items-center gap-3 animate-fade-in-up delay-600">
           <button
-            onClick={handleGenerate}
-            disabled={!selectedStyle || createMutation.isPending}
+            onClick={handleNext}
+            disabled={!selectedStyle}
             className="btn-primary w-full md:w-auto text-lg py-3 px-8 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {createMutation.isPending ? (
-              <span className="flex items-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Запускаем...
-              </span>
-            ) : (
-              "Создать карточку"
-            )}
+            Далее: информация о товаре
           </button>
 
           <button

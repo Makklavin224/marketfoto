@@ -652,12 +652,16 @@ def ai_photoshoot_job(
     user_id: str,
     style: str,
     marketplace: str,
+    product_info: dict | None = None,
 ) -> None:
     """Generate AI product photoshoot using Gemini 3.1 Flash Image.
 
     Called by RQ with job_timeout=120.
     Downloads product image from MinIO, calls Gemini multimodal API,
     saves result to MinIO rendered bucket, updates DB record.
+
+    Args:
+        product_info: Optional dict with keys: title, features, badge.
     """
     start_time = time.time()
 
@@ -768,6 +772,30 @@ def ai_photoshoot_job(
 
         width, height, aspect_ratio = MP_DIMS[marketplace]
         prompt = STYLE_PROMPTS[style].format(width=width, height=height)
+
+        # Append product info to prompt if provided
+        if product_info:
+            title = product_info.get("title", "")
+            features = product_info.get("features", [])
+            badge = product_info.get("badge", "")
+
+            extras = []
+            if title:
+                extras.append(f"Product name: {title}.")
+            if features:
+                extras.append(f"Key features: {', '.join(features)}.")
+            if badge:
+                extras.append(f"Badge/label on the image: {badge}.")
+
+            if extras:
+                prompt += (
+                    "\n\nAdditional product context: "
+                    + " ".join(extras)
+                    + " Include text overlays on the image showing the product name "
+                    "and features in clean, readable Russian typography."
+                )
+
+        logger.info("AI photoshoot prompt length: %d chars", len(prompt))
 
         # Load product image as PIL
         product_image = Image.open(io.BytesIO(product_bytes))

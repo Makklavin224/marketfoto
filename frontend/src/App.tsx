@@ -13,6 +13,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PricingPage from "./pages/PricingPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import StyleSelectorPage from "./pages/StyleSelectorPage";
+import ProductInfoPage from "./pages/ProductInfoPage";
 import GeneratingPage from "./pages/GeneratingPage";
 import GenerationResultPage from "./pages/GenerationResultPage";
 
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/processing/:imageId" element={<ProcessingPage />} />
           <Route path="/styles" element={<StyleSelectorPage />} />
+          <Route path="/product-info" element={<ProductInfoPage />} />
           <Route path="/generating/:renderId" element={<GeneratingPage />} />
           <Route path="/result/:renderId" element={<GenerationResultPage />} />
           <Route path="/templates" element={<TemplateSelectorPage />} />

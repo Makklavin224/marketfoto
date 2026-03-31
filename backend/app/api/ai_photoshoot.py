@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -20,9 +23,13 @@ from app.schemas.ai_photoshoot import (
     PhotoshootResponse,
     PhotoshootStatusResponse,
     StylesListResponse,
+    SuggestRequest,
+    SuggestResponse,
 )
 from app.services.ai_photoshoot import MARKETPLACE_DIMENSIONS, get_styles_list
 from app.services import minio as minio_svc
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ai-photoshoot", tags=["ai-photoshoot"])
 
@@ -40,6 +47,110 @@ VALID_MARKETPLACES = {"wb", "ozon", "ym"}
 async def list_styles() -> StylesListResponse:
     """Return available AI photoshoot style presets (public, no auth needed)."""
     return StylesListResponse(styles=get_styles_list())
+
+
+# ---------------------------------------------------------------------------
+# POST /api/ai-photoshoot/suggest — AI auto-suggest product name + features
+# ---------------------------------------------------------------------------
+
+
+@router.post("/suggest", response_model=SuggestResponse)
+async def suggest_product_info(
+    body: SuggestRequest,
+    user: User = Depends(get_current_user),
+) -> SuggestResponse:
+    """Use Gemini text model to suggest product name and features from image.
+
+    Calls Gemini 2.5 Flash (text model, NOT image generation) — very cheap.
+    Uses HTTP_PROXY env var for geo-block bypass.
+    """
+    if not settings.gemini_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI-сервис временно недоступен",
+        )
+
+    # Verify image exists and belongs to user
+    async with AsyncSessionLocal() as session:
+        img_result = await session.execute(
+            select(Image).where(
+                Image.id == body.image_id, Image.user_id == user.id
+            )
+        )
+        image = img_result.scalar_one_or_none()
+        if image is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Изображение не найдено",
+            )
+        if not image.processed_url:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Изображение ещё не обработано",
+            )
+
+    # Download product image from MinIO
+    try:
+        img_bytes = minio_svc.download_bytes(
+            minio_svc.BUCKET_PROCESSED, image.processed_url
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Не удалось загрузить изображение",
+        )
+
+    # Call Gemini text model for suggestions
+    try:
+        # Set proxy for geo-block
+        proxy_url = os.environ.get("HTTP_PROXY", "")
+        if proxy_url:
+            os.environ["HTTPS_PROXY"] = proxy_url
+
+        from google import genai
+        from google.genai import types as genai_types
+        from PIL import Image as PILImage
+        import io
+
+        client = genai.Client(api_key=settings.gemini_api_key)
+        product_image = PILImage.open(io.BytesIO(img_bytes))
+
+        prompt = (
+            "Look at this product image. Suggest a Russian product name and "
+            "4 key features/characteristics for a marketplace listing. "
+            "Return ONLY valid JSON, no markdown, no code fences: "
+            '{"title": "string", "features": ["string", "string", "string", "string"]}'
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[product_image, prompt],
+            config=genai_types.GenerateContentConfig(
+                response_mime_type="application/json",
+            ),
+        )
+
+        # Parse JSON response
+        response_text = response.text.strip()
+        data = json.loads(response_text)
+
+        return SuggestResponse(
+            title=data.get("title", ""),
+            features=data.get("features", [])[:5],
+        )
+
+    except json.JSONDecodeError:
+        logger.warning("Gemini returned invalid JSON: %s", response.text[:200])
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI вернул некорректный ответ. Попробуйте ещё раз.",
+        )
+    except Exception as exc:
+        logger.error("AI suggest failed: %s", str(exc)[:300])
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Не удалось получить подсказку от AI",
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +227,17 @@ async def create_photoshoot(
     # Get marketplace dimensions
     width, height, _ = MARKETPLACE_DIMENSIONS[body.marketplace]
 
+    # Build product_info dict if any product fields provided
+    product_info = None
+    if body.title or body.features or body.badge:
+        product_info = {}
+        if body.title:
+            product_info["title"] = body.title
+        if body.features:
+            product_info["features"] = body.features
+        if body.badge:
+            product_info["badge"] = body.badge
+
     # Create photoshoot record + atomic credit deduction
     photoshoot_id = uuid.uuid4()
     photoshoot = AIPhotoshoot(
@@ -127,6 +249,7 @@ async def create_photoshoot(
         output_width=width,
         output_height=height,
         status="pending",
+        product_info=product_info,
     )
 
     async with AsyncSessionLocal() as session:
@@ -153,6 +276,7 @@ async def create_photoshoot(
         str(user.id),
         body.style,
         body.marketplace,
+        product_info,
         job_timeout=120,  # Gemini can take 10-30s, give generous timeout
     )
 
@@ -166,6 +290,7 @@ async def create_photoshoot(
         output_height=photoshoot.output_height,
         status=photoshoot.status,
         processing_time_ms=None,
+        product_info=photoshoot.product_info,
         created_at=photoshoot.created_at,
     )
 

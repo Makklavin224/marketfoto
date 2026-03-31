@@ -40,6 +40,13 @@ export default function GenerationResultPage() {
     }
   }, [renderId]);
 
+  const handleEditText = useCallback(() => {
+    // Open fabric.js editor with the AI-generated image as background
+    if (renderId) {
+      navigate(`/editor?ai_image=${renderId}`);
+    }
+  }, [renderId, navigate]);
+
   const handleNewStyle = useCallback(() => {
     // Go back to style selector with the same image
     // We need image_id from the photoshoot — it's not in status response,
@@ -174,6 +181,32 @@ export default function GenerationResultPage() {
                     Скачать PNG
                   </span>
                 )}
+              </button>
+
+              {/* Edit text overlay */}
+              <button
+                onClick={handleEditText}
+                className="btn-secondary w-full md:w-auto text-base py-2.5 px-6 cursor-pointer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                </svg>
+                Редактировать текст
               </button>
 
               {/* Secondary actions row */}
