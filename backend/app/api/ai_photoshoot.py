@@ -20,13 +20,23 @@ from app.models.image import Image
 from app.models.user import User
 from app.schemas.ai_photoshoot import (
     CreatePhotoshootRequest,
+    CreateSeriesRequest,
     PhotoshootResponse,
     PhotoshootStatusResponse,
+    PhotoshootStatusRenderItem,
+    SeriesRenderItem,
+    SeriesResponse,
+    SeriesStatusResponse,
     StylesListResponse,
     SuggestRequest,
     SuggestResponse,
 )
-from app.services.ai_photoshoot import MARKETPLACE_DIMENSIONS, get_styles_list
+from app.services.ai_photoshoot import (
+    MARKETPLACE_DIMENSIONS,
+    SERIES_PRESETS,
+    get_series_list,
+    get_styles_list,
+)
 from app.services import minio as minio_svc
 
 logger = logging.getLogger(__name__)
@@ -34,8 +44,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/ai-photoshoot", tags=["ai-photoshoot"])
 
 # Valid styles for request validation
-VALID_STYLES = {"studio", "lifestyle", "minimal", "creative", "infographic"}
+VALID_STYLES = {
+    "studio_clean", "premium_hero", "lifestyle_scene", "glass_surface",
+    "ingredients", "with_model", "multi_angle", "infographic", "nine_grid",
+    "creative_art", "storyboard", "detail_texture", "seasonal", "minimal_flat", "unboxing",
+}
 VALID_MARKETPLACES = {"wb", "ozon", "ym"}
+VALID_SERIES = {"wb_full", "ozon_premium", "quick_start"}
 
 
 # ---------------------------------------------------------------------------
@@ -45,8 +60,11 @@ VALID_MARKETPLACES = {"wb", "ozon", "ym"}
 
 @router.get("/styles", response_model=StylesListResponse)
 async def list_styles() -> StylesListResponse:
-    """Return available AI photoshoot style presets (public, no auth needed)."""
-    return StylesListResponse(styles=get_styles_list())
+    """Return available AI photoshoot style presets and series (public, no auth needed)."""
+    return StylesListResponse(
+        styles=get_styles_list(),
+        series=get_series_list(),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -291,6 +309,7 @@ async def create_photoshoot(
         status=photoshoot.status,
         processing_time_ms=None,
         product_info=photoshoot.product_info,
+        series_id=photoshoot.series_id,
         created_at=photoshoot.created_at,
     )
 
@@ -379,3 +398,210 @@ async def download_photoshoot(
         "download_url": presigned_url,
         "filename": f"ai_{photoshoot.style}_{photoshoot.marketplace}_{render_id}.png",
     }
+
+
+# ---------------------------------------------------------------------------
+# POST /api/ai-photoshoot/generate-series — create multiple cards at once
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/generate-series",
+    response_model=SeriesResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_series(
+    body: CreateSeriesRequest,
+    user: User = Depends(get_current_user),
+) -> SeriesResponse:
+    """Create a card series — multiple AI photoshoots in one request.
+
+    Atomically deducts credits for all cards, creates DB records, enqueues jobs.
+    """
+    # Validate series
+    if body.series not in VALID_SERIES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Неизвестная серия: {body.series}",
+        )
+
+    # Validate marketplace
+    if body.marketplace not in VALID_MARKETPLACES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Неизвестный маркетплейс: {body.marketplace}",
+        )
+
+    if not settings.gemini_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI-генерация временно недоступна",
+        )
+
+    series_preset = SERIES_PRESETS[body.series]
+    card_count = series_preset["card_count"]
+    styles_list = series_preset["styles"]
+
+    # Check credits
+    if user.plan != "business" and user.credits_remaining < card_count:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Недостаточно карточек. Нужно {card_count}, осталось {user.credits_remaining}",
+        )
+
+    # Verify image exists and is processed
+    async with AsyncSessionLocal() as session:
+        img_result = await session.execute(
+            select(Image).where(
+                Image.id == body.image_id, Image.user_id == user.id
+            )
+        )
+        image = img_result.scalar_one_or_none()
+        if image is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Изображение не найдено",
+            )
+        if image.status != "processed":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Изображение ещё не обработано",
+            )
+        if not image.processed_url:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="У изображения нет обработанной версии",
+            )
+
+    width, height, _ = MARKETPLACE_DIMENSIONS[body.marketplace]
+
+    # Build product_info
+    product_info = None
+    if body.title or body.features or body.badge:
+        product_info = {}
+        if body.title:
+            product_info["title"] = body.title
+        if body.features:
+            product_info["features"] = body.features
+        if body.badge:
+            product_info["badge"] = body.badge
+
+    # Generate shared series_id
+    series_id = uuid.uuid4()
+    renders: list[SeriesRenderItem] = []
+
+    async with AsyncSessionLocal() as session:
+        for style in styles_list:
+            photoshoot_id = uuid.uuid4()
+            photoshoot = AIPhotoshoot(
+                id=photoshoot_id,
+                user_id=user.id,
+                image_id=body.image_id,
+                style=style,
+                marketplace=body.marketplace,
+                output_width=width,
+                output_height=height,
+                status="pending",
+                product_info=product_info,
+                series_id=series_id,
+            )
+            session.add(photoshoot)
+            renders.append(SeriesRenderItem(
+                id=photoshoot_id,
+                style=style,
+                status="pending",
+            ))
+
+        # Atomic credit deduction for all cards
+        if user.plan != "business":
+            result = await session.execute(
+                update(User)
+                .where(User.id == user.id, User.credits_remaining >= card_count)
+                .values(credits_remaining=User.credits_remaining - card_count)
+            )
+            if result.rowcount == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Недостаточно карточек для серии",
+                )
+
+        await session.commit()
+
+    # Enqueue RQ jobs for each card
+    redis_conn = Redis.from_url(settings.redis_url)
+    queue = Queue(connection=redis_conn)
+    for render_item in renders:
+        queue.enqueue(
+            "worker.tasks.ai_photoshoot_job",
+            str(render_item.id),
+            str(body.image_id),
+            str(user.id),
+            render_item.style,
+            body.marketplace,
+            product_info,
+            job_timeout=300,
+        )
+
+    return SeriesResponse(series_id=series_id, renders=renders)
+
+
+# ---------------------------------------------------------------------------
+# GET /api/ai-photoshoot/series/{series_id}/status — series polling endpoint
+# ---------------------------------------------------------------------------
+
+
+@router.get("/series/{series_id}/status", response_model=SeriesStatusResponse)
+async def get_series_status(
+    series_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+) -> SeriesStatusResponse:
+    """Polling endpoint for series generation progress."""
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(AIPhotoshoot).where(
+                AIPhotoshoot.series_id == series_id,
+                AIPhotoshoot.user_id == user.id,
+            )
+        )
+        photoshoots = result.scalars().all()
+
+    if not photoshoots:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Серия не найдена",
+        )
+
+    render_items = []
+    completed = 0
+    failed = 0
+    for ps in photoshoots:
+        presigned_url: str | None = None
+        if ps.output_url:
+            try:
+                presigned_url = minio_svc.get_presigned_get_url(
+                    minio_svc.BUCKET_RENDERED, ps.output_url
+                )
+            except Exception:
+                presigned_url = None
+
+        if ps.status == "complete":
+            completed += 1
+        elif ps.status == "failed":
+            failed += 1
+
+        render_items.append(PhotoshootStatusRenderItem(
+            id=ps.id,
+            style=ps.style,
+            status=ps.status,
+            output_url=presigned_url,
+            error_message=ps.error_message,
+            processing_time_ms=ps.processing_time_ms,
+        ))
+
+    return SeriesStatusResponse(
+        series_id=series_id,
+        total=len(photoshoots),
+        completed=completed,
+        failed=failed,
+        renders=render_items,
+    )

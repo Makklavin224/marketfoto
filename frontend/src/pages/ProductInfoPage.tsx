@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
   useCreatePhotoshoot,
+  useCreateSeries,
   useSuggestProductInfo,
 } from "../api/aiPhotoshoot";
 import { imagesApi } from "../lib/api";
@@ -24,7 +25,9 @@ export default function ProductInfoPage() {
   const [searchParams] = useSearchParams();
   const imageId = searchParams.get("image");
   const style = searchParams.get("style") || "";
+  const seriesId = searchParams.get("series") || "";
   const marketplace = searchParams.get("marketplace") || "wb";
+  const isSeries = !!seriesId;
   const user = useAuthStore((s) => s.user);
 
   const [title, setTitle] = useState("");
@@ -32,6 +35,7 @@ export default function ProductInfoPage() {
   const [badge, setBadge] = useState("");
 
   const createMutation = useCreatePhotoshoot();
+  const seriesMutation = useCreateSeries();
   const suggestMutation = useSuggestProductInfo();
 
   // Fetch image record to get presigned processed URL for thumbnail
@@ -84,7 +88,7 @@ export default function ProductInfoPage() {
   }, [imageId, suggestMutation]);
 
   const handleGenerate = useCallback(async () => {
-    if (!imageId || !style) return;
+    if (!imageId || (!style && !seriesId)) return;
     if (!title.trim()) {
       toast.error("Укажите название товара");
       return;
@@ -93,15 +97,29 @@ export default function ProductInfoPage() {
     const nonEmptyFeatures = features.filter((f) => f.trim());
 
     try {
-      const result = await createMutation.mutateAsync({
-        image_id: imageId,
-        style,
-        marketplace,
-        title: title.trim(),
-        features: nonEmptyFeatures.length > 0 ? nonEmptyFeatures : undefined,
-        badge: badge.trim() || undefined,
-      });
-      navigate(`/generating/${result.id}`);
+      if (isSeries) {
+        // Series flow — generates multiple cards
+        const result = await seriesMutation.mutateAsync({
+          image_id: imageId,
+          series: seriesId,
+          marketplace,
+          title: title.trim(),
+          features: nonEmptyFeatures.length > 0 ? nonEmptyFeatures : undefined,
+          badge: badge.trim() || undefined,
+        });
+        navigate(`/series-generating/${result.series_id}`);
+      } else {
+        // Single style flow
+        const result = await createMutation.mutateAsync({
+          image_id: imageId,
+          style,
+          marketplace,
+          title: title.trim(),
+          features: nonEmptyFeatures.length > 0 ? nonEmptyFeatures : undefined,
+          badge: badge.trim() || undefined,
+        });
+        navigate(`/generating/${result.id}`);
+      }
     } catch (err: unknown) {
       const error = err as {
         response?: { data?: { detail?: string } };
@@ -111,9 +129,9 @@ export default function ProductInfoPage() {
         error?.response?.data?.detail || "Не удалось запустить генерацию"
       );
     }
-  }, [imageId, style, marketplace, title, features, badge, createMutation, navigate]);
+  }, [imageId, style, seriesId, isSeries, marketplace, title, features, badge, createMutation, seriesMutation, navigate]);
 
-  if (!imageId || !style) {
+  if (!imageId || (!style && !seriesId)) {
     return (
       <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
         <div className="bg-mesh" />
@@ -437,10 +455,10 @@ export default function ProductInfoPage() {
             <div className="flex flex-col items-center gap-3 animate-fade-in-up delay-400">
               <button
                 onClick={handleGenerate}
-                disabled={!title.trim() || createMutation.isPending}
+                disabled={!title.trim() || createMutation.isPending || seriesMutation.isPending}
                 className="btn-primary w-full text-lg py-3 px-8 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {createMutation.isPending ? (
+                {(createMutation.isPending || seriesMutation.isPending) ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
                       className="animate-spin h-5 w-5"
@@ -463,6 +481,8 @@ export default function ProductInfoPage() {
                     </svg>
                     Запускаем генерацию...
                   </span>
+                ) : isSeries ? (
+                  "Создать серию карточек"
                 ) : (
                   "Создать карточку"
                 )}

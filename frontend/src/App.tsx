@@ -16,6 +16,8 @@ import StyleSelectorPage from "./pages/StyleSelectorPage";
 import ProductInfoPage from "./pages/ProductInfoPage";
 import GeneratingPage from "./pages/GeneratingPage";
 import GenerationResultPage from "./pages/GenerationResultPage";
+import SeriesGeneratingPage from "./pages/SeriesGeneratingPage";
+import SeriesResultPage from "./pages/SeriesResultPage";
 
 export default function App() {
   const initialize = useAuthStore((s) => s.initialize);
@@ -55,6 +57,8 @@ export default function App() {
           <Route path="/product-info" element={<ProductInfoPage />} />
           <Route path="/generating/:renderId" element={<GeneratingPage />} />
           <Route path="/result/:renderId" element={<GenerationResultPage />} />
+          <Route path="/series-generating/:seriesId" element={<SeriesGeneratingPage />} />
+          <Route path="/series-result/:seriesId" element={<SeriesResultPage />} />
           <Route path="/templates" element={<TemplateSelectorPage />} />
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />

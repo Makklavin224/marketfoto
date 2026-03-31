@@ -22,7 +22,9 @@ class AIPhotoshoot(Base):
             name="ai_ps_marketplace_check",
         ),
         CheckConstraint(
-            "style IN ('studio', 'lifestyle', 'minimal', 'creative', 'infographic')",
+            "style IN ('studio_clean', 'premium_hero', 'lifestyle_scene', 'glass_surface', "
+            "'ingredients', 'with_model', 'multi_angle', 'infographic', 'nine_grid', "
+            "'creative_art', 'storyboard', 'detail_texture', 'seasonal', 'minimal_flat', 'unboxing')",
             name="ai_ps_style_check",
         ),
         CheckConstraint(
@@ -64,6 +66,10 @@ class AIPhotoshoot(Base):
     # Product info: {title, features, badge} for prompt enhancement & text overlays
     product_info: Mapped[Optional[dict[str, Any]]] = mapped_column(
         pg.JSONB, nullable=True
+    )
+    # Series grouping: all cards in one series share the same series_id
+    series_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        pg.UUID(as_uuid=True), nullable=True, index=True
     )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=text("now()")
