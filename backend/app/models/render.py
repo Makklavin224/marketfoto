@@ -48,6 +48,12 @@ class Render(Base):
     output_url: Mapped[Optional[str]] = mapped_column(sa.String, nullable=True)
     output_width: Mapped[int] = mapped_column(sa.Integer, nullable=False)
     output_height: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    status: Mapped[str] = mapped_column(
+        sa.String, nullable=False, server_default=text("'pending'")
+    )
+    error_message: Mapped[Optional[str]] = mapped_column(
+        sa.String, nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=text("now()")
     )

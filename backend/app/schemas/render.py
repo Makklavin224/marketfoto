@@ -1,12 +1,21 @@
-"""Pydantic response models for renders list, detail, and download endpoints."""
+"""Pydantic models for renders: create request, response, status, list."""
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+
+
+class CreateRenderRequest(BaseModel):
+    """Request body for POST /api/renders."""
+
+    image_id: UUID
+    template_id: UUID
+    overlay_data: Dict[str, Any]
+    marketplace: str  # 'wb', 'ozon', 'ym'
 
 
 class RenderResponse(BaseModel):
@@ -19,9 +28,18 @@ class RenderResponse(BaseModel):
     output_url: Optional[str] = None  # presigned download URL (generated on read)
     output_width: int
     output_height: int
+    status: str  # 'pending', 'rendering', 'complete', 'failed'
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class RenderStatusResponse(BaseModel):
+    """Lightweight polling response for render progress."""
+
+    status: str  # 'pending', 'rendering', 'complete', 'failed'
+    output_url: Optional[str] = None
+    error_message: Optional[str] = None
 
 
 class RenderListResponse(BaseModel):

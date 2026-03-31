@@ -293,6 +293,7 @@ def _get_render_data(render_id: str):
 def _update_render_status(
     render_id: str,
     *,
+    status: str = "rendering",
     output_url: str | None = None,
     error_message: str | None = None,
 ) -> None:
@@ -300,10 +301,17 @@ def _update_render_status(
     with _sync_engine.connect() as conn:
         conn.execute(
             text(
-                "UPDATE renders SET output_url = :output_url "
+                "UPDATE renders SET status = :status, "
+                "output_url = :output_url, "
+                "error_message = :error_message "
                 "WHERE id = CAST(:render_id AS uuid)"
             ),
-            {"output_url": output_url, "render_id": render_id},
+            {
+                "status": status,
+                "output_url": output_url,
+                "error_message": error_message,
+                "render_id": render_id,
+            },
         )
         conn.commit()
 
@@ -318,6 +326,9 @@ def render_card_job(render_id: str) -> None:
     start_time = time.time()
 
     try:
+        # Mark as rendering
+        _update_render_status(render_id, status="rendering")
+
         # Step 1: Fetch all data needed for rendering
         data = _get_render_data(render_id)
         if not data:
@@ -557,8 +568,8 @@ def render_card_job(render_id: str) -> None:
             content_type="image/png",
         )
 
-        # Step 13: Update render record with output_url
-        _update_render_status(render_id, output_url=output_key)
+        # Step 13: Update render record with output_url and status=complete
+        _update_render_status(render_id, status="complete", output_url=output_key)
 
         elapsed = int((time.time() - start_time) * 1000)
         logger.info(
@@ -576,7 +587,9 @@ def render_card_job(render_id: str) -> None:
         )
 
         try:
-            _update_render_status(render_id, error_message=error_msg)
+            _update_render_status(
+                render_id, status="failed", error_message=error_msg
+            )
         except Exception:
             logger.exception("Failed to update render status to failed")
 
