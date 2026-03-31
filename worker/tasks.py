@@ -768,14 +768,11 @@ def ai_photoshoot_job(
         # Load product image as PIL
         product_image = Image.open(io.BytesIO(product_bytes))
 
-        # Call Gemini
+        # Call Gemini — pass PIL Image directly (SDK auto-converts to Blob)
         client = genai.Client(api_key=GEMINI_API_KEY)
         gemini_response = client.models.generate_content(
             model="gemini-3.1-flash-image-preview",
-            contents=[
-                genai_types.Part.from_image(product_image),
-                genai_types.Part.from_text(prompt),
-            ],
+            contents=[product_image, prompt],
             config=genai_types.GenerateContentConfig(
                 response_modalities=["IMAGE"],
                 image_config=genai_types.ImageConfig(
