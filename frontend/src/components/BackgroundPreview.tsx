@@ -37,12 +37,18 @@ export default function BackgroundPreview({
             style={{ background: "var(--bg-tertiary)" }}
           >
             <div className="flex items-center justify-center" style={{ maxHeight: "24rem" }}>
-              <img
-                src={originalUrl}
-                alt="Оригинал"
-                className="w-full h-full object-contain"
-                style={{ maxHeight: "24rem" }}
-              />
+              {originalUrl ? (
+                <img
+                  src={originalUrl}
+                  alt="Оригинал"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: "24rem" }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-48" style={{ color: "var(--text-tertiary)" }}>
+                  <p className="text-sm">Загрузка...</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -64,12 +70,18 @@ export default function BackgroundPreview({
             }}
           >
             <div className="flex items-center justify-center" style={{ maxHeight: "24rem" }}>
-              <img
-                src={processedUrl}
-                alt="Без фона"
-                className="w-full h-full object-contain"
-                style={{ maxHeight: "24rem" }}
-              />
+              {processedUrl ? (
+                <img
+                  src={processedUrl}
+                  alt="Без фона"
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: "24rem" }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-48" style={{ color: "var(--text-tertiary)" }}>
+                  <p className="text-sm">Загрузка...</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

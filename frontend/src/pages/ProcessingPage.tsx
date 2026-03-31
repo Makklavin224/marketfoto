@@ -176,8 +176,8 @@ export default function ProcessingPage() {
           <div className="animate-fade-in-up">
             <BackgroundPreview
               originalUrl={image?.original_url ?? ""}
-              processedUrl={statusData?.processed_url ?? ""}
-              processingTimeMs={statusData?.processing_time_ms ?? undefined}
+              processedUrl={statusData?.processed_url ?? image?.processed_url ?? ""}
+              processingTimeMs={statusData?.processing_time_ms ?? image?.processing_time_ms ?? undefined}
               onNext={handleNext}
               onUploadAnother={handleUploadAnother}
             />
