@@ -9,8 +9,9 @@ redis>=5.0.0
 rq~=2.7.0
 Pillow~=12.1.0
 
-# Worker-specific: image processing (Pillow only, bg removal via Gemini API)
+# Worker-specific: image processing (bg removal via Gemini API, Pillow for rendering)
 pycairo~=1.29.0
+numpy>=1.26.0
 
 # AI Image Generation (Gemini 3.1 Flash Image for AI photoshoot)
 google-genai>=1.0.0
