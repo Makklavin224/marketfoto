@@ -6,6 +6,7 @@ Usage:
 Idempotent: checks slug existence before inserting (skips duplicates).
 """
 import asyncio
+import json
 
 from sqlalchemy import text
 
@@ -792,7 +793,7 @@ async def seed_templates(force_update: bool = False) -> None:
                             "marketplace": tmpl_data["marketplace"],
                             "sort_order": tmpl_data["sort_order"],
                             "preview_url": tmpl_data["preview_url"],
-                            "config": tmpl_data["config"],
+                            "config": json.dumps(tmpl_data["config"]),
                             "slug": tmpl_data["slug"],
                         },
                     )
