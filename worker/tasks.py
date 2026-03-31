@@ -597,7 +597,11 @@ def render_card_job(render_id: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# AI Photoshoot job: Gemini 3.1 Flash Image multimodal generation
+# AI Photoshoot job: Two-stage generation pipeline
+#   Stage 1: AI Director (Gemini 2.5 Flash TEXT) — analyzes product, creates
+#            custom scene prompt (~$0.001, ~3-5s)
+#   Stage 2: AI Photographer (Gemini 3.1 Flash Image) — generates the image
+#            using the custom prompt (~$0.067, ~30-60s)
 # ---------------------------------------------------------------------------
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -646,6 +650,250 @@ def _get_processed_url(image_id: str) -> str | None:
         return row[0] if row else None
 
 
+# ---------------------------------------------------------------------------
+# Fallback style prompts — used when AI Director is unavailable
+# ---------------------------------------------------------------------------
+
+_FALLBACK_STYLE_PROMPTS = {
+    "studio_clean": (
+        "Create a professional studio product photography. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product centered on a clean white-to-light-gray soft gradient background. "
+        "Professional three-point studio lighting: key light from upper-left, fill from right, "
+        "subtle rim light for edge separation. Soft diffused shadow beneath the product. "
+        "The product is the clear focal point, centered, taking up 60% of the frame. "
+        "No props, no distractions — pure product focus. "
+        "Resolution: {width}x{height}px. "
+        "Style: Apple-style product photography, high-end commercial, ultra-clean, premium."
+    ),
+    "premium_hero": (
+        "Create a dramatic premium hero product shot. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product as the hero with dramatic cinematic lighting from the side. "
+        "Background: deep rich color that complements the product's dominant color — "
+        "dark tones with subtle gradient. Strong rim light creating a glowing edge. "
+        "Slight reflection on a polished dark surface beneath. "
+        "The product takes up 50-60% of the frame, slightly angled for dynamism. "
+        "Resolution: {width}x{height}px. "
+        "Style: premium FMCG brand campaign, like Chili's or Nike hero shots, "
+        "award-winning advertising photography."
+    ),
+    "lifestyle_scene": (
+        "Create an ultra-realistic lifestyle product advertisement. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product as the hero in a carefully styled scene with 2-3 complementary props "
+        "that match its category (e.g., plants, fabric textures, food items, sport equipment). "
+        "Soft natural lighting with golden hour warmth. Shallow depth of field — product sharp, "
+        "background softly blurred. The product takes up 40-50% of the frame. "
+        "Background harmonious, styled but not distracting. "
+        "Resolution: {width}x{height}px. "
+        "Style: premium lifestyle photography, Instagram-worthy, aspirational editorial."
+    ),
+    "glass_surface": (
+        "Create a premium product shot on a glass surface. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product on a transparent glass shelf or surface. "
+        "Add realistic water droplets on the glass around the product. "
+        "Beautiful reflections visible on the glass beneath the product. "
+        "Clean gradient background transitioning from light at top to slightly darker at bottom. "
+        "Studio lighting from above with side accent creating highlights on glass and water drops. "
+        "The product takes up 50% of the frame. "
+        "Resolution: {width}x{height}px. "
+        "Style: beauty/cosmetics advertising, like MIXIT or L'Oreal product shots on glass."
+    ),
+    "ingredients": (
+        "Create a product shot surrounded by its natural ingredients. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product in the center, surrounded by fresh, photogenic ingredients "
+        "related to the product (fruits, herbs, flowers, spices, natural elements). "
+        "Ingredients are artfully arranged around and slightly behind the product. "
+        "Some cut in half to show freshness. Soft even lighting, clean background. "
+        "Color palette harmonized with the product and ingredients. "
+        "The product takes up 40% of the frame. "
+        "Resolution: {width}x{height}px. "
+        "Style: like Anua or The Ordinary beauty ads — product hero with ingredient story."
+    ),
+    "with_model": (
+        "Create a beauty/fashion product advertisement with a model. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Show a stylish model naturally holding or using the product. "
+        "The model's face and hands should be visible. Natural, confident expression. "
+        "Professional beauty lighting — soft and flattering. Clean studio background "
+        "with subtle gradient. The product should be clearly visible and prominent, "
+        "taking up at least 30% of the frame. Model styled to match the product's brand feel. "
+        "Resolution: {width}x{height}px. "
+        "Style: beauty/fashion brand campaign, editorial, aspirational."
+    ),
+    "multi_angle": (
+        "Create a multi-angle product display layout. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Show the product from 4-6 different angles arranged in a clean grid layout: "
+        "front view, back view, side view, detail close-up, top-down view. "
+        "Each angle in its own clean frame with consistent white/light gray background. "
+        "Consistent studio lighting across all angles. Thin separator lines between views. "
+        "Each view clearly shows a different aspect of the product. "
+        "Resolution: {width}x{height}px. "
+        "Style: like Ariete or Amazon multi-angle product display, "
+        "e-commerce standard multi-view card."
+    ),
+    "infographic": (
+        "Create a professional product infographic card for marketplace. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product on the left or center (40% of width) on a clean background. "
+        "Around the product, add 4-6 feature blocks with simple icons and short text labels "
+        "connected to relevant parts of the product with thin lines or arrows. "
+        "Use a cohesive color scheme that matches the product. "
+        "Clean, professional typography. Icons should be simple flat design. "
+        "Resolution: {width}x{height}px. "
+        "Style: Wildberries/Ozon marketplace infographic card, "
+        "like Ariete toaster feature card with icons."
+    ),
+    "nine_grid": (
+        "Create a 3x3 nine-cell detail grid for this product. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Divide the frame into a 3x3 grid (9 equal cells). "
+        "Center cell: full product shot. Surrounding 8 cells: extreme close-ups of different "
+        "product details — texture, buttons, material, label, stitching, ports, finish. "
+        "Each cell has consistent lighting and clean background. "
+        "Thin white borders between cells. "
+        "Resolution: {width}x{height}px. "
+        "Style: like Ariete detailed product grid, premium detail showcase card."
+    ),
+    "creative_art": (
+        "Create a creative, eye-catching artistic product advertisement. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product in a dynamic, artistic composition with bold vibrant colors, "
+        "geometric shapes, or abstract elements complementing the product's color palette. "
+        "Dramatic lighting with vibrant color accents and color splashes. "
+        "Flying elements, particles, or splashes related to the product category. "
+        "The product is the clear hero, taking 40% of the frame. "
+        "Resolution: {width}x{height}px. "
+        "Style: award-winning creative advertising campaign, bold and memorable, "
+        "eye-catching marketplace card."
+    ),
+    "storyboard": (
+        "Create a storyboard-style product card showing the product in use. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Divide the frame into 3-4 panels showing a sequence: "
+        "Panel 1: product in packaging or before use. "
+        "Panel 2: product being opened/applied/used. "
+        "Panel 3: product in action — the key benefit moment. "
+        "Panel 4 (if space): the happy result or satisfied user. "
+        "Consistent color palette and lighting across all panels. Sequential visual flow. "
+        "Resolution: {width}x{height}px. "
+        "Style: like Gisou hair oil storyboard or beauty brand step-by-step cards."
+    ),
+    "detail_texture": (
+        "Create an extreme close-up detail shot of this product. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Show the product at macro-level detail — emphasize texture, material quality, "
+        "craftsmanship, stitching, finish, surface detail. "
+        "Split composition: one half shows the full product, other half shows extreme close-up "
+        "of the most impressive detail or texture. "
+        "Professional macro photography lighting — sharp focus on textures. "
+        "Resolution: {width}x{height}px. "
+        "Style: luxury product detail photography, material quality showcase, "
+        "premium craftsmanship highlight."
+    ),
+    "seasonal": (
+        "Create a seasonal-themed product photograph. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Place the product in a beautiful seasonal setting — choose the most appropriate season "
+        "for this product type. Spring: cherry blossoms, fresh green, soft pink light. "
+        "Summer: bright sunshine, tropical elements, vibrant colors. "
+        "Autumn: warm golden leaves, cozy textures, warm tones. "
+        "Winter: snow, frost, cool blue light, holiday elements. "
+        "The product takes up 45% of the frame, seasonal elements as backdrop. "
+        "Resolution: {width}x{height}px. "
+        "Style: seasonal editorial product photography, mood-driven advertising."
+    ),
+    "minimal_flat": (
+        "Create a top-down flat-lay product photograph. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Photograph from directly above (bird's eye view). "
+        "Product centered on a clean surface (marble, wood, or solid pastel color). "
+        "Minimal 2-3 small complementary props arranged geometrically around the product "
+        "(pen, plant leaf, small accessory). Lots of negative space. "
+        "Even, shadowless overhead lighting. "
+        "The product takes up 35-45% of the frame. "
+        "Resolution: {width}x{height}px. "
+        "Style: Instagram flat-lay, minimalist editorial, clean aesthetic."
+    ),
+    "unboxing": (
+        "Create a premium unboxing product shot. "
+        "Use the uploaded product image exactly as the product — strictly preserve form, "
+        "proportions, material, color and proportions unchanged. "
+        "Show the product emerging from or sitting in front of a stylish open box or packaging. "
+        "Premium packaging feel — tissue paper, ribbon, branded box lid visible. "
+        "The product is the hero, partially revealed from the box. "
+        "Exciting unboxing moment frozen in time. "
+        "Clean background with soft studio lighting. "
+        "The product takes up 50% of the frame. "
+        "Resolution: {width}x{height}px. "
+        "Style: luxury unboxing experience, Apple-like reveal, "
+        "premium e-commerce first-impression card."
+    ),
+}
+
+
+def _call_ai_director(
+    product_bytes: bytes,
+    style: str,
+    marketplace: str,
+    product_info: dict | None,
+) -> str | None:
+    """Stage 1: Call AI Director to analyze product and create custom prompt.
+
+    Returns the custom prompt string, or None if Director is unavailable
+    (in which case the worker falls back to the static style template).
+    """
+    try:
+        # In Docker, backend/app is copied to /app/app with PYTHONPATH=/app
+        from app.services.ai_director import analyze_product_and_create_prompt
+
+        director_result = analyze_product_and_create_prompt(
+            product_image_bytes=product_bytes,
+            style=style,
+            marketplace=marketplace,
+            product_info=product_info,
+        )
+
+        # If Director returned a fallback (empty prompt), signal to use template
+        if director_result.get("_fallback") or not director_result.get("prompt"):
+            logger.info("AI Director returned fallback, will use static template")
+            return None
+
+        prompt = director_result["prompt"]
+        logger.info(
+            "AI Director created custom prompt: type=%s, concept=%s, len=%d",
+            director_result.get("product_type", "?"),
+            director_result.get("scene_concept", "?")[:60],
+            len(prompt),
+        )
+        return prompt
+
+    except ImportError:
+        logger.warning("AI Director module not available (import failed), using template")
+        return None
+    except Exception as e:
+        logger.warning("AI Director failed: %s — falling back to template", str(e)[:200])
+        return None
+
+
 def ai_photoshoot_job(
     render_id: str,
     image_id: str,
@@ -654,11 +902,16 @@ def ai_photoshoot_job(
     marketplace: str,
     product_info: dict | None = None,
 ) -> None:
-    """Generate AI product photoshoot using Gemini 3.1 Flash Image.
+    """Generate AI product photoshoot using two-stage pipeline.
 
-    Called by RQ with job_timeout=120.
-    Downloads product image from MinIO, calls Gemini multimodal API,
-    saves result to MinIO rendered bucket, updates DB record.
+    Stage 1: AI Director (Gemini 2.5 Flash TEXT) analyzes the product image
+             and creates a custom scene-specific prompt. (~3-5s, ~$0.001)
+    Stage 2: AI Photographer (Gemini 3.1 Flash Image) generates the image
+             using the custom prompt from Stage 1. (~30-60s, ~$0.067)
+
+    Called by RQ with job_timeout=300.
+    Downloads product image from MinIO, runs both stages, saves result
+    to MinIO rendered bucket, updates DB record.
 
     Args:
         product_info: Optional dict with keys: title, features, badge.
@@ -692,207 +945,10 @@ def ai_photoshoot_job(
             raise RuntimeError("GEMINI_API_KEY not configured")
 
         # Set HTTP proxy for Gemini API (Russia is geo-blocked)
-        import httpx
         proxy_url = os.environ.get("HTTP_PROXY", "")
 
         from google import genai
         from google.genai import types as genai_types
-
-        # Style prompts (duplicated from service to avoid importing app modules in worker)
-        STYLE_PROMPTS = {
-            "studio_clean": (
-                "Create a professional studio product photography. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product centered on a clean white-to-light-gray soft gradient background. "
-                "Professional three-point studio lighting: key light from upper-left, fill from right, "
-                "subtle rim light for edge separation. Soft diffused shadow beneath the product. "
-                "The product is the clear focal point, centered, taking up 60% of the frame. "
-                "No props, no distractions — pure product focus. "
-                "Resolution: {width}x{height}px. "
-                "Style: Apple-style product photography, high-end commercial, ultra-clean, premium."
-            ),
-            "premium_hero": (
-                "Create a dramatic premium hero product shot. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product as the hero with dramatic cinematic lighting from the side. "
-                "Background: deep rich color that complements the product's dominant color — "
-                "dark tones with subtle gradient. Strong rim light creating a glowing edge. "
-                "Slight reflection on a polished dark surface beneath. "
-                "The product takes up 50-60% of the frame, slightly angled for dynamism. "
-                "Resolution: {width}x{height}px. "
-                "Style: premium FMCG brand campaign, like Chili's or Nike hero shots, "
-                "award-winning advertising photography."
-            ),
-            "lifestyle_scene": (
-                "Create an ultra-realistic lifestyle product advertisement. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product as the hero in a carefully styled scene with 2-3 complementary props "
-                "that match its category (e.g., plants, fabric textures, food items, sport equipment). "
-                "Soft natural lighting with golden hour warmth. Shallow depth of field — product sharp, "
-                "background softly blurred. The product takes up 40-50% of the frame. "
-                "Background harmonious, styled but not distracting. "
-                "Resolution: {width}x{height}px. "
-                "Style: premium lifestyle photography, Instagram-worthy, aspirational editorial."
-            ),
-            "glass_surface": (
-                "Create a premium product shot on a glass surface. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product on a transparent glass shelf or surface. "
-                "Add realistic water droplets on the glass around the product. "
-                "Beautiful reflections visible on the glass beneath the product. "
-                "Clean gradient background transitioning from light at top to slightly darker at bottom. "
-                "Studio lighting from above with side accent creating highlights on glass and water drops. "
-                "The product takes up 50% of the frame. "
-                "Resolution: {width}x{height}px. "
-                "Style: beauty/cosmetics advertising, like MIXIT or L'Oreal product shots on glass."
-            ),
-            "ingredients": (
-                "Create a product shot surrounded by its natural ingredients. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product in the center, surrounded by fresh, photogenic ingredients "
-                "related to the product (fruits, herbs, flowers, spices, natural elements). "
-                "Ingredients are artfully arranged around and slightly behind the product. "
-                "Some cut in half to show freshness. Soft even lighting, clean background. "
-                "Color palette harmonized with the product and ingredients. "
-                "The product takes up 40% of the frame. "
-                "Resolution: {width}x{height}px. "
-                "Style: like Anua or The Ordinary beauty ads — product hero with ingredient story."
-            ),
-            "with_model": (
-                "Create a beauty/fashion product advertisement with a model. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Show a stylish model naturally holding or using the product. "
-                "The model's face and hands should be visible. Natural, confident expression. "
-                "Professional beauty lighting — soft and flattering. Clean studio background "
-                "with subtle gradient. The product should be clearly visible and prominent, "
-                "taking up at least 30% of the frame. Model styled to match the product's brand feel. "
-                "Resolution: {width}x{height}px. "
-                "Style: beauty/fashion brand campaign, editorial, aspirational."
-            ),
-            "multi_angle": (
-                "Create a multi-angle product display layout. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Show the product from 4-6 different angles arranged in a clean grid layout: "
-                "front view, back view, side view, detail close-up, top-down view. "
-                "Each angle in its own clean frame with consistent white/light gray background. "
-                "Consistent studio lighting across all angles. Thin separator lines between views. "
-                "Each view clearly shows a different aspect of the product. "
-                "Resolution: {width}x{height}px. "
-                "Style: like Ariete or Amazon multi-angle product display, "
-                "e-commerce standard multi-view card."
-            ),
-            "infographic": (
-                "Create a professional product infographic card for marketplace. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product on the left or center (40% of width) on a clean background. "
-                "Around the product, add 4-6 feature blocks with simple icons and short text labels "
-                "connected to relevant parts of the product with thin lines or arrows. "
-                "Use a cohesive color scheme that matches the product. "
-                "Clean, professional typography. Icons should be simple flat design. "
-                "Resolution: {width}x{height}px. "
-                "Style: Wildberries/Ozon marketplace infographic card, "
-                "like Ariete toaster feature card with icons."
-            ),
-            "nine_grid": (
-                "Create a 3x3 nine-cell detail grid for this product. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Divide the frame into a 3x3 grid (9 equal cells). "
-                "Center cell: full product shot. Surrounding 8 cells: extreme close-ups of different "
-                "product details — texture, buttons, material, label, stitching, ports, finish. "
-                "Each cell has consistent lighting and clean background. "
-                "Thin white borders between cells. "
-                "Resolution: {width}x{height}px. "
-                "Style: like Ariete detailed product grid, premium detail showcase card."
-            ),
-            "creative_art": (
-                "Create a creative, eye-catching artistic product advertisement. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product in a dynamic, artistic composition with bold vibrant colors, "
-                "geometric shapes, or abstract elements complementing the product's color palette. "
-                "Dramatic lighting with vibrant color accents and color splashes. "
-                "Flying elements, particles, or splashes related to the product category. "
-                "The product is the clear hero, taking 40% of the frame. "
-                "Resolution: {width}x{height}px. "
-                "Style: award-winning creative advertising campaign, bold and memorable, "
-                "eye-catching marketplace card."
-            ),
-            "storyboard": (
-                "Create a storyboard-style product card showing the product in use. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Divide the frame into 3-4 panels showing a sequence: "
-                "Panel 1: product in packaging or before use. "
-                "Panel 2: product being opened/applied/used. "
-                "Panel 3: product in action — the key benefit moment. "
-                "Panel 4 (if space): the happy result or satisfied user. "
-                "Consistent color palette and lighting across all panels. Sequential visual flow. "
-                "Resolution: {width}x{height}px. "
-                "Style: like Gisou hair oil storyboard or beauty brand step-by-step cards."
-            ),
-            "detail_texture": (
-                "Create an extreme close-up detail shot of this product. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Show the product at macro-level detail — emphasize texture, material quality, "
-                "craftsmanship, stitching, finish, surface detail. "
-                "Split composition: one half shows the full product, other half shows extreme close-up "
-                "of the most impressive detail or texture. "
-                "Professional macro photography lighting — sharp focus on textures. "
-                "Resolution: {width}x{height}px. "
-                "Style: luxury product detail photography, material quality showcase, "
-                "premium craftsmanship highlight."
-            ),
-            "seasonal": (
-                "Create a seasonal-themed product photograph. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Place the product in a beautiful seasonal setting — choose the most appropriate season "
-                "for this product type. Spring: cherry blossoms, fresh green, soft pink light. "
-                "Summer: bright sunshine, tropical elements, vibrant colors. "
-                "Autumn: warm golden leaves, cozy textures, warm tones. "
-                "Winter: snow, frost, cool blue light, holiday elements. "
-                "The product takes up 45% of the frame, seasonal elements as backdrop. "
-                "Resolution: {width}x{height}px. "
-                "Style: seasonal editorial product photography, mood-driven advertising."
-            ),
-            "minimal_flat": (
-                "Create a top-down flat-lay product photograph. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Photograph from directly above (bird's eye view). "
-                "Product centered on a clean surface (marble, wood, or solid pastel color). "
-                "Minimal 2-3 small complementary props arranged geometrically around the product "
-                "(pen, plant leaf, small accessory). Lots of negative space. "
-                "Even, shadowless overhead lighting. "
-                "The product takes up 35-45% of the frame. "
-                "Resolution: {width}x{height}px. "
-                "Style: Instagram flat-lay, minimalist editorial, clean aesthetic."
-            ),
-            "unboxing": (
-                "Create a premium unboxing product shot. "
-                "Use the uploaded product image exactly as the product — strictly preserve form, "
-                "proportions, material, color and proportions unchanged. "
-                "Show the product emerging from or sitting in front of a stylish open box or packaging. "
-                "Premium packaging feel — tissue paper, ribbon, branded box lid visible. "
-                "The product is the hero, partially revealed from the box. "
-                "Exciting unboxing moment frozen in time. "
-                "Clean background with soft studio lighting. "
-                "The product takes up 50% of the frame. "
-                "Resolution: {width}x{height}px. "
-                "Style: luxury unboxing experience, Apple-like reveal, "
-                "premium e-commerce first-impression card."
-            ),
-        }
 
         MP_DIMS = {
             "wb": (900, 1200, "3:4"),
@@ -901,47 +957,68 @@ def ai_photoshoot_job(
         }
 
         width, height, aspect_ratio = MP_DIMS[marketplace]
-        prompt = STYLE_PROMPTS[style].format(width=width, height=height)
 
-        # Append product info to prompt if provided
-        if product_info:
-            title = product_info.get("title", "")
-            features = product_info.get("features", [])
-            badge = product_info.get("badge", "")
+        # =====================================================================
+        # STAGE 1: AI Director — analyze product, create custom prompt
+        # =====================================================================
+        director_start = time.time()
+        custom_prompt = _call_ai_director(
+            product_bytes, style, marketplace, product_info,
+        )
+        director_elapsed = int((time.time() - director_start) * 1000)
+        logger.info("AI Director stage took %dms", director_elapsed)
 
-            extras = []
-            if title:
-                extras.append(f"Product name: {title}.")
-            if features:
-                extras.append(f"Key features: {', '.join(features)}.")
-            if badge:
-                extras.append(f"Badge/label on the image: {badge}.")
+        # Decide which prompt to use
+        if custom_prompt:
+            prompt = custom_prompt
+            logger.info("Using AI Director custom prompt (%d chars)", len(prompt))
+        else:
+            # Fallback: use static style template (old behavior)
+            prompt = _FALLBACK_STYLE_PROMPTS[style].format(width=width, height=height)
 
-            if extras:
-                prompt += (
-                    "\n\nAdditional product context: "
-                    + " ".join(extras)
-                    + " Include text overlays on the image showing the product name "
-                    "and features in clean, readable Russian typography."
-                )
+            # Append product info to fallback prompt if provided
+            if product_info:
+                title = product_info.get("title", "")
+                features = product_info.get("features", [])
+                badge = product_info.get("badge", "")
 
-        logger.info("AI photoshoot prompt length: %d chars", len(prompt))
+                extras = []
+                if title:
+                    extras.append(f"Product name: {title}.")
+                if features:
+                    extras.append(f"Key features: {', '.join(features)}.")
+                if badge:
+                    extras.append(f"Badge/label on the image: {badge}.")
+
+                if extras:
+                    prompt += (
+                        "\n\nAdditional product context: "
+                        + " ".join(extras)
+                        + " Include text overlays on the image showing the product name "
+                        "and features in clean, readable Russian typography."
+                    )
+
+            logger.info("Using fallback style template (%d chars)", len(prompt))
+
+        logger.info("AI photoshoot final prompt length: %d chars", len(prompt))
+
+        # =====================================================================
+        # STAGE 2: AI Photographer — generate the image
+        # =====================================================================
 
         # Load product image as PIL
         product_image = Image.open(io.BytesIO(product_bytes))
 
-        # Call Gemini — pass PIL Image directly (SDK auto-converts to Blob)
-        # Use HTTP proxy to bypass geo-block (Russia → Finland proxy)
-        http_options = {}
+        # Use HTTP proxy to bypass geo-block (Russia -> Finland proxy)
         if proxy_url:
-            http_options = {"api_version": "v1beta"}
             os.environ["HTTPS_PROXY"] = proxy_url
             os.environ["HTTP_PROXY"] = proxy_url
-        # Try primary model, fallback to secondary if unavailable
+
+        # Try models in priority order: 3.1 best quality, then fallbacks
         MODELS = [
-            "gemini-2.5-flash-image",
-            "gemini-3.1-flash-image-preview",
-            "gemini-3-pro-image-preview",
+            "gemini-3.1-flash-image-preview",  # Best quality
+            "gemini-2.5-flash-image",           # Good fallback
+            "gemini-3-pro-image-preview",       # Pro quality fallback
         ]
         client = genai.Client(api_key=GEMINI_API_KEY)
         gemini_response = None
@@ -970,8 +1047,6 @@ def ai_photoshoot_job(
 
         if gemini_response is None:
             raise RuntimeError(f"All models failed. Last error: {last_error}")
-
-        # gemini_response is now set by the model fallback loop above
 
         # Extract image bytes from response
         result_bytes = None
@@ -1003,9 +1078,10 @@ def ai_photoshoot_job(
         )
 
         logger.info(
-            "AI photoshoot %s complete in %dms (%d bytes)",
+            "AI photoshoot %s complete in %dms (director: %dms, %d bytes)",
             render_id,
             processing_time_ms,
+            director_elapsed,
             len(result_bytes),
         )
 
