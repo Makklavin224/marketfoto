@@ -20,6 +20,7 @@ export interface RenderItem {
   output_url: string | null;
   output_width: number;
   output_height: number;
+  status: string;
   created_at: string;
 }
 
