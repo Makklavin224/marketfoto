@@ -67,7 +67,14 @@ def get_presigned_get_url(
     object_name: str,
     expires: timedelta = timedelta(hours=1),
 ) -> str:
-    """Generate presigned GET URL for viewing/downloading."""
+    """Generate public URL for viewing/downloading.
+
+    Uses simple path through Nginx proxy (buckets are public-read).
+    Presigned URLs cause 403 when proxied through Nginx due to Host header mismatch.
+    """
+    public = settings.s3_public_endpoint
+    if public:
+        return f"{public}/{bucket}/{object_name}"
     return _rewrite_url(client.presigned_get_object(bucket, object_name, expires=expires))
 
 
