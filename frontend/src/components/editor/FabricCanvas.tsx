@@ -371,7 +371,7 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
   const displayScale = zoom;
 
   return (
-    <div ref={containerRef} className="flex-1 flex flex-col items-center justify-center overflow-auto bg-gray-100 p-4">
+    <div ref={containerRef} className="flex-1 flex flex-col items-center justify-center overflow-auto p-4" style={{ background: 'var(--bg-secondary, #18181b)' }}>
       <div
         style={{
           width: canvasWidth * displayScale,
@@ -395,18 +395,28 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
       <div className="flex items-center gap-2 mt-3">
         <button
           onClick={() => useEditorStore.getState().zoomOut()}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-lg font-bold"
-          title="Zoom out"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-lg font-bold cursor-pointer"
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: 'var(--text-secondary)',
+          }}
+          title="Уменьшить"
         >
           -
         </button>
-        <span className="text-sm text-gray-600 min-w-[4rem] text-center">
+        <span className="text-sm min-w-[4rem] text-center" style={{ color: 'var(--text-tertiary)' }}>
           {Math.round(zoom * 100)}%
         </span>
         <button
           onClick={() => useEditorStore.getState().zoomIn()}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-lg font-bold"
-          title="Zoom in"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-lg font-bold cursor-pointer"
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: 'var(--text-secondary)',
+          }}
+          title="Увеличить"
         >
           +
         </button>

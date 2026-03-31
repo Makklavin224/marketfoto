@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
+import { imagesApi } from '../lib/api';
 import { useTemplateDetail } from '../api/templates';
 import { useCreateRender, useRenderStatus } from '../api/renders';
 import { useEditorStore } from '../stores/editor';
@@ -15,7 +17,20 @@ export default function EditorPage() {
   const templateId = searchParams.get('template');
   const imageId = searchParams.get('image');
 
-  const { data: template, isLoading, error } = useTemplateDetail(templateId);
+  const { data: template, isLoading: templateLoading, error } = useTemplateDetail(templateId);
+
+  // Fetch the processed image record to get its presigned URL
+  const { data: imageRecord, isLoading: imageLoading } = useQuery({
+    queryKey: ['image', imageId],
+    queryFn: async () => {
+      const { data } = await imagesApi.get(imageId!);
+      return data;
+    },
+    enabled: !!imageId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const isLoading = templateLoading || imageLoading;
 
   const setTemplate = useEditorStore((s) => s.setTemplate);
   const setProductImageUrl = useEditorStore((s) => s.setProductImageUrl);
@@ -39,13 +54,19 @@ export default function EditorPage() {
     });
   }, []);
 
-  // Set template in store when loaded, use processed image if available
+  // Set product image URL from fetched image record
+  useEffect(() => {
+    if (imageRecord?.processed_url) {
+      setProductImageUrl(imageRecord.processed_url);
+    }
+  }, [imageRecord, setProductImageUrl]);
+
+  // Set template in store when loaded
   useEffect(() => {
     if (template) {
       setTemplate(template);
-      // If we have a processed image URL from previous steps, use it
-      // Otherwise use a placeholder SVG
-      if (!productImageUrl) {
+      // If no image was provided or fetched, use a placeholder SVG
+      if (!productImageUrl && !imageRecord?.processed_url) {
         const placeholder =
           'data:image/svg+xml;base64,' +
           btoa(
@@ -57,7 +78,7 @@ export default function EditorPage() {
         setProductImageUrl(placeholder);
       }
     }
-  }, [template, setTemplate, setProductImageUrl, productImageUrl]);
+  }, [template, setTemplate, setProductImageUrl, productImageUrl, imageRecord]);
 
   // Handle "Create Card" button press
   const handleCreateCard = async () => {
@@ -101,10 +122,10 @@ export default function EditorPage() {
   // Loading state
   if (!templateId) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
-          <p className="text-gray-500 text-lg">Template not specified</p>
-          <p className="text-gray-400 text-sm mt-1">Add ?template=ID to URL</p>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>Шаблон не указан</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>Выберите шаблон на предыдущем шаге</p>
         </div>
       </div>
     );
@@ -112,10 +133,10 @@ export default function EditorPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bg-primary)' }}>
         <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
-          <p className="text-gray-500">Loading template...</p>
+          <div className="animate-spin h-8 w-8 rounded-full" style={{ border: '4px solid rgba(124,58,237,0.2)', borderTopColor: 'var(--purple-400)' }} />
+          <p style={{ color: 'var(--text-secondary)' }}>Загрузка редактора...</p>
         </div>
       </div>
     );
@@ -123,10 +144,10 @@ export default function EditorPage() {
 
   if (error || !template) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
-          <p className="text-red-500 text-lg font-medium">Template not found</p>
-          <p className="text-gray-400 text-sm mt-1">ID: {templateId}</p>
+          <p className="text-lg font-medium" style={{ color: 'var(--red-400)' }}>Шаблон не найден</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>ID: {templateId}</p>
         </div>
       </div>
     );
@@ -137,18 +158,25 @@ export default function EditorPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col" style={{ background: 'var(--bg-primary)' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shrink-0">
+      <div
+        className="flex items-center justify-between px-4 py-2 shrink-0"
+        style={{
+          background: 'rgba(9, 9, 11, 0.8)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: 'var(--border-subtle)',
+        }}
+      >
         <div className="flex items-center gap-4">
-          <h1 className="text-sm font-semibold text-gray-800 truncate max-w-[200px]">
-            {templateName || 'Editor'}
+          <h1 className="text-sm font-semibold truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>
+            {templateName || 'Редактор'}
           </h1>
-          <span className="text-xs text-gray-400 uppercase tracking-wide">
+          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>
             {marketplace.toUpperCase()}
           </span>
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
           {showExport ? 'Экспорт' : `Zoom: ${Math.round(zoom * 100)}%`}
         </div>
       </div>
