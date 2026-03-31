@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import {
   Canvas,
   Rect,
+  Circle,
   IText,
   FabricImage,
   Line,
@@ -11,14 +12,21 @@ import {
   Gradient,
   FabricObject,
 } from 'fabric';
-import type { TemplateConfig, DecorationBadge } from '../../types/editor';
+import type {
+  TemplateConfig,
+  DecorationBadge,
+  DecorationRect,
+  DecorationCircleIcon,
+  DecorationText,
+} from '../../types/editor';
 import { useEditorStore } from '../../stores/editor';
+import { MARKETPLACE_SIZES, type MarketplaceId } from '../../types/editor';
 
 // fabric.js v7 does not expose a `data` property in its TypeScript types.
 // We attach custom metadata by assigning to the object at runtime and use
 // a typed helper to read it back.
 interface ObjectMeta {
-  type: 'product' | 'text' | 'badge';
+  type: 'product' | 'text' | 'badge' | 'watermark';
   areaId?: string;
 }
 
@@ -30,12 +38,19 @@ function getMeta(obj: FabricObject): ObjectMeta | undefined {
   return (obj as FabricObject & { _meta?: ObjectMeta })._meta;
 }
 
+export interface FabricCanvasHandle {
+  /** Export the canvas as a data URL (PNG or JPEG). Adds watermark for free plan if needed. */
+  exportImage: (options?: { format?: 'png' | 'jpeg'; quality?: number; addWatermark?: boolean }) => string | null;
+  /** Get the raw fabric.Canvas instance */
+  getCanvas: () => Canvas | null;
+}
+
 interface FabricCanvasProps {
   templateConfig: TemplateConfig;
   productImageUrl: string | null;
 }
 
-export default function FabricCanvas({ templateConfig, productImageUrl }: FabricCanvasProps) {
+const FabricCanvas = forwardRef<FabricCanvasHandle, FabricCanvasProps>(function FabricCanvas({ templateConfig, productImageUrl }, ref) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<Canvas | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,6 +70,72 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
 
   const setSelectedObject = useEditorStore((s) => s.setSelectedObject);
   const updateTextOverride = useEditorStore((s) => s.updateTextOverride);
+
+  // ---- Expose canvas handle to parent via ref ----
+  useImperativeHandle(ref, () => ({
+    getCanvas: () => canvasRef.current,
+    exportImage: (options) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return null;
+
+      const format = options?.format ?? 'png';
+      const quality = options?.quality ?? 1;
+      const addWatermark = options?.addWatermark ?? false;
+
+      // Deselect all objects so selection borders don't appear in export
+      canvas.discardActiveObject();
+      canvas.renderAll();
+
+      // Get current marketplace dimensions for export at full size
+      const editorState = useEditorStore.getState();
+      const mp = editorState.marketplace as MarketplaceId;
+      const dims = MARKETPLACE_SIZES[mp];
+
+      // The canvas is already at full marketplace dimensions internally,
+      // the zoom is only CSS transform. So we export at multiplier 1.
+      let watermarkObj: FabricText | null = null;
+
+      if (addWatermark) {
+        // Add watermark to bottom-right before export
+        const wmFontSize = Math.round(dims.width * 0.03);
+        watermarkObj = new FabricText('MarketFoto.ru', {
+          fontSize: wmFontSize,
+          fill: 'rgba(255, 255, 255, 0.5)',
+          fontFamily: 'Inter',
+          fontWeight: 'bold',
+          left: dims.width - 20,
+          top: dims.height - 20,
+          originX: 'right',
+          originY: 'bottom',
+          selectable: false,
+          evented: false,
+          shadow: new Shadow({
+            color: 'rgba(0, 0, 0, 0.5)',
+            blur: 4,
+            offsetX: 1,
+            offsetY: 1,
+          }),
+        });
+        setMeta(watermarkObj, { type: 'watermark' });
+        canvas.add(watermarkObj);
+        canvas.renderAll();
+      }
+
+      const dataUrl = canvas.toDataURL({
+        format,
+        quality,
+        multiplier: 1,
+      });
+
+      // Remove watermark after export so editor stays clean
+      if (watermarkObj) {
+        canvas.remove(watermarkObj);
+        canvas.renderAll();
+      }
+
+      return dataUrl;
+    },
+  }), []);
 
   // ---- Build / rebuild canvas contents ----
   const buildCanvas = useCallback(async (
@@ -99,10 +180,28 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
 
       canvas.add(bgRect);
 
-      // 2. Decorations: lines (render before product so they appear behind)
+      // 2. Background decorations: rects, lines, static text (render BEFORE product)
+      //    These form the styled backdrop — pill shapes, accent bars, frames, etc.
       if (config.decorations) {
         for (const dec of config.decorations) {
-          if (dec.type === 'line') {
+          if (dec.type === 'rect') {
+            const d = dec as DecorationRect;
+            const rect = new Rect({
+              left: d.x,
+              top: d.y,
+              width: d.width,
+              height: d.height,
+              fill: d.fill,
+              rx: d.rx ?? 0,
+              ry: d.ry ?? 0,
+              stroke: d.stroke ?? undefined,
+              strokeWidth: d.strokeWidth ?? 0,
+              opacity: d.opacity ?? 1,
+              selectable: false,
+              evented: false,
+            });
+            canvas.add(rect);
+          } else if (dec.type === 'line') {
             const line = new Line([dec.x1, dec.y1, dec.x2, dec.y2], {
               stroke: dec.color,
               strokeWidth: dec.width,
@@ -110,12 +209,35 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
               evented: false,
             });
             canvas.add(line);
+          } else if (dec.type === 'text') {
+            const d = dec as DecorationText;
+            const txt = new FabricText(d.text, {
+              left: d.x,
+              top: d.y,
+              fontSize: d.fontSize,
+              fill: d.color,
+              fontFamily: d.fontFamily ?? 'Inter',
+              fontWeight: (d.fontWeight ?? 'normal') as string,
+              selectable: false,
+              evented: false,
+            });
+            canvas.add(txt);
           }
         }
       }
 
-      // 3. Product image
+      // 3. Product image(s)
       const shadowDec = config.decorations?.find((d) => d.type === 'shadow');
+      const applyShadow = (img: FabricImage) => {
+        if (shadowDec && shadowDec.type === 'shadow') {
+          img.set('shadow', new Shadow({
+            offsetX: shadowDec.offsetX,
+            offsetY: shadowDec.offsetY,
+            blur: shadowDec.blur,
+            color: shadowDec.color,
+          }));
+        }
+      };
 
       if (imgUrl) {
         try {
@@ -129,21 +251,33 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
             hasControls: true,
             hasBorders: true,
           });
-          setMeta(img, { type: 'product' });
-
-          if (shadowDec && shadowDec.type === 'shadow') {
-            img.set('shadow', new Shadow({
-              offsetX: shadowDec.offsetX,
-              offsetY: shadowDec.offsetY,
-              blur: shadowDec.blur,
-              color: shadowDec.color,
-            }));
-          }
-
+          setMeta(img, { type: 'product', areaId: 'product_1' });
+          applyShadow(img);
           canvas.add(img);
           productImgRef.current = img;
         } catch (err) {
           console.warn('Failed to load product image:', err);
+        }
+
+        // Second product area (for collage templates)
+        if (config.product_area_2) {
+          try {
+            const img2 = await FabricImage.fromURL(imgUrl, { crossOrigin: 'anonymous' });
+            const pa2 = config.product_area_2;
+            img2.set({
+              left: pa2.x,
+              top: pa2.y,
+              scaleX: pa2.width / (img2.width || 1),
+              scaleY: pa2.height / (img2.height || 1),
+              hasControls: true,
+              hasBorders: true,
+            });
+            setMeta(img2, { type: 'product', areaId: 'product_2' });
+            applyShadow(img2);
+            canvas.add(img2);
+          } catch (err) {
+            console.warn('Failed to load product image for area 2:', err);
+          }
         }
       }
 
@@ -166,7 +300,7 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
         canvas.add(itext);
       }
 
-      // 5. Decorations: badges
+      // 5. Foreground decorations: badges, circle icons (render AFTER text so they overlay)
       if (config.decorations) {
         const currentBadgeEnabled = useEditorStore.getState().badgeEnabled;
         const currentBadgeText = useEditorStore.getState().badgeText;
@@ -199,6 +333,29 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
               visible: currentBadgeEnabled,
             });
             setMeta(group, { type: 'badge' });
+            canvas.add(group);
+          } else if (dec.type === 'circle_icon') {
+            const d = dec as DecorationCircleIcon;
+            const circle = new Circle({
+              radius: d.radius,
+              fill: d.fill,
+              originX: 'center',
+              originY: 'center',
+            });
+            const iconText = new FabricText(d.icon, {
+              fontSize: d.iconFontSize,
+              fill: d.iconColor,
+              fontFamily: 'Inter',
+              fontWeight: 'bold',
+              originX: 'center',
+              originY: 'center',
+            });
+            const group = new Group([circle, iconText], {
+              left: d.x,
+              top: d.y,
+              selectable: false,
+              evented: false,
+            });
             canvas.add(group);
           }
         }
@@ -423,4 +580,6 @@ export default function FabricCanvas({ templateConfig, productImageUrl }: Fabric
       </div>
     </div>
   );
-}
+});
+
+export default FabricCanvas;

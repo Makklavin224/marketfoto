@@ -57,7 +57,46 @@ export interface DecorationShadow {
   color: string;
 }
 
-export type Decoration = DecorationBadge | DecorationLine | DecorationShadow;
+/** Rounded rectangle decoration — used for text pill backgrounds, dividers, etc. */
+export interface DecorationRect {
+  type: 'rect';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fill: string;
+  rx?: number;         // border-radius x
+  ry?: number;         // border-radius y
+  stroke?: string;
+  strokeWidth?: number;
+  opacity?: number;
+}
+
+/** Small circle with icon text — used for checkmark bullets, etc. */
+export interface DecorationCircleIcon {
+  type: 'circle_icon';
+  x: number;
+  y: number;
+  radius: number;
+  fill: string;
+  icon: string;          // single character like "✓", "★"
+  iconColor: string;
+  iconFontSize: number;
+}
+
+/** Styled text label — decorative static text (not editable) */
+export interface DecorationText {
+  type: 'text';
+  x: number;
+  y: number;
+  text: string;
+  fontSize: number;
+  fontWeight?: string;
+  color: string;
+  fontFamily?: string;
+}
+
+export type Decoration = DecorationBadge | DecorationLine | DecorationShadow | DecorationRect | DecorationCircleIcon | DecorationText;
 
 export interface TemplateConfig {
   background: TemplateBackground;
