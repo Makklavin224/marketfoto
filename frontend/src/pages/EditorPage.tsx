@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { imagesApi } from '../lib/api';
 import { useTemplateDetail } from '../api/templates';
-import { useCreateRender, useRenderStatus } from '../api/renders';
 import { useEditorStore } from '../stores/editor';
-import FabricCanvas from '../components/editor/FabricCanvas';
+import { useAuthStore } from '../stores/auth';
+import FabricCanvas, { type FabricCanvasHandle } from '../components/editor/FabricCanvas';
 import RightPanel from '../components/editor/RightPanel';
 import ExportPanel from '../components/editor/ExportPanel';
 import { loadAllFonts } from '../lib/fonts';
@@ -40,12 +40,13 @@ export default function EditorPage() {
   const marketplace = useEditorStore((s) => s.marketplace);
   const zoom = useEditorStore((s) => s.zoom);
 
-  // Export state
-  const [renderId, setRenderId] = useState<string | null>(null);
-  const [showExport, setShowExport] = useState(false);
+  // Canvas ref for client-side export
+  const canvasRef = useRef<FabricCanvasHandle>(null);
 
-  const createRender = useCreateRender();
-  const renderStatus = useRenderStatus(renderId);
+  // Export state
+  const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
+  const [showExport, setShowExport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Preload all editor fonts on mount
   useEffect(() => {
@@ -80,37 +81,45 @@ export default function EditorPage() {
     }
   }, [template, setTemplate, setProductImageUrl, productImageUrl, imageRecord]);
 
-  // Handle "Create Card" button press
-  const handleCreateCard = async () => {
-    const editorState = useEditorStore.getState();
-    const overlayData = editorState.getOverlayData();
-    if (!overlayData || !editorState.template) return;
-
-    if (!imageId) {
-      toast.error('Изображение не выбрано');
+  // Handle "Create Card" button press — client-side canvas export
+  const handleCreateCard = () => {
+    if (!canvasRef.current) {
+      toast.error('Канвас не готов');
       return;
     }
 
+    setIsExporting(true);
+
     try {
-      const render = await createRender.mutateAsync({
-        image_id: imageId,
-        template_id: editorState.template.id,
-        overlay_data: overlayData,
-        marketplace: editorState.marketplace,
+      // Determine if user is on free plan (needs watermark)
+      const user = useAuthStore.getState().user;
+      const isFree = !user || user.plan === 'free';
+
+      const dataUrl = canvasRef.current.exportImage({
+        format: 'png',
+        quality: 1,
+        addWatermark: isFree,
       });
-      setRenderId(render.id);
+
+      if (!dataUrl) {
+        toast.error('Не удалось экспортировать изображение');
+        return;
+      }
+
+      setExportedImageUrl(dataUrl);
       setShowExport(true);
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      const detail = error?.response?.data?.detail || 'Ошибка создания карточки';
-      toast.error(detail);
+    } catch (err) {
+      console.error('Export error:', err);
+      toast.error('Ошибка экспорта карточки');
+    } finally {
+      setIsExporting(false);
     }
   };
 
   // Handle returning to editor from export
   const handleEdit = () => {
     setShowExport(false);
-    setRenderId(null);
+    setExportedImageUrl(null);
   };
 
   // Handle "Create More" -- reset and go to upload
@@ -182,12 +191,10 @@ export default function EditorPage() {
       </div>
 
       {/* Main area */}
-      {showExport && renderId ? (
+      {showExport && exportedImageUrl ? (
         <ExportPanel
-          renderId={renderId}
-          renderStatus={renderStatus.data}
+          imageDataUrl={exportedImageUrl}
           marketplace={marketplace}
-          isLoading={renderStatus.isLoading}
           onEdit={handleEdit}
           onCreateMore={handleCreateMore}
         />
@@ -195,6 +202,7 @@ export default function EditorPage() {
         <div className="flex flex-1 overflow-hidden">
           {/* Left: Canvas area */}
           <FabricCanvas
+            ref={canvasRef}
             templateConfig={templateConfig}
             productImageUrl={productImageUrl}
           />
@@ -202,7 +210,7 @@ export default function EditorPage() {
           {/* Right: Control panel */}
           <RightPanel
             onCreateCard={handleCreateCard}
-            isCreating={createRender.isPending}
+            isCreating={isExporting}
           />
         </div>
       )}
