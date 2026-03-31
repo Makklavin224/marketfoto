@@ -16,3 +16,4 @@ numpy>=1.26.0
 
 # AI Image Generation (Gemini 3.1 Flash Image for AI photoshoot)
 google-genai>=1.0.0
+httpx[socks]>=0.28.0

@@ -687,6 +687,10 @@ def ai_photoshoot_job(
         if not GEMINI_API_KEY:
             raise RuntimeError("GEMINI_API_KEY not configured")
 
+        # Set HTTP proxy for Gemini API (Russia is geo-blocked)
+        import httpx
+        proxy_url = os.environ.get("HTTP_PROXY", "")
+
         from google import genai
         from google.genai import types as genai_types
 
@@ -769,6 +773,12 @@ def ai_photoshoot_job(
         product_image = Image.open(io.BytesIO(product_bytes))
 
         # Call Gemini — pass PIL Image directly (SDK auto-converts to Blob)
+        # Use HTTP proxy to bypass geo-block (Russia → Finland proxy)
+        http_options = {}
+        if proxy_url:
+            http_options = {"api_version": "v1beta"}
+            os.environ["HTTPS_PROXY"] = proxy_url
+            os.environ["HTTP_PROXY"] = proxy_url
         client = genai.Client(api_key=GEMINI_API_KEY)
         gemini_response = client.models.generate_content(
             model="gemini-3.1-flash-image-preview",
