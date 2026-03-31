@@ -16,21 +16,33 @@ export default function RightPanel({ onCreateCard, isCreating }: RightPanelProps
   const hasBadge = templateConfig?.decorations?.some((d) => d.type === 'badge');
 
   return (
-    <div className="w-[360px] flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto flex flex-col">
+    <div
+      className="w-[360px] flex-shrink-0 overflow-y-auto flex flex-col"
+      style={{
+        background: 'var(--bg-secondary)',
+        borderLeft: 'var(--border-subtle)',
+      }}
+    >
       <div className="flex-1 p-4">
         {/* Marketplace section */}
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+          <h3
+            className="text-sm font-semibold uppercase tracking-wide mb-2"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Маркетплейс
           </h3>
           <MarketplaceSelector />
         </div>
 
-        <hr className="my-4 border-gray-200" />
+        <div className="glow-line my-4" />
 
         {/* Texts section */}
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+          <h3
+            className="text-sm font-semibold uppercase tracking-wide mb-2"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Тексты
           </h3>
           <TextControls />
@@ -39,9 +51,12 @@ export default function RightPanel({ onCreateCard, isCreating }: RightPanelProps
         {/* Style section (only when text is selected) */}
         {selectedTextAreaId && (
           <>
-            <hr className="my-4 border-gray-200" />
+            <div className="glow-line my-4" />
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+              <h3
+                className="text-sm font-semibold uppercase tracking-wide mb-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Стиль текста
               </h3>
               <StyleControls />
@@ -52,9 +67,12 @@ export default function RightPanel({ onCreateCard, isCreating }: RightPanelProps
         {/* Badge section (only if template has badges) */}
         {hasBadge && (
           <>
-            <hr className="my-4 border-gray-200" />
+            <div className="glow-line my-4" />
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+              <h3
+                className="text-sm font-semibold uppercase tracking-wide mb-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Бейдж
               </h3>
               <BadgeControls />
@@ -64,11 +82,11 @@ export default function RightPanel({ onCreateCard, isCreating }: RightPanelProps
       </div>
 
       {/* Create card button */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4" style={{ borderTop: 'var(--border-subtle)' }}>
         <button
           onClick={onCreateCard}
           disabled={isCreating}
-          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+          className="btn-primary w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isCreating ? (
             <>

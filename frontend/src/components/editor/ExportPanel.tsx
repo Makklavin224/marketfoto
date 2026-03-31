@@ -23,12 +23,16 @@ export default function ExportPanel({
   // State 1: Rendering (pending / rendering / initial loading)
   if (isLoading || status === "pending" || status === "rendering" || !status) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div
+        className="flex-1 flex items-center justify-center"
+        style={{ background: "var(--bg-primary)" }}
+      >
         <div className="flex flex-col items-center gap-4 max-w-lg mx-auto py-8">
           {/* Pulsing spinner */}
           <div className="relative">
             <svg
-              className="animate-spin h-16 w-16 text-green-600"
+              className="animate-spin h-16 w-16"
+              style={{ color: "var(--purple-400)" }}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -49,10 +53,16 @@ export default function ExportPanel({
             </svg>
           </div>
           <div className="text-center">
-            <p className="text-lg font-medium text-gray-900">
+            <p
+              className="text-lg font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
               Создаём карточку...
             </p>
-            <p className="text-sm text-gray-400 mt-1">
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--text-tertiary)" }}
+            >
               {dims.label} {dims.width}x{dims.height}
             </p>
           </div>
@@ -64,12 +74,19 @@ export default function ExportPanel({
   // State 3: Failed
   if (status === "failed") {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div
+        className="flex-1 flex items-center justify-center"
+        style={{ background: "var(--bg-primary)" }}
+      >
         <div className="flex flex-col items-center gap-4 max-w-lg mx-auto py-8">
           {/* Error icon */}
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(239, 68, 68, 0.1)" }}
+          >
             <svg
-              className="h-8 w-8 text-red-600"
+              className="h-8 w-8"
+              style={{ color: "var(--red-400)" }}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -84,18 +101,24 @@ export default function ExportPanel({
             </svg>
           </div>
           <div className="text-center">
-            <p className="text-lg font-medium text-red-600">
+            <p
+              className="text-lg font-medium"
+              style={{ color: "var(--red-400)" }}
+            >
               Не удалось создать карточку
             </p>
             {renderStatus?.error_message && (
-              <p className="text-sm text-red-500 mt-1 max-w-sm">
+              <p
+                className="text-sm mt-1 max-w-sm"
+                style={{ color: "var(--red-400)", opacity: 0.8 }}
+              >
                 {renderStatus.error_message}
               </p>
             )}
           </div>
           <button
             onClick={onEdit}
-            className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2.5 rounded-xl transition-colors"
+            className="btn-primary px-6 py-2.5 rounded-xl font-medium"
           >
             Попробовать снова
           </button>
@@ -106,19 +129,23 @@ export default function ExportPanel({
 
   // State 2: Complete
   return (
-    <div className="flex-1 flex items-center justify-center bg-gray-50 overflow-y-auto">
+    <div
+      className="flex-1 flex items-center justify-center overflow-y-auto"
+      style={{ background: "var(--bg-primary)" }}
+    >
       <div className="flex flex-col items-center gap-6 max-w-lg mx-auto py-8 px-4">
         {/* Preview image */}
         {renderStatus?.output_url && (
           <img
             src={renderStatus.output_url}
             alt={`Карточка ${dims.label}`}
-            className="rounded-xl shadow-lg max-h-[500px] w-auto mx-auto"
+            className="rounded-xl max-h-[500px] w-auto mx-auto"
+            style={{ boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)" }}
           />
         )}
 
         {/* Marketplace pill */}
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        <span className="badge badge-purple">
           {dims.label} {dims.width}&times;{dims.height}
         </span>
 
@@ -127,14 +154,14 @@ export default function ExportPanel({
           <a
             href={renderStatus?.output_url ?? "#"}
             download={`card-${marketplace}.png`}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-xl flex-1 text-center transition-colors"
+            className="btn-primary px-6 py-3 rounded-xl flex-1 text-center font-medium"
           >
             Скачать PNG
           </a>
           <a
             href={renderStatus?.output_url ? `${renderStatus.output_url}` : "#"}
             download={`card-${marketplace}.jpg`}
-            className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 rounded-xl flex-1 text-center transition-colors"
+            className="btn-secondary px-6 py-3 rounded-xl flex-1 text-center font-medium"
           >
             Скачать JPG
           </a>
@@ -144,13 +171,13 @@ export default function ExportPanel({
         <div className="flex gap-3 w-full">
           <button
             onClick={onEdit}
-            className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium px-4 py-2.5 rounded-lg flex-1 transition-colors"
+            className="btn-secondary px-4 py-2.5 rounded-lg flex-1 font-medium"
           >
             Редактировать
           </button>
           <button
             onClick={onCreateMore}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2.5 rounded-lg flex-1 transition-colors"
+            className="btn-primary px-4 py-2.5 rounded-lg flex-1 font-medium"
           >
             Создать ещё
           </button>
