@@ -3,14 +3,14 @@
  *
  * Uses @tanstack/react-query's refetchInterval to poll
  * GET /api/images/{id}/status every 2 seconds while processing.
- * Stops after 20 attempts (40 seconds) with a client-side timeout.
+ * Stops after 150 attempts (300 seconds) with a client-side timeout.
  */
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { imagesApi, type ImageStatusResponse } from "../lib/api";
 
-const MAX_POLL_ATTEMPTS = 20;
+const MAX_POLL_ATTEMPTS = 150;
 const POLL_INTERVAL_MS = 2000;
 
 export interface UseImageStatusResult {
@@ -38,10 +38,10 @@ export function useImageStatus(
       const { data } = await imagesApi.getStatus(imageId!);
       pollCount.current += 1;
 
-      // Check if we exceeded max polling attempts
+      // Check if we exceeded max polling attempts while still processing
       if (
         pollCount.current >= MAX_POLL_ATTEMPTS &&
-        data.status === "processing"
+        (data.status === "processing" || data.status === "uploaded")
       ) {
         setTimedOut(true);
       }
@@ -51,8 +51,11 @@ export function useImageStatus(
     enabled: !!imageId && !timedOut,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      // Poll every 2 seconds while still processing
-      if (status === "processing" && pollCount.current < MAX_POLL_ATTEMPTS) {
+      // Poll every 2 seconds while still processing or uploaded (waiting for worker)
+      if (
+        (status === "processing" || status === "uploaded") &&
+        pollCount.current < MAX_POLL_ATTEMPTS
+      ) {
         return POLL_INTERVAL_MS;
       }
       // Stop polling when processed, failed, or max attempts reached

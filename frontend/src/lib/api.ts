@@ -75,6 +75,7 @@ export interface ImageStatusResponse {
   status: "uploaded" | "processing" | "processed" | "failed";
   processed_url: string | null;
   error_message: string | null;
+  processing_time_ms: number | null;
 }
 
 // --- Images API ---
