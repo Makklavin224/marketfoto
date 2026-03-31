@@ -277,7 +277,7 @@ async def create_photoshoot(
         body.style,
         body.marketplace,
         product_info,
-        job_timeout=120,  # Gemini can take 10-30s, give generous timeout
+        job_timeout=300,  # Gemini via proxy can be slow
     )
 
     return PhotoshootResponse(
