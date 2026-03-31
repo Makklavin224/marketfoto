@@ -76,7 +76,7 @@ def _update_image_status(
                 "processed_url = :processed_url, "
                 "processing_time_ms = :processing_time_ms, "
                 "error_message = :error_message "
-                "WHERE id = :image_id::uuid"
+                "WHERE id = CAST(:image_id AS uuid)"
             ),
             {
                 "status": status,
@@ -93,7 +93,7 @@ def _get_image_original_url(image_id: str) -> str | None:
     """Fetch original_url from DB for the given image."""
     with _sync_engine.connect() as conn:
         result = conn.execute(
-            text("SELECT original_url FROM images WHERE id = :image_id::uuid"),
+            text("SELECT original_url FROM images WHERE id = CAST(:image_id AS uuid)"),
             {"image_id": image_id},
         )
         row = result.fetchone()
@@ -282,7 +282,7 @@ def _get_render_data(render_id: str):
                 "JOIN templates t ON t.id = r.template_id "
                 "JOIN images i ON i.id = r.image_id "
                 "JOIN users u ON u.id = r.user_id "
-                "WHERE r.id = :render_id::uuid"
+                "WHERE r.id = CAST(:render_id AS uuid)"
             ),
             {"render_id": render_id},
         )
@@ -301,7 +301,7 @@ def _update_render_status(
         conn.execute(
             text(
                 "UPDATE renders SET output_url = :output_url "
-                "WHERE id = :render_id::uuid"
+                "WHERE id = CAST(:render_id AS uuid)"
             ),
             {"output_url": output_url, "render_id": render_id},
         )
