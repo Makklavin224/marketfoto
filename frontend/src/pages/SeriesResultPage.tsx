@@ -12,39 +12,21 @@ import { useSeriesStatus, aiPhotoshootApi } from "../api/aiPhotoshoot";
 import { useAuthStore } from "../stores/auth";
 
 const STYLE_NAMES: Record<string, string> = {
-  studio_clean: "Студийный чистый",
-  premium_hero: "Премиальное фото",
-  lifestyle_scene: "Лайфстайл сцена",
-  glass_surface: "На стеклянной поверхности",
-  ingredients: "Ингредиенты",
-  with_model: "С моделью",
-  multi_angle: "Мульти-ракурс",
-  infographic: "Инфографика",
-  nine_grid: "9-сетка детали",
-  creative_art: "Креативный арт",
-  storyboard: "Раскадровка",
-  detail_texture: "Деталь и текстура",
-  seasonal: "Сезонная тема",
-  minimal_flat: "Минимал flat-lay",
-  unboxing: "Распаковка",
+  hero: "Главное фото",
+  lifestyle: "Лайфстайл сцена",
+  creative: "Креативная съёмка",
+  closeup: "Макро-детали",
+  ingredients: "С ингредиентами",
+  white_clean: "Белый фон",
 };
 
 const STYLE_EMOJIS: Record<string, string> = {
-  studio_clean: "📸",
-  premium_hero: "👑",
-  lifestyle_scene: "✨",
-  glass_surface: "💧",
-  ingredients: "🍑",
-  with_model: "🧑",
-  multi_angle: "🔄",
-  infographic: "📊",
-  nine_grid: "🔍",
-  creative_art: "🎨",
-  storyboard: "🎬",
-  detail_texture: "🔬",
-  seasonal: "🌸",
-  minimal_flat: "⬜",
-  unboxing: "📦",
+  hero: "📸",
+  lifestyle: "🏡",
+  creative: "🎨",
+  closeup: "🔍",
+  ingredients: "🌿",
+  white_clean: "⬜",
 };
 
 export default function SeriesResultPage() {

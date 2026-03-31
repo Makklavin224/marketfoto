@@ -31,29 +31,30 @@ logger = logging.getLogger(__name__)
 
 DIRECTOR_SYSTEM_PROMPT = """You are a world-class advertising art director specializing in e-commerce product photography for Russian marketplaces (Wildberries, Ozon).
 
-Your job: analyze the product in the uploaded image and create a detailed scene description that will produce a stunning, professional product photograph.
+Your job: analyze the product in the uploaded image and ENHANCE the user's selected style with product-specific details to produce a stunning, professional product photograph.
 
 RULES:
 1. IDENTIFY the product: what it is, its color palette, material, size category
-2. CHOOSE a scene concept that makes this specific product irresistible:
-   - Cosmetics/beauty → soft lighting, water/glass elements, ingredient accents, beauty editorial feel
-   - Electronics → clean tech aesthetic, subtle reflections, dark moody or bright minimal
-   - Food/drinks → appetizing styling, fresh ingredients, steam/condensation, food photography lighting
-   - Clothing/fashion → lifestyle context, complementary accessories, aspirational setting
-   - Home goods → cozy interior scene, styled setting, warm natural light
-   - Kids products → playful colors, soft textures, cheerful bright setting
-   - Sports/fitness → dynamic energy, action feel, bold colors
-   - Tools/hardware → industrial strength, durability showcase, clean workshop setting
-   - Supplements/health → clean medical-grade aesthetic, nature elements, trust-building
-   - Jewelry/accessories → dramatic close-up, reflections, luxurious texture
-3. DESCRIBE the scene with extreme detail:
-   - Exact background (color, texture, material)
+2. IDENTIFY the product CATEGORY:
+   - Cosmetics/beauty, Food/drinks, Electronics/tech, Clothing/fashion
+   - Home goods/kitchen, Kids products, Sports/fitness, Tools/hardware
+   - Supplements/health, Jewelry/accessories
+3. ENHANCE the selected style based on the product category:
+   - For "hero" → choose the perfect background gradient color based on the product's dominant colors. Light products get darker complementary backgrounds. Dark products get lighter warm backgrounds. Pick SPECIFIC hex colors.
+   - For "lifestyle" → choose the perfect scene based on category: cosmetics=bathroom shelf, food=kitchen counter, electronics=clean desk, clothing=wardrobe, home goods=living room. Name SPECIFIC props.
+   - For "creative" → choose the perfect artistic concept: cosmetics=flowing cream swirls, food=flying ingredients, electronics=light trails, clothing=fabric movement, sports=energy particles. Be SPECIFIC.
+   - For "closeup" → identify the most impressive detail of THIS product to highlight: texture, stitching, mechanism, material grain, label quality.
+   - For "ingredients" → identify what THIS product contains or is made of. Name SPECIFIC ingredients or related items to surround it with.
+   - For "white_clean" → keep it minimal. Focus on perfect lighting and shadow placement for THIS product's shape.
+4. DESCRIBE the scene with extreme detail:
+   - Exact background (specific hex color or description)
    - Lighting (direction, quality, color temperature)
-   - Props (2-3 specific complementary objects)
+   - Props (2-3 SPECIFIC complementary objects for lifestyle/creative)
    - Composition (product placement, camera angle, depth of field)
    - Mood/atmosphere keywords
-4. Include technical photography terms: depth of field, bokeh, rim light, key light, fill light, color grading
-5. Always end the prompt with: "IMPORTANT: Use the uploaded product image exactly — preserve form, proportions, colors, labels, packaging unchanged."
+5. Include technical photography terms: depth of field, bokeh, rim light, key light, fill light, color grading
+6. NEVER suggest 3D deconstruction or exploded views — those look artificial
+7. Always end the prompt with: "IMPORTANT: Use the uploaded product image exactly — preserve form, proportions, colors, labels, packaging unchanged."
 
 OUTPUT FORMAT (JSON only, no markdown fences):
 {
@@ -62,7 +63,7 @@ OUTPUT FORMAT (JSON only, no markdown fences):
   "scene_concept": "Luxurious spa bathroom setting",
   "prompt": "The full detailed English prompt for image generation...",
   "mood": "luxurious, fresh, clean",
-  "recommended_styles": ["glass_surface", "ingredients", "lifestyle_scene"]
+  "recommended_styles": ["hero", "lifestyle", "ingredients"]
 }"""
 
 # ---------------------------------------------------------------------------
@@ -70,91 +71,51 @@ OUTPUT FORMAT (JSON only, no markdown fences):
 # ---------------------------------------------------------------------------
 
 STYLE_HINTS: dict[str, str] = {
-    "studio_clean": (
-        "STYLE DIRECTION: Clean studio photography. Focus on minimal background, "
-        "perfect three-point lighting (key, fill, rim), no props, product-only hero shot. "
-        "Apple-style commercial photography aesthetic. Product centered, 60% of frame."
+    "hero": (
+        "STYLE DIRECTION: Clean hero product shot. Product centered on a smooth gradient background. "
+        "Choose background color that COMPLEMENTS the product — analyze the product's dominant colors "
+        "and pick a contrasting or harmonious gradient. Light products → darker rich background. "
+        "Dark products → lighter warm background. Professional three-point lighting. "
+        "No props, no text, no scene — ONLY the product looking premium. 60-70% of frame. "
+        "This is the MAIN marketplace image — it must look like a professional studio photograph."
     ),
-    "premium_hero": (
-        "STYLE DIRECTION: Dramatic hero shot. Focus on cinematic side lighting, "
-        "deep rich complementary background colors, strong rim light creating glowing edges, "
-        "polished dark reflective surface. Award-winning advertising campaign feel. "
-        "Product 50-60% of frame, slightly angled for dynamism."
+    "lifestyle": (
+        "STYLE DIRECTION: Lifestyle scene. Place product in a real-world setting that matches its CATEGORY. "
+        "Choose the SPECIFIC scene: cosmetics → bathroom shelf or vanity; food → kitchen counter; "
+        "electronics → clean modern desk; clothing → styled room; home goods → living room/kitchen. "
+        "Add 2-3 SPECIFIC complementary props (name them). Warm golden-hour window light. "
+        "Shallow depth of field — product sharp, background blurred. Like the product is already "
+        "in the buyer's home. No text overlays."
     ),
-    "lifestyle_scene": (
-        "STYLE DIRECTION: Lifestyle scene. Place product in a carefully styled real-life setting "
-        "with 2-3 complementary props matching its category. Soft natural golden-hour lighting. "
-        "Shallow depth of field — product sharp, background softly blurred. "
-        "Instagram-worthy, aspirational editorial feel."
+    "creative": (
+        "STYLE DIRECTION: Bold creative advertisement. Dynamic composition with WOW factor. "
+        "Choose a SPECIFIC creative concept based on the product: flying ingredients/particles, "
+        "color splashes, liquid swirls, energy trails, geometric shapes. "
+        "Dramatic side lighting with colored rim lights. Vibrant, saturated colors. "
+        "The product should feel like it's in motion — frozen action moment. "
+        "NEVER use 3D deconstruction or exploded views. No text overlays."
     ),
-    "glass_surface": (
-        "STYLE DIRECTION: Glass surface beauty shot. Product on transparent glass shelf. "
-        "Add realistic water droplets on glass. Beautiful reflections beneath product. "
-        "Clean gradient background. Studio lighting from above with side accent "
-        "highlighting glass and water drops. Beauty/cosmetics advertising style."
+    "closeup": (
+        "STYLE DIRECTION: Macro detail showcase in a 2x2 grid layout. "
+        "Identify the 3 most impressive details of THIS specific product — "
+        "texture, material quality, stitching, mechanism, label, surface finish. "
+        "Top-left: full product. Other 3 cells: extreme close-ups of those details. "
+        "Professional macro lighting. Sharp focus on textures. Clean backgrounds."
     ),
     "ingredients": (
-        "STYLE DIRECTION: Ingredient story. Surround the product with fresh, photogenic "
-        "ingredients related to the product (fruits, herbs, flowers, spices). "
-        "Some cut in half to show freshness. Artful arrangement, soft even lighting. "
-        "Color palette harmonized. Like Anua or The Ordinary beauty ads."
+        "STYLE DIRECTION: Ingredient/component story. Identify what THIS product contains "
+        "or is made of, then surround it with those SPECIFIC items: "
+        "cosmetics → the actual herbs, flowers, oils mentioned; food → raw ingredients; "
+        "supplements → fruits, plants; electronics → usage scenarios. "
+        "Artful arrangement, some items cut open. Soft even lighting. "
+        "Natural, organic feel. No text overlays."
     ),
-    "with_model": (
-        "STYLE DIRECTION: Model advertisement. Show a stylish model naturally holding "
-        "or using the product. Natural confident expression. Professional beauty lighting. "
-        "Clean studio background with subtle gradient. Model styled to match brand feel. "
-        "Product clearly visible and prominent (30%+ of frame)."
-    ),
-    "multi_angle": (
-        "STYLE DIRECTION: Multi-angle display. Show product from 4-6 different angles "
-        "in a clean grid layout: front, back, side, detail close-up, top-down. "
-        "Consistent white/light gray background and studio lighting across all angles."
-    ),
-    "infographic": (
-        "STYLE DIRECTION: Infographic card. Product on left or center (40% width). "
-        "Around it, add 4-6 feature blocks with simple icons and short text labels "
-        "connected by thin lines or arrows. Cohesive color scheme. "
-        "Wildberries/Ozon marketplace infographic card style."
-    ),
-    "nine_grid": (
-        "STYLE DIRECTION: 3x3 detail grid. Center cell: full product. "
-        "Surrounding 8 cells: extreme close-ups of different details — "
-        "texture, buttons, material, label, stitching, finish. "
-        "Consistent lighting, clean background, thin white borders."
-    ),
-    "creative_art": (
-        "STYLE DIRECTION: Creative artistic composition. Bold vibrant colors, "
-        "geometric shapes, abstract elements complementing product colors. "
-        "Dramatic lighting with color splashes. Flying elements or particles "
-        "related to product category. Eye-catching marketplace card."
-    ),
-    "storyboard": (
-        "STYLE DIRECTION: Storyboard sequence. 3-4 panels showing: "
-        "product in packaging, being opened/used, in action (key benefit), "
-        "happy result. Consistent color palette across panels."
-    ),
-    "detail_texture": (
-        "STYLE DIRECTION: Macro detail shot. Split composition: one half full product, "
-        "other half extreme close-up of most impressive detail/texture. "
-        "Professional macro photography lighting, sharp focus on textures. "
-        "Luxury quality showcase."
-    ),
-    "seasonal": (
-        "STYLE DIRECTION: Seasonal theme. Choose the most appropriate season. "
-        "Spring: cherry blossoms, soft pink. Summer: sunshine, tropical, vibrant. "
-        "Autumn: golden leaves, warm tones. Winter: snow, frost, cool blue. "
-        "Seasonal editorial mood-driven advertising."
-    ),
-    "minimal_flat": (
-        "STYLE DIRECTION: Top-down flat-lay. Bird's eye view. Product centered on "
-        "clean surface (marble, wood, pastel). 2-3 small complementary props "
-        "arranged geometrically. Even shadowless overhead lighting. Lots of negative space. "
-        "Instagram flat-lay minimalist aesthetic."
-    ),
-    "unboxing": (
-        "STYLE DIRECTION: Unboxing reveal. Product emerging from or in front of "
-        "stylish open box. Premium packaging feel — tissue paper, ribbon. "
-        "Exciting reveal moment frozen in time. Apple-like unboxing experience."
+    "white_clean": (
+        "STYLE DIRECTION: Ultra-clean pure white background (#FFFFFF). "
+        "Product centered, 65-75% of frame. Minimal contact shadow only. "
+        "Bright even lighting from all sides — no colored tints, no dark areas. "
+        "This is the mandatory marketplace white background image. "
+        "Absolutely no props, text, decorations, or colored elements."
     ),
 }
 
@@ -165,110 +126,54 @@ STYLE_HINTS: dict[str, str] = {
 
 CATEGORY_PROMPT_PATTERNS: dict[str, str] = {
     "cosmetics": (
-        "Reference technique: luxury natural skincare photography, top-down angle. "
-        "Product bottle (USE EXACT PRODUCT IMAGE) lying perfectly centered on a smooth wet stone. "
-        "Surrounding: moss, small flowing stream, natural rocks, water droplets on the bottle surface. "
+        "Reference technique: luxury natural skincare photography. "
+        "Product on a smooth wet stone or marble surface. "
+        "Surrounding: moss, water droplets on the bottle surface, natural elements. "
         "Do not alter product design — match bottle geometry, labels, logo, transparency and cap. "
-        "Soft diffused forest light, mid-green tones, cinematic realism, organic textures, "
-        "ultra-high detail, premium eco-beauty advertising style."
+        "Soft diffused light, cinematic realism, organic textures, premium beauty advertising."
     ),
-    "cosmetics_glass": (
-        "Reference technique: product on transparent glass shelf tilted at slight angle. "
-        "Along glass edge — neat transparent water streams. Around base — exquisite cream foam, "
-        "partially sliding down. Glass surface reflects product softly and cleanly. "
-        "Background — gentle cool blue gradient. Light — high-end beauty lighting, "
-        "controlled highlights, deep soft shadow. Premium advertising style. "
-        "Photorealistic, 8K resolution."
-    ),
-    "cosmetics_floral": (
-        "Reference technique: product bottle surrounded by fresh peonies and cornflowers. "
+    "cosmetics_ingredients": (
+        "Reference technique: product bottle surrounded by fresh peonies, herbs, and essential oils. "
         "Soft natural light filtering through petals. Product perfectly sharp, flowers slightly soft. "
-        "Pastel color palette matching product tones. Fresh, feminine, spring atmosphere. "
+        "Pastel color palette matching product tones. Fresh, feminine atmosphere. "
         "Editorial beauty photography, shallow depth of field."
     ),
     "food": (
-        "Reference technique: ultra-realistic outdoor food photography. "
-        "Product package stood upright on a cutting board next to rustic barbecue grill. "
-        "In the foreground — a few related food items (toasted pieces, fresh vegetables). "
-        "Small embers and sparks from grill appear subtly in the air. "
-        "Lighting simulates warm evening outdoor lighting with natural sunlight from side "
-        "and soft warm glow from the grill. Photorealistic, premium outdoor food advertising. "
-        "Shallow depth of field, natural color grading, 4K resolution."
+        "Reference technique: ultra-realistic food photography. "
+        "Product package on a styled surface with related food items visible. "
+        "Warm appetizing lighting with natural side light creating depth. "
+        "Shallow depth of field, natural color grading. Premium food advertising."
     ),
-    "food_sweet": (
-        "Reference technique: put the product on smooth 3D-rendered ceramic white plate. "
-        "Product cross-section visible showing texture and layers inside. "
-        "Key ingredient (pistachio/chocolate/cream) flowing down creating swirling patterns. "
-        "Scattered ingredient pieces around the plate. Rich dark cinematic lighting, "
-        "cinematic food photography lighting with strong side light creating depth and shadows, "
-        "soft shadows emphasizing the glossy surface. Ultra-realistic food commercial."
-    ),
-    "food_flatlay": (
-        "Reference technique: creative product photo on coffee shop table. "
-        "Laying bars/packages from side against warm brown surface. "
-        "Coffee cups, bread slices, scattered nuts and ingredients around. "
-        "Warm rustic light, food photography, FMCG lifestyle, "
-        "natural textures (wood, linen, ceramic). Top-down flat lay angle."
-    ),
-    "food_conceptual": (
-        "Reference technique: conceptual art meets food photography. "
-        "A slice of fresh toast spread with smooth chocolate/cream sauce. "
-        "Glossy product placed directly on the spread. "
-        "Minimalist beige background, ceramic plate, stainless knife. "
-        "Top-down flat lay. Warm directional studio light, soft shadows. "
-        "Style: modern editorial beauty advertising meets food art."
+    "food_ingredients": (
+        "Reference technique: product surrounded by its raw ingredients. "
+        "Scattered ingredient pieces around — nuts, fruits, spices, herbs. "
+        "Rich cinematic lighting with strong side light. "
+        "Ultra-realistic food commercial style."
     ),
     "electronics": (
-        "Reference technique: detailed 3D-deconstruction style. "
-        "Product positioned at center, disassembled components floating around it "
-        "showing internal parts, circuits, LED displays, chipsets. "
-        "Clean pink/white/brand-colored studio background. "
-        "Every detail hyper-rendered. Subtle shadows. "
-        "Apple-style exploded view product photography. Professional and tech-forward."
-    ),
-    "beauty_with_model": (
-        "Reference technique: model with clean natural skin holds product near face. "
-        "Airy background, natural makeup. Skin glowing without overexposure. "
-        "Product fully readable — label, cap, design intact. "
-        "Background — pastel, soft gradient. Light — diffused editorial beauty lighting. "
-        "No overload, no chaos, clean premium. "
-        "Close-up beauty photography, shallow depth of field, magazine editorial quality."
+        "Reference technique: clean modern tech product photography. "
+        "Product on a minimal surface with subtle reflections. "
+        "Clean brand-colored or dark studio background. "
+        "Crisp lighting highlighting material quality and design details. "
+        "Professional and tech-forward, NOT 3D deconstruction."
     ),
     "clothing": (
-        "Reference technique: aspirational lifestyle context. "
-        "Complementary accessories visible. Natural confident pose. "
+        "Reference technique: fabric texture showcase. "
         "Fabric texture clearly visible — threads, weave pattern, drape. "
         "Professional fashion photography with editorial feel. "
-        "Clean but styled background. Soft rim light separating subject from background."
+        "Clean but styled background. Soft rim light separating from background."
     ),
     "home_goods": (
         "Reference technique: cozy interior scene. Warm natural light from window. "
         "Product naturally integrated into styled kitchen/living room setting. "
         "Complementary home elements: plants, textiles, ceramic dishes. "
-        "Interior design photography aesthetic. Warm color temperature, "
-        "inviting and aspirational."
+        "Interior design photography aesthetic. Warm color temperature."
     ),
     "supplements": (
-        "Reference technique: clean medical-grade aesthetic combined with nature. "
+        "Reference technique: clean aesthetic combined with nature. "
         "Product on clean surface with natural ingredient accents "
         "(herbs, fruits, leaves matching the supplement type). "
-        "Trust-building, professional, health-focused. "
-        "Clinical white combined with fresh green accents."
-    ),
-    "gift_set": (
-        "Reference technique: create a bright and inviting gift box visual. "
-        "Product inside premium packaging with tissue paper/ribbons. "
-        "Festive elements: Christmas ornaments, confetti, or seasonal decorations. "
-        "Rich green/red/gold velvet or satin backdrop. Warm holiday lighting. "
-        "Gift photography style — premium unboxing experience."
-    ),
-    "storyboard": (
-        "Reference technique: create cinematographic storyboard collage. "
-        "Based on decorative AI-generated images showing product in use — "
-        "7 frames: close portrait, full-length shot, medium shot detail, "
-        "action scene, hero product shot, lifestyle moment, artistic angle. "
-        "Each frame has slight color grading. "
-        "Floral details in pastel tones. Soft editorial cinema feel."
+        "Trust-building, professional, health-focused."
     ),
 }
 
@@ -279,7 +184,7 @@ CATEGORY_PROMPT_PATTERNS: dict[str, str] = {
 
 def analyze_product_and_create_prompt(
     product_image_bytes: bytes,
-    style: str = "premium_hero",
+    style: str = "hero",
     marketplace: str = "wb",
     product_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -402,21 +307,13 @@ def analyze_product_and_create_prompt(
         # Smart category-to-pattern mapping based on product type + selected style
         category_pattern = ""
         if product_type in ("cosmetics", "beauty", "skincare"):
-            if style == "with_model":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("beauty_with_model", "")
-            elif style == "glass_surface":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_glass", "")
-            elif style == "ingredients":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_floral", "")
+            if style == "ingredients":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics_ingredients", "")
             else:
                 category_pattern = CATEGORY_PROMPT_PATTERNS.get("cosmetics", "")
         elif product_type in ("food", "snack", "drink", "beverage"):
-            if style in ("minimal_flat", "lifestyle_scene"):
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_flatlay", "")
-            elif style == "creative_art":
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_conceptual", "")
-            elif style in ("detail_texture", "ingredients"):
-                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_sweet", "")
+            if style == "ingredients":
+                category_pattern = CATEGORY_PROMPT_PATTERNS.get("food_ingredients", "")
             else:
                 category_pattern = CATEGORY_PROMPT_PATTERNS.get("food", "")
         elif product_type in ("electronics", "gadget", "tech"):
@@ -427,10 +324,6 @@ def analyze_product_and_create_prompt(
             category_pattern = CATEGORY_PROMPT_PATTERNS.get("home_goods", "")
         elif product_type in ("supplements", "vitamins", "health"):
             category_pattern = CATEGORY_PROMPT_PATTERNS.get("supplements", "")
-        elif style == "unboxing":
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("gift_set", "")
-        elif style == "storyboard":
-            category_pattern = CATEGORY_PROMPT_PATTERNS.get("storyboard", "")
         else:
             category_pattern = CATEGORY_PROMPT_PATTERNS.get(product_type, "")
 

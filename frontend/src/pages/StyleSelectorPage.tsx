@@ -12,23 +12,14 @@ import { useNavigate, useSearchParams } from "react-router";
 import { useAIStyles } from "../api/aiPhotoshoot";
 import { useAuthStore } from "../stores/auth";
 
-// Style card gradients for visual differentiation
+// Style card gradients for visual differentiation (Dark Neon Forge theme)
 const STYLE_GRADIENTS: Record<string, string> = {
-  studio_clean: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-  premium_hero: "linear-gradient(135deg, #2d1b0e 0%, #5c3a1e 50%, #8b6914 100%)",
-  lifestyle_scene: "linear-gradient(135deg, #2d1b3d 0%, #44318d 50%, #3a1078 100%)",
-  glass_surface: "linear-gradient(135deg, #0d2137 0%, #1a4a6b 50%, #2d7da8 100%)",
-  ingredients: "linear-gradient(135deg, #2d1b1b 0%, #6b3a1d 50%, #c67b3a 100%)",
-  with_model: "linear-gradient(135deg, #3d1b2d 0%, #6b1d5e 50%, #a83279 100%)",
-  multi_angle: "linear-gradient(135deg, #1b2d3d 0%, #2a4a5e 50%, #3d6b7a 100%)",
-  infographic: "linear-gradient(135deg, #1b2d3d 0%, #1d4e6b 50%, #23659b 100%)",
-  nine_grid: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #404040 100%)",
-  creative_art: "linear-gradient(135deg, #3d1b2d 0%, #6b1d5e 50%, #9b2335 100%)",
-  storyboard: "linear-gradient(135deg, #1b3d2d 0%, #2a5e4a 50%, #3d7a6b 100%)",
-  detail_texture: "linear-gradient(135deg, #2d2d1b 0%, #4e4a1d 50%, #6b6523 100%)",
-  seasonal: "linear-gradient(135deg, #3d1b3d 0%, #7a3d6b 50%, #c76ba8 100%)",
-  minimal_flat: "linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #4a4a4a 100%)",
-  unboxing: "linear-gradient(135deg, #1b1b3d 0%, #3a3a6b 50%, #5a5a9b 100%)",
+  hero: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+  lifestyle: "linear-gradient(135deg, #2d1b3d 0%, #44318d 50%, #3a1078 100%)",
+  creative: "linear-gradient(135deg, #3d1b2d 0%, #6b1d5e 50%, #9b2335 100%)",
+  closeup: "linear-gradient(135deg, #2d2d1b 0%, #4e4a1d 50%, #6b6523 100%)",
+  ingredients: "linear-gradient(135deg, #1b3d2d 0%, #2a5e4a 50%, #3d7a6b 100%)",
+  white_clean: "linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #555555 100%)",
 };
 
 // Series card accent colors
@@ -425,7 +416,7 @@ export default function StyleSelectorPage() {
           <div className="mb-8">
             {stylesLoading && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {Array.from({ length: 15 }).map((_, i) => (
+                {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
                     className="glass-card-static overflow-hidden"

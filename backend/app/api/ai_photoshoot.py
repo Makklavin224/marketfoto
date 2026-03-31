@@ -45,9 +45,7 @@ router = APIRouter(prefix="/api/ai-photoshoot", tags=["ai-photoshoot"])
 
 # Valid styles for request validation
 VALID_STYLES = {
-    "studio_clean", "premium_hero", "lifestyle_scene", "glass_surface",
-    "ingredients", "with_model", "multi_angle", "infographic", "nine_grid",
-    "creative_art", "storyboard", "detail_texture", "seasonal", "minimal_flat", "unboxing",
+    "hero", "lifestyle", "creative", "closeup", "ingredients", "white_clean",
 }
 VALID_MARKETPLACES = {"wb", "ozon", "ym"}
 VALID_SERIES = {"wb_full", "ozon_premium", "quick_start"}

@@ -29,271 +29,130 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 STYLES: dict[str, dict[str, str]] = {
-    "studio_clean": {
-        "name": "Студийный чистый",
-        "description": "Чистый фон, мягкий свет, Apple-стиль",
+    "hero": {
+        "name": "Главное фото",
+        "description": "Чистый студийный снимок — товар крупно, профессиональный свет",
         "emoji": "📸",
         "prompt_template": (
-            "Create a professional studio product photography. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product centered on a clean white-to-light-gray soft gradient background. "
-            "Professional three-point studio lighting: key light from upper-left, fill from right, "
-            "subtle rim light for edge separation. Soft diffused shadow beneath the product. "
-            "The product is the clear focal point, centered, taking up 60% of the frame. "
-            "No props, no distractions — pure product focus. "
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create a clean hero product photograph for a marketplace listing. "
+            "Place the product perfectly centered, taking up 60-70% of the frame. "
+            "Background: smooth gradient from the product's complementary color (lighter at top, "
+            "slightly darker at bottom) — NOT pure white, use a subtle brand-appropriate tone. "
+            "Lighting: professional three-point setup — key light from upper-left at 45 degrees, "
+            "fill light from right at 30%, subtle rim light from behind for clean edge separation. "
+            "Soft diffused shadow directly beneath the product on a reflective surface. "
+            "Do NOT add any text, labels, badges, props, or decorative elements. "
+            "Do NOT add any extra products or objects — only the uploaded product. "
+            "The image must look like a professional studio photograph taken with a 100mm macro lens. "
             "Resolution: {width}x{height}px. "
-            "Style: Apple-style product photography, high-end commercial, ultra-clean, premium."
+            "Style: high-end commercial product photography, Apple-style clean aesthetic, "
+            "like Студия TOPSEL marketplace hero shots."
         ),
     },
-    "premium_hero": {
-        "name": "Премиальное фото",
-        "description": "Драматический свет, фирменные цвета, hero-композиция",
-        "emoji": "👑",
-        "prompt_template": (
-            "Create a dramatic premium hero product shot. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product as the hero with dramatic cinematic lighting from the side. "
-            "Background: deep rich color that complements the product's dominant color — "
-            "dark tones with subtle gradient. Strong rim light creating a glowing edge. "
-            "Slight reflection on a polished dark surface beneath. "
-            "The product takes up 50-60% of the frame, slightly angled for dynamism. "
-            "Resolution: {width}x{height}px. "
-            "Style: premium FMCG brand campaign, like Chili's or Nike hero shots, "
-            "award-winning advertising photography."
-        ),
-    },
-    "lifestyle_scene": {
+    "lifestyle": {
         "name": "Лайфстайл сцена",
-        "description": "Товар в стильной сцене с реквизитом",
-        "emoji": "✨",
+        "description": "Товар в красивой сцене с реквизитом — как дома у покупателя",
+        "emoji": "🏡",
         "prompt_template": (
-            "Create an ultra-realistic lifestyle product advertisement. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product as the hero in a carefully styled scene with 2-3 complementary props "
-            "that match its category (e.g., plants, fabric textures, food items, sport equipment). "
-            "Soft natural lighting with golden hour warmth. Shallow depth of field — product sharp, "
-            "background softly blurred. The product takes up 40-50% of the frame. "
-            "Background harmonious, styled but not distracting. "
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create a warm, aspirational lifestyle product photograph. "
+            "Place the product as the hero (40-50% of the frame) in a carefully styled real-world scene. "
+            "Add 2-3 complementary props that match the product's category: "
+            "cosmetics — bathroom shelf with candle and towel; food — kitchen counter with cutting board; "
+            "electronics — clean desk with plant; clothing — styled wardrobe corner. "
+            "The scene should look like the product is already in the buyer's home — warm, inviting, lived-in. "
+            "Lighting: soft natural golden-hour light from a window, warm color temperature (3500K). "
+            "Shallow depth of field — product tack-sharp, background softly blurred (f/2.8 bokeh). "
+            "Do NOT add any text overlays or badges. Do NOT include other branded products. "
             "Resolution: {width}x{height}px. "
-            "Style: premium lifestyle photography, Instagram-worthy, aspirational editorial."
+            "Style: premium lifestyle editorial photography, Instagram-worthy, like da_omka styled shots."
         ),
     },
-    "glass_surface": {
-        "name": "На стеклянной поверхности",
-        "description": "Стеклянная полка, капли воды, отражения",
-        "emoji": "💧",
+    "creative": {
+        "name": "Креативная съёмка",
+        "description": "Яркая арт-композиция — летающие элементы, динамика, wow-эффект",
+        "emoji": "🎨",
         "prompt_template": (
-            "Create a premium product shot on a glass surface. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product on a transparent glass shelf or surface. "
-            "Add realistic water droplets on the glass around the product. "
-            "Beautiful reflections visible on the glass beneath the product. "
-            "Clean gradient background transitioning from light at top to slightly darker at bottom. "
-            "Studio lighting from above with side accent creating highlights on glass and water drops. "
-            "The product takes up 50% of the frame. "
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create a bold, eye-catching creative product advertisement that stops the scroll. "
+            "Place the product dynamically (40-50% of the frame), slightly tilted or at a dynamic angle. "
+            "Add dramatic visual elements: flying ingredients/particles related to the product, "
+            "bold color splashes or swirls matching the product's palette, geometric shapes, "
+            "motion blur trails, energy lines, or liquid/powder explosions. "
+            "Lighting: dramatic side lighting with vivid colored rim lights. "
+            "The composition should feel like a frozen moment of action — dynamic, energetic, bold. "
+            "Color palette: vibrant, saturated, contrasting with the product colors. "
+            "Do NOT add any text overlays or badges. "
+            "Do NOT add other products — only the uploaded product plus abstract/creative elements. "
             "Resolution: {width}x{height}px. "
-            "Style: beauty/cosmetics advertising, like MIXIT or L'Oreal product shots on glass."
+            "Style: award-winning creative advertising, like Chili's chips with flying elements "
+            "or protein bar with chocolate swirl explosion."
+        ),
+    },
+    "closeup": {
+        "name": "Макро-детали",
+        "description": "Крупные планы качества — текстуры, швы, материалы",
+        "emoji": "🔍",
+        "prompt_template": (
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create a detail showcase photograph highlighting the product's quality and craftsmanship. "
+            "Compose as a 2x2 grid layout with thin white divider lines between cells: "
+            "Top-left cell: full product shot at a slight angle showing overall form. "
+            "Top-right cell: extreme macro close-up of the most impressive texture or material detail. "
+            "Bottom-left cell: close-up of a functional detail — button, clasp, label, mechanism, seam. "
+            "Bottom-right cell: another macro angle showing surface finish, stitching, or internal quality. "
+            "Each cell has clean, consistent lighting — professional macro photography setup. "
+            "Sharp focus on textures, shallow depth of field within each cell. "
+            "Background: clean neutral gray or white within each cell. "
+            "Resolution: {width}x{height}px. "
+            "Style: luxury product detail photography, quality showcase, premium craftsmanship highlight."
         ),
     },
     "ingredients": {
-        "name": "Ингредиенты",
-        "description": "Товар в окружении своих ключевых ингредиентов",
-        "emoji": "🍑",
+        "name": "С ингредиентами",
+        "description": "Товар с ключевыми ингредиентами или составляющими",
+        "emoji": "🌿",
         "prompt_template": (
-            "Create a product shot surrounded by its natural ingredients. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product in the center, surrounded by fresh, photogenic ingredients "
-            "related to the product (fruits, herbs, flowers, spices, natural elements). "
-            "Ingredients are artfully arranged around and slightly behind the product. "
-            "Some cut in half to show freshness. Soft even lighting, clean background. "
-            "Color palette harmonized with the product and ingredients. "
-            "The product takes up 40% of the frame. "
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create a product photograph surrounded by its key ingredients or related items. "
+            "Place the product in the center (40-45% of the frame). "
+            "Artfully arrange around it 4-6 photogenic items related to what the product contains or does: "
+            "cosmetics — fresh flowers, herbs, essential oil droplets, natural extracts; "
+            "food — raw ingredients, spices, fresh produce cut to show freshness; "
+            "electronics — visual representations of use cases; "
+            "supplements — natural herbs, fruits, vitamin-rich foods. "
+            "Some ingredients cut in half to show freshness and interior. "
+            "Lighting: soft, even diffused lighting from above. Natural, organic feel. "
+            "Color palette: harmonized with the product and ingredients — earthy, fresh tones. "
+            "Do NOT add any text overlays. "
             "Resolution: {width}x{height}px. "
-            "Style: like Anua or The Ordinary beauty ads — product hero with ingredient story."
+            "Style: like Anua or The Ordinary beauty ads — product hero surrounded by its ingredient story."
         ),
     },
-    "with_model": {
-        "name": "С моделью",
-        "description": "Модель демонстрирует товар",
-        "emoji": "🧑",
-        "prompt_template": (
-            "Create a beauty/fashion product advertisement with a model. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Show a stylish model naturally holding or using the product. "
-            "The model's face and hands should be visible. Natural, confident expression. "
-            "Professional beauty lighting — soft and flattering. Clean studio background "
-            "with subtle gradient. The product should be clearly visible and prominent, "
-            "taking up at least 30% of the frame. Model styled to match the product's brand feel. "
-            "Resolution: {width}x{height}px. "
-            "Style: beauty/fashion brand campaign, editorial, aspirational."
-        ),
-    },
-    "multi_angle": {
-        "name": "Мульти-ракурс",
-        "description": "4-6 ракурсов товара в сетке",
-        "emoji": "🔄",
-        "prompt_template": (
-            "Create a multi-angle product display layout. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Show the product from 4-6 different angles arranged in a clean grid layout: "
-            "front view, back view, side view, detail close-up, top-down view. "
-            "Each angle in its own clean frame with consistent white/light gray background. "
-            "Consistent studio lighting across all angles. Thin separator lines between views. "
-            "Each view clearly shows a different aspect of the product. "
-            "Resolution: {width}x{height}px. "
-            "Style: like Ariete or Amazon multi-angle product display, "
-            "e-commerce standard multi-view card."
-        ),
-    },
-    "infographic": {
-        "name": "Инфографика",
-        "description": "Товар + блоки с характеристиками и иконками",
-        "emoji": "📊",
-        "prompt_template": (
-            "Create a professional product infographic card for marketplace. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product on the left or center (40% of width) on a clean background. "
-            "Around the product, add 4-6 feature blocks with simple icons and short text labels "
-            "connected to relevant parts of the product with thin lines or arrows. "
-            "Use a cohesive color scheme that matches the product. "
-            "Clean, professional typography. Icons should be simple flat design. "
-            "Resolution: {width}x{height}px. "
-            "Style: Wildberries/Ozon marketplace infographic card, "
-            "like Ariete toaster feature card with icons."
-        ),
-    },
-    "nine_grid": {
-        "name": "9-сетка детали",
-        "description": "9 ячеек, каждая — крупный план детали",
-        "emoji": "🔍",
-        "prompt_template": (
-            "Create a 3x3 nine-cell detail grid for this product. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Divide the frame into a 3x3 grid (9 equal cells). "
-            "Center cell: full product shot. Surrounding 8 cells: extreme close-ups of different "
-            "product details — texture, buttons, material, label, stitching, ports, finish. "
-            "Each cell has consistent lighting and clean background. "
-            "Thin white borders between cells. "
-            "Resolution: {width}x{height}px. "
-            "Style: like Ariete detailed product grid, premium detail showcase card."
-        ),
-    },
-    "creative_art": {
-        "name": "Креативный арт",
-        "description": "Яркая художественная композиция, летающие элементы",
-        "emoji": "🎨",
-        "prompt_template": (
-            "Create a creative, eye-catching artistic product advertisement. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product in a dynamic, artistic composition with bold vibrant colors, "
-            "geometric shapes, or abstract elements complementing the product's color palette. "
-            "Dramatic lighting with vibrant color accents and color splashes. "
-            "Flying elements, particles, or splashes related to the product category. "
-            "The product is the clear hero, taking 40% of the frame. "
-            "Resolution: {width}x{height}px. "
-            "Style: award-winning creative advertising campaign, bold and memorable, "
-            "eye-catching marketplace card."
-        ),
-    },
-    "storyboard": {
-        "name": "Раскадровка",
-        "description": "Несколько сцен использования товара",
-        "emoji": "🎬",
-        "prompt_template": (
-            "Create a storyboard-style product card showing the product in use. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Divide the frame into 3-4 panels showing a sequence: "
-            "Panel 1: product in packaging or before use. "
-            "Panel 2: product being opened/applied/used. "
-            "Panel 3: product in action — the key benefit moment. "
-            "Panel 4 (if space): the happy result or satisfied user. "
-            "Consistent color palette and lighting across all panels. Sequential visual flow. "
-            "Resolution: {width}x{height}px. "
-            "Style: like Gisou hair oil storyboard or beauty brand step-by-step cards."
-        ),
-    },
-    "detail_texture": {
-        "name": "Деталь и текстура",
-        "description": "Экстремальные крупные планы качества и материалов",
-        "emoji": "🔬",
-        "prompt_template": (
-            "Create an extreme close-up detail shot of this product. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Show the product at macro-level detail — emphasize texture, material quality, "
-            "craftsmanship, stitching, finish, surface detail. "
-            "Split composition: one half shows the full product, other half shows extreme close-up "
-            "of the most impressive detail or texture. "
-            "Professional macro photography lighting — sharp focus on textures. "
-            "Resolution: {width}x{height}px. "
-            "Style: luxury product detail photography, material quality showcase, "
-            "premium craftsmanship highlight."
-        ),
-    },
-    "seasonal": {
-        "name": "Сезонная тема",
-        "description": "Товар в сезонном контексте (весна, лето, осень, зима)",
-        "emoji": "🌸",
-        "prompt_template": (
-            "Create a seasonal-themed product photograph. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Place the product in a beautiful seasonal setting — choose the most appropriate season "
-            "for this product type. Spring: cherry blossoms, fresh green, soft pink light. "
-            "Summer: bright sunshine, tropical elements, vibrant colors. "
-            "Autumn: warm golden leaves, cozy textures, warm tones. "
-            "Winter: snow, frost, cool blue light, holiday elements. "
-            "The product takes up 45% of the frame, seasonal elements as backdrop. "
-            "Resolution: {width}x{height}px. "
-            "Style: seasonal editorial product photography, mood-driven advertising."
-        ),
-    },
-    "minimal_flat": {
-        "name": "Минимал flat-lay",
-        "description": "Вид сверху, минимальный реквизит",
+    "white_clean": {
+        "name": "Белый фон",
+        "description": "Чисто белый фон — стандарт маркетплейса, обязательная карточка",
         "emoji": "⬜",
         "prompt_template": (
-            "Create a top-down flat-lay product photograph. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Photograph from directly above (bird's eye view). "
-            "Product centered on a clean surface (marble, wood, or solid pastel color). "
-            "Minimal 2-3 small complementary props arranged geometrically around the product "
-            "(pen, plant leaf, small accessory). Lots of negative space. "
-            "Even, shadowless overhead lighting. "
-            "The product takes up 35-45% of the frame. "
+            "Use the uploaded product image exactly as the main product — do not modify its design, "
+            "packaging, label, colors, or proportions. "
+            "Create an ultra-clean product photograph on a pure white background. "
+            "Place the product perfectly centered, taking up 65-75% of the frame. "
+            "Background: pure white (#FFFFFF), seamless, no visible horizon line. "
+            "Only a very subtle, soft contact shadow directly beneath the product for grounding. "
+            "Lighting: bright, even, diffused studio lighting from all sides — no harsh shadows, "
+            "no dark areas, no colored reflections. The product should be evenly lit. "
+            "Do NOT add any text, badges, props, decorations, or additional objects. "
+            "Do NOT add any colored backgrounds, gradients, or patterns. "
+            "The result must be suitable for mandatory marketplace white-background requirement. "
             "Resolution: {width}x{height}px. "
-            "Style: Instagram flat-lay, minimalist editorial, clean aesthetic."
-        ),
-    },
-    "unboxing": {
-        "name": "Распаковка",
-        "description": "Товар выходит из стильной упаковки",
-        "emoji": "📦",
-        "prompt_template": (
-            "Create a premium unboxing product shot. "
-            "Use the uploaded product image exactly as the product — strictly preserve form, "
-            "proportions, material, color and proportions unchanged. "
-            "Show the product emerging from or sitting in front of a stylish open box or packaging. "
-            "Premium packaging feel — tissue paper, ribbon, branded box lid visible. "
-            "The product is the hero, partially revealed from the box. "
-            "Exciting unboxing moment frozen in time. "
-            "Clean background with soft studio lighting. "
-            "The product takes up 50% of the frame. "
-            "Resolution: {width}x{height}px. "
-            "Style: luxury unboxing experience, Apple-like reveal, "
-            "premium e-commerce first-impression card."
+            "Style: standard e-commerce white background photography, like Amazon/Ozon mandatory first image."
         ),
     },
 }
@@ -305,21 +164,21 @@ STYLES: dict[str, dict[str, str]] = {
 SERIES_PRESETS: dict[str, dict[str, Any]] = {
     "wb_full": {
         "name": "WB Полный комплект",
-        "description": "5 карточек для Wildberries: герой, инфографика, мульти-ракурс, лайфстайл, деталь",
+        "description": "5 карточек для Wildberries: главное фото, лайфстайл, креатив, макро-детали, белый фон",
         "card_count": 5,
-        "styles": ["premium_hero", "infographic", "multi_angle", "lifestyle_scene", "detail_texture"],
+        "styles": ["hero", "lifestyle", "creative", "closeup", "white_clean"],
     },
     "ozon_premium": {
         "name": "Ozon Премиум",
-        "description": "4 карточки для Ozon: студийная, ингредиенты, инфографика, лайфстайл",
+        "description": "4 карточки для Ozon: главное фото, лайфстайл, ингредиенты, белый фон",
         "card_count": 4,
-        "styles": ["studio_clean", "ingredients", "infographic", "lifestyle_scene"],
+        "styles": ["hero", "lifestyle", "ingredients", "white_clean"],
     },
     "quick_start": {
         "name": "Быстрый старт",
-        "description": "3 карточки на старт: герой, инфографика, лайфстайл",
+        "description": "3 карточки на старт: главное фото, лайфстайл, белый фон",
         "card_count": 3,
-        "styles": ["premium_hero", "infographic", "lifestyle_scene"],
+        "styles": ["hero", "lifestyle", "white_clean"],
     },
 }
 
